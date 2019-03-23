@@ -242,6 +242,10 @@ namespace BaseLib.DockIt_Xwt
         public XwtImpl()
         {
         }
+        public static IXwt Create()
+        {
+            return new XwtImpl();
+        }
         private IXwtImpl CheckImpl()
         {
             if (impl == null)

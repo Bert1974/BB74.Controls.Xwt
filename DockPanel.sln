@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "DockIt\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample", "DockExample\DockExample.csproj", "{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D50C178E-866C-47D4-903F-87A1553B3273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

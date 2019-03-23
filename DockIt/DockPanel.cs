@@ -121,14 +121,14 @@ namespace BaseLib.DockIt_Xwt
             }
         }
 
-    /*    internal static DockPanel CheckHit(IntPtr hwnd, int x, int y)
-        {
-            return DockPanel.AllDockPanels.SingleOrDefault(
-                        _dp =>
-                        {
-                            if(PlatForm.Instance.GetWindow())
-                        });
-        }*/
+        /*    internal static DockPanel CheckHit(IntPtr hwnd, int x, int y)
+            {
+                return DockPanel.AllDockPanels.SingleOrDefault(
+                            _dp =>
+                            {
+                                if(PlatForm.Instance.GetWindow())
+                            });
+            }*/
 
         public void OnUnloading()
         {
@@ -137,18 +137,18 @@ namespace BaseLib.DockIt_Xwt
                 (pane as IDockNotify).OnUnloading();
             }
         }
-        
-        public DockPanel(IXwt xwt)
+
+        public DockPanel(IXwt xwt = null)
         {
-            this.xwt = xwt;
+            this.xwt = xwt ?? XwtImpl.Create();
             this.busy++;
             this.Margin = 0;
             base.BackgroundColor = Colors.Chocolate;
             base.ExpandHorizontal = base.ExpandVertical = true;
-            base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text});
+            base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
 
             this.Current = new DockPane(this, new IDockContent[0]);
-            
+
             this.busy--;
 
             DockPanel.AllDockPanels.Add(this);
@@ -211,8 +211,8 @@ namespace BaseLib.DockIt_Xwt
                 var hwsrctype = XwtImpl.GetType("System.Windows.Interop.WindowInteropHelper");
                 var hwsrc = Activator.CreateInstance(hwsrctype, new object[] { backend.Window });
 
-             //   var h = (IntPtr)backend.GetType().GetPropertyValue(backend, "NativeHandle");
-                if (handle/*backend.NativeHandle*/ == (IntPtr)hwsrc.GetType().GetPropertyValue(hwsrc,"Handle")) // check if window to check
+                //   var h = (IntPtr)backend.GetType().GetPropertyValue(backend, "NativeHandle");
+                if (handle/*backend.NativeHandle*/ == (IntPtr)hwsrc.GetType().GetPropertyValue(hwsrc, "Handle")) // check if window to check
                 {
                     var wp = _dp.ConvertToScreenCoordinates(_dp.Bounds.Location);
 
@@ -232,11 +232,11 @@ namespace BaseLib.DockIt_Xwt
             base.OnPreferredSizeChanged();
         }
 
-        public IDockPane Dock(IDockContent testdoc, DockPosition pos, IDockPane destination)
+        public IDockPane Dock(IDockContent testdoc, DockPosition pos = DockPosition.Center, IDockPane destination = null)
         {
             return Dock(new IDockContent[] { testdoc }, pos, destination);
         }
-        public IDockPane Dock(IDockContent[] testdoc, DockPosition pos, IDockPane destination)
+        public IDockPane Dock(IDockContent[] testdoc, DockPosition pos = DockPosition.Center, IDockPane destination = null)
         {
             IDockPane result;
 
@@ -279,7 +279,7 @@ namespace BaseLib.DockIt_Xwt
 
                 var r = (IDockPane)new DockPane(this, testdoc);
                 result = r;
-     
+
                 if (object.ReferenceEquals(destination, this.Current))// object.ReferenceEquals(this.Current, this.DocumentPane))
                 {
                     var oldpane = this.Current as IDockLayout;
@@ -443,11 +443,11 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (this.Current.HitTest(args.Position, out IDockSplitter splitter, out int ind) && splitter != null)
                 {
-               //    var dragOper = this.CreateDragOperation();
-             //       dragOper.Data.AddValue($"drag:{ind}");
-            //        var img =  Image.FromFile("empty.png");
-          //         dragOper.SetDragImage(img, 0, 0);
-           //         dragOper.AllowedActions = DragDropAction.Move;
+                    //    var dragOper = this.CreateDragOperation();
+                    //       dragOper.Data.AddValue($"drag:{ind}");
+                    //        var img =  Image.FromFile("empty.png");
+                    //         dragOper.SetDragImage(img, 0, 0);
+                    //         dragOper.AllowedActions = DragDropAction.Move;
                     this.dragsplit = splitter;
                     this.dragpt = args.Position;
                     this.dragind = ind;
@@ -455,13 +455,13 @@ namespace BaseLib.DockIt_Xwt
                     this.capture = true;
 
                     this.xwt.SetCapture(this);
-          //          dragOper.Start();
+                    //          dragOper.Start();
                     return;
                 }
             }
             base.OnButtonPressed(args);
         }
-        
+
         /* protected override void OnDragOver(DragOverEventArgs args)
          {
              if (this.dragsplit != null)
@@ -503,7 +503,7 @@ namespace BaseLib.DockIt_Xwt
                             pt = panes[ind + 0].Location;
                             panes[ind + 0].Layout(pt, new Size(s.Width + d, s.Height));
 
-                            pt.Offset(s.Width-d+e, 0);
+                            pt.Offset(s.Width - d + e, 0);
                             s = panes[ind + 1].Size;
                             panes[ind + 1].Layout(pt, new Size(s.Width - d, s.Height));
                         }
@@ -557,7 +557,7 @@ namespace BaseLib.DockIt_Xwt
                         pt = panes[ind + 0].Location;
                         panes[ind + 0].Layout(pt, new Size(s.Width, s.Height + d));
 
-                        pt.Offset( 0, s.Height - d + e);
+                        pt.Offset(0, s.Height - d + e);
                         s = panes[ind + 1].Size;
                         panes[ind + 1].Layout(pt, new Size(s.Width, s.Height - d));
                     }
@@ -572,7 +572,7 @@ namespace BaseLib.DockIt_Xwt
 
         protected override void OnDragStarted(DragStartedEventArgs args)
         {
-       //     base.OnDragStarted(args);
+            //     base.OnDragStarted(args);
         }
         protected override void OnButtonReleased(ButtonEventArgs e)
         {
@@ -607,7 +607,7 @@ namespace BaseLib.DockIt_Xwt
         }
         protected override void OnMouseEntered(EventArgs args)
         {
-           base.OnMouseEntered(args);
+            base.OnMouseEntered(args);
         }
         protected override void OnMouseExited(EventArgs args)
         {
@@ -676,7 +676,7 @@ namespace BaseLib.DockIt_Xwt
         }
         private void ClearContent()
         {
-             (this.Current as IDockPane)?.RemoveWidget();
+            (this.Current as IDockPane)?.RemoveWidget();
             this.Current = null;
         }
         internal void RemovePane(IDockSplitter split, IDockLayout panesrc)
@@ -693,11 +693,11 @@ namespace BaseLib.DockIt_Xwt
                 split = null;
                 this.ClearContent();
 
-              /*  if (this.FloatForm != null)
-                {
-                    this.FloatForm.Close();
-                }*/
-           ////     OnDocumentsChange(EventArgs.Empty);
+                /*  if (this.FloatForm != null)
+                  {
+                      this.FloatForm.Close();
+                  }*/
+                ////     OnDocumentsChange(EventArgs.Empty);
                 return;
             }
             // splitter now empty?
@@ -738,12 +738,12 @@ namespace BaseLib.DockIt_Xwt
                 {
                     Debug.Assert(false);
                 }
-         ////       OnDocumentsChange(EventArgs.Empty);
+                ////       OnDocumentsChange(EventArgs.Empty);
             }
             else
             {
                 split.GetSize(false);
-        ////        OnDocumentsChange(EventArgs.Empty);
+                ////        OnDocumentsChange(EventArgs.Empty);
             }
         }
         public void MovePane(IDockPane panesrc, IDockContent[] doc, IDockPane panedst, DockPosition dockat)
@@ -766,10 +766,10 @@ namespace BaseLib.DockIt_Xwt
             if (!object.ReferenceEquals(panesrc, panedst) || dockat != DockPosition.Center)
             {
                 // get document to move
-             /*   if (panedst?.DockPanel.FloatForm != null)
-                {
-                    doc = doc.Where(_doc => (_doc as IDockCustomize)?.CanFloat ?? DockPanel.DefaultFloat).ToArray();
-                }*/
+                /*   if (panedst?.DockPanel.FloatForm != null)
+                   {
+                       doc = doc.Where(_doc => (_doc as IDockCustomize)?.CanFloat ?? DockPanel.DefaultFloat).ToArray();
+                   }*/
                 // remove
                 bool delsrc = panesrc.Remove(doc);
 
@@ -789,47 +789,48 @@ namespace BaseLib.DockIt_Xwt
                     _CheckRemovePane(panesrc, panedst);
                     //      RemovePane(split, _panesrc);
                 }
-   ////             this.ActiveControl = doc.FirstOrDefault();
+                ////             this.ActiveControl = doc.FirstOrDefault();
             }
-                  EndLayout();
+            EndLayout();
 
             //     OnDocumentsChange(EventArgs.Empty);
         }
         internal void _CheckRemovePane(IDockLayout pane, IDockPane panedst)
         {
             bool checkdocs = false;
-          //  Debug.Assert(!pane.Controls.Any());
+            //  Debug.Assert(!pane.Controls.Any());
 
             DockPanel dp = this;
 
-          /*  if (this.FloatForm != null)
-            {
-                dp = this.FloatForm.MainDockPanel;
+            /*  if (this.FloatForm != null)
+              {
+                  dp = this.FloatForm.MainDockPanel;
 
-                this.RemovePane(pane);
-                pane = null;
+                  this.RemovePane(pane);
+                  pane = null;
 
-                if (this.Content == null)
-                {
-                    this.FloatForm.Close();
-                }
-                if (panedst != null && panedst.DockPanel.FloatForm == null)
-                {
-                    checkdocs = true;
-                }
-            }
-            else */
+                  if (this.Content == null)
+                  {
+                      this.FloatForm.Close();
+                  }
+                  if (panedst != null && panedst.DockPanel.FloatForm == null)
+                  {
+                      checkdocs = true;
+                  }
+              }
+              else */
             {
                 dp = this;
-                if (panedst != null )//&& panedst.DockPanel.FloatForm == null)
+                if (panedst != null)//&& panedst.DockPanel.FloatForm == null)
                 {
-                //    Debug.Assert(panedst.GetDocuments(-1).Any());
+                    //    Debug.Assert(panedst.GetDocuments(-1).Any());
 
-                  /*  if (pane.DockPanel.FloatForm == null)
-                    {
-                        checkdocs = true; // main->main
-                    }
-                    else */if (panedst.Documents.Any())
+                    /*  if (pane.DockPanel.FloatForm == null)
+                      {
+                          checkdocs = true; // main->main
+                      }
+                      else */
+                    if (panedst.Documents.Any())
                     {
                         this.RemovePane(pane);
                     }

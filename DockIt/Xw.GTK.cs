@@ -46,7 +46,7 @@ namespace BaseLib.DockIt_Xwt
                     }
                 }
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget,position)
+                    : base(xwt, widget, position)
                 {
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
@@ -62,20 +62,20 @@ namespace BaseLib.DockIt_Xwt
                     }
                     return true;
                 }
-             /*   private void Content_KeyPressed(object sender, KeyEventArgs e)
-                {
-                    if (e.Key == Key.Escape)
-                    {
-                        this.doclose(false);
-                        e.Handled = true;
-                    }
-                }
+                /*   private void Content_KeyPressed(object sender, KeyEventArgs e)
+                   {
+                       if (e.Key == Key.Escape)
+                       {
+                           this.doclose(false);
+                           e.Handled = true;
+                       }
+                   }
 
-                private void Content_ButtonReleased(object sender, ButtonEventArgs e)
-                {
-                    this.doclose(e.Button == PointerButton.Left);
-                    e.Handled = true;
-                }*/
+                   private void Content_ButtonReleased(object sender, ButtonEventArgs e)
+                   {
+                       this.doclose(e.Button == PointerButton.Left);
+                       e.Handled = true;
+                   }*/
 
                 private void doclose(bool apply)
                 {
@@ -100,11 +100,11 @@ namespace BaseLib.DockIt_Xwt
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
                         Type t = XwtImpl.GetType("Gdk.ModifierType");
-                        
-                        var parms = new object[] { 0, 0, Enum.ToObject(t,0) };
+
+                        var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
                         var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
                         mi.Invoke(display, parms);
-//                        display.GetType().Invoke(display, "GetPointer", parms);
+                        //                        display.GetType().Invoke(display, "GetPointer", parms);
                         //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
                         int x = (int)parms[0];
                         int y = (int)parms[1];
@@ -141,14 +141,14 @@ namespace BaseLib.DockIt_Xwt
 
                             var wp = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
 
-                            DockPanel.SetHighLight(hit, new Point(x - wp.X, y - wp.Y), out this.droppane,  out this.drophit);
+                            DockPanel.SetHighLight(hit, new Point(x - wp.X, y - wp.Y), out this.droppane, out this.drophit);
                         }
                         else
                         {
                             DockPanel.ClrHightlight();
                         }
                     }
-                    
+
                     this.xwt.ReleaseCapture(this.Content);
                     DockPanel.ClrHightlight();
                     this.Close();
@@ -235,4 +235,4 @@ namespace BaseLib.DockIt_Xwt
             }
         }
     }
-    }
+}
