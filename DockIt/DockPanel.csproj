@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D50C178E-866C-47D4-903F-87A1553B3273}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>DockPanel</RootNamespace>
+    <AssemblyName>DockPanel</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Xwt">
+      <HintPath>..\packages\Xwt.0.2.163\lib\net40\Xwt.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xwt.Gtk, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.0.2.163\lib\net40\Xwt.Gtk.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xwt.Gtk.Mac, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.163\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xwt.Gtk.Windows, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.163\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Internals\DragDrop.cs" />
+    <Compile Include="Internals\FrameWork.cs" />
+    <Compile Include="Internals\TitleBar.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Internals\DockPane.cs" />
+    <Compile Include="Internals\DockSplitter.cs" />
+    <Compile Include="Interfaces.cs" />
+    <Compile Include="DockPanel.cs" />
+    <Compile Include="Xw.GTK.cs" />
+    <Compile Include="Xwt.WPF.cs" />
+    <Compile Include="Xwt.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props'))" />
+  </Target>
+</Project>
