@@ -27,6 +27,7 @@ namespace DockExample
                 Height = 400,
                 Content = dock = new DockPanel()
             };
+            mainWindow.Closed += (s, e) => Application.Exit();
 
             dock.Dock(new testdockitem());
             dock.Dock(new testtoolitem(), DockPosition.Top);

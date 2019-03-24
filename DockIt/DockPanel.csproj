@@ -57,6 +57,7 @@
     <Compile Include="Interfaces.cs" />
     <Compile Include="DockPanel.cs" />
     <Compile Include="Xw.GTK.cs" />
+    <Compile Include="Xwt.XamMac.cs" />
     <Compile Include="Xwt.WPF.cs" />
     <Compile Include="Xwt.cs" />
   </ItemGroup>

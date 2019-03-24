@@ -87,7 +87,7 @@ namespace BaseLib.DockIt_Xwt
 
                     while (!this.doexit)
                     {
-                        DoEvents();
+                        this.xwt.DoEvents();
                     }
                     this.xwt.ReleaseCapture(this.Content);
 
@@ -98,7 +98,7 @@ namespace BaseLib.DockIt_Xwt
             }
 
             [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-            public static void DoEvents()
+            public void DoEvents()
             {
                 var t1 = XwtImpl.GetType("System.Windows.Threading.DispatcherFrame");
                 var frame = Activator.CreateInstance(t1);

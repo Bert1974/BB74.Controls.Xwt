@@ -116,7 +116,7 @@ namespace BaseLib.DockIt_Xwt
                         this.Location = new Point(x, y).Offset(-5, -5);
                         this.Content.SetFocus();
 
-                        DoEvents();
+                        this.xwt.DoEvents();
 
                         var dp = DockPanel.GetHits(x, y);
 
@@ -158,14 +158,6 @@ namespace BaseLib.DockIt_Xwt
                     }
                 }
 
-                private static void DoEvents()
-                {
-                    Type tctx = XwtImpl.GetType("GLib.MainContext");
-
-                    var mi_iteration = tctx.GetMethod("Iteration", new Type[0]);
-
-                    while ((bool)mi_iteration.Invoke(null, new object[0])) { }
-                }
             }
 
             [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
@@ -232,6 +224,14 @@ namespace BaseLib.DockIt_Xwt
             public XwtImpl.DragWindow Create(Canvas widget, Point position)
             {
                 return new DragWindow(this, widget, position);
+            }
+            public void DoEvents()
+            {
+                Type tctx = XwtImpl.GetType("GLib.MainContext");
+
+                var mi_iteration = tctx.GetMethod("Iteration", new Type[0]);
+
+                while ((bool)mi_iteration.Invoke(null, new object[0])) { }
             }
         }
     }

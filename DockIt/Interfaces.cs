@@ -12,6 +12,7 @@ namespace BaseLib.DockIt_Xwt
         void SetCapture(Widget widget);
         void ReleaseCapture(Widget widget);
         void StartDrag(Canvas widget, Point position);
+        void DoEvents();
     }
     public interface IDockToolbar : IDockContent
     {
