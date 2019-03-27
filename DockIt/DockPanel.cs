@@ -12,6 +12,7 @@ namespace BaseLib.DockIt_Xwt
     public class DockPanel : Canvas
     {
         public static bool DefaultFloat { get; set; } = true;
+        public static Color TitlebarColor { get; set; } = Colors.LightBlue;
 
         public event EventHandler DocumentsChanged, ActiveDocumentChanged, ActiveContentChanged;
 
@@ -377,10 +378,16 @@ namespace BaseLib.DockIt_Xwt
 
                 if (this.firedocschanged)
                 {
-                    this.DocumentsChanged?.Invoke(this, EventArgs.Empty);
+                    OnDocumentChanged();
                 }
             }
         }
+
+        private void OnDocumentChanged()
+        {
+            this.DocumentsChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         private void BeginLayout()
         {
             if (this.busy++ == 0)
@@ -771,7 +778,7 @@ namespace BaseLib.DockIt_Xwt
                   this.RemovePane(pane);
                   pane = null;
 
-                  if (this.Content == null)
+                  if (this.Current == null)
                   {
                       this.FloatForm.Close();
                   }
@@ -873,7 +880,7 @@ namespace BaseLib.DockIt_Xwt
                 }
              //   this.ActiveControl = doc.FirstOrDefault();
             }
-            EndLayout();
+            EndLayout(true);
 
         //    OnDocumentsChange(EventArgs.Empty);
         }

@@ -10,13 +10,16 @@ namespace BaseLib.DockIt_Xwt
     class FloatWindow : Xwt.Window, IDockFloatForm
     {
         private readonly DockPanel DockPanel;
+        private readonly ResizeCanvas Canvas;
         internal DockPanel maindock;
+        private bool titlebarvisible;
 
         Window IDockFloatForm.Form => this;
 
         enum DragModes
         {
             None,
+            Move,
             LeftTop,
             Top,
             RightTop,
@@ -46,8 +49,35 @@ namespace BaseLib.DockIt_Xwt
             }
             protected override void OnBoundsChanged()
             {
+                MoveWindows();
+            }
+            internal void MoveWindows()
+            { 
                 //base.OnBoundsChanged()
-                this.SetChildBounds(owner.DockPanel, new Rectangle(dragsize, dragsize, this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2));
+                this.SetChildBounds(owner.DockPanel, new Rectangle(
+                            dragsize, dragsize + (this.owner.titlebarvisible ? 22 : 0),
+                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? 22 : 0)));
+            }
+            protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+            {
+                base.OnDraw(ctx, dirtyRect);
+
+                if (this.owner.titlebarvisible)
+                {
+                    var r = new Rectangle(0, 0, this.Bounds.Width, 22);
+
+                    ctx.SetColor(DockPanel.TitlebarColor);
+                    ctx.Rectangle(r);
+                    ctx.Fill();
+
+                    var tl = new TextLayout(this) { Text = "Toolwindow", };
+
+                    ctx.SetColor(Colors.Black);
+                    ctx.DrawTextLayout(tl, new Point(2, 2));
+                }
+                ctx.SetColor(Colors.Black);
+                ctx.Rectangle(this.Bounds);
+                ctx.Stroke();
             }
             protected override void OnButtonPressed(ButtonEventArgs args)
             {
@@ -92,6 +122,7 @@ namespace BaseLib.DockIt_Xwt
                     }
                     base.Cursor = GetCursor(captured);
                     //        base.Capture = true;
+                    return;
                 }
                 else
                 {
@@ -125,6 +156,13 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (pt.Y >= 0 && pt.X >= 0)
                 {
+                    if (this.owner.titlebarvisible)
+                    {
+                        if (pt.Y >= dragsize && pt.Y < 22 && pt.X >= dragsize && pt.X < this.Bounds.Width - dragsize)
+                        {
+                            return DragModes.Move;
+                        }
+                    }
                     if (pt.Y < dragsize)
                     {
                         if (pt.X < dragsize) // left top
@@ -177,6 +215,11 @@ namespace BaseLib.DockIt_Xwt
 
                 switch (captured)
                 {
+                    case DragModes.Move:
+                        {
+                            double nx = pt.X + (this.orgpos.X - this.orgpt.X), ny = pt.Y + (this.orgpos.Y - this.orgpt.Y);
+                            return new Rectangle(new Point(nx, ny), this.orgpos.Size);
+                        }
                     case DragModes.LeftTop:
                         {
                             double nx = pt.X + (this.orgpos.X - this.orgpt.X), ny = pt.Y + (this.orgpos.Y - this.orgpt.Y);
@@ -252,11 +295,39 @@ namespace BaseLib.DockIt_Xwt
             this.Padding = 0;
 
             this.DockPanel = new DockPanel(this, this.maindock.xwt);
-            this.Content = new ResizeCanvas(this);
+            this.Content = this.Canvas = new ResizeCanvas(this);
             
             this.DockPanel.Dock(docs, DockPosition.Center);
+
+            this.DockPanel.DocumentsChanged += DockPanel_DocumentsChanged;
+            SetTitleBarVisble();
         }
 
+        private void DockPanel_DocumentsChanged(object sender, EventArgs e)
+        {
+            SetTitleBarVisble();
+        }
+        private void SetTitleBarVisble()
+        {
+         /*   if (this.DockPanel.Current is IDockPane) // not splitted?
+            {
+                if (this.titlebarvisible)
+                {
+                    this.titlebarvisible = false;
+                    this.Canvas.MoveWindows();
+                    this.Canvas.QueueDraw();
+                }
+            }
+            else*/
+            {
+                if (!this.titlebarvisible)
+                {
+                    this.titlebarvisible = true;
+                    this.Canvas.MoveWindows();
+                    this.Canvas.QueueDraw();
+                }
+            }
+        }
         void IDockFloatForm.Close()
         {
             base.Close();

@@ -264,7 +264,7 @@ namespace BaseLib.DockIt_Xwt
             this.IsHeader = isheader;
             this.pane = pane;
             this.MinHeight = HeightRequest = 22;
-            this.BackgroundColor = Colors.LightBlue;
+            this.BackgroundColor = DockPanel.TitlebarColor;
 
             this.buttons = new Buttons(this);
     //        this.buttons.ExpandHorizontal = false;
