@@ -216,7 +216,7 @@ namespace BaseLib.DockIt_Xwt
                 }
             }
 
-            public void StartDrag(Canvas widget, Point position)
+            public void StartDrag(Canvas widget, Point position, IDockContent[] documents)
             {
                 throw new NotImplementedException();
             }
@@ -233,6 +233,16 @@ namespace BaseLib.DockIt_Xwt
 
                 while ((bool)mi_iteration.Invoke(null, new object[0])) { }
             }
+
+            public bool SetPos(WindowFrame window, Rectangle pos)
+            {
+                return false;
+            }
+            
+            void IXwtImpl.SetParent(WindowFrame r, WindowFrame parentWindow)
+            {
+            }
         }
+
     }
 }

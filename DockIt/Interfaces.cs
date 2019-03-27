@@ -11,7 +11,6 @@ namespace BaseLib.DockIt_Xwt
     {
         void SetCapture(Widget widget);
         void ReleaseCapture(Widget widget);
-        void StartDrag(Canvas widget, Point position);
         void DoEvents();
     }
     public interface IDockToolbar : IDockContent
@@ -25,6 +24,17 @@ namespace BaseLib.DockIt_Xwt
         Widget Widget { get; }
         string TabText { get; }
     }
+    public interface IDockFloatForm //: IDockPane//, IDockNotify
+    {
+        Xwt.Window Form { get; }
+        // DockPanel DockPanel { get; }
+        //  DockPanel MainDockPanel { get; }
+
+        IDockPane DockToolbar(IDockContent[] controls, DockPosition pos, IDockPane destination);
+
+        void Close();
+        void Invalidate();
+    }
     public interface IDockPane : IDockLayout
     {
         IEnumerable<IDockContent> Documents { get; }
@@ -34,13 +44,12 @@ namespace BaseLib.DockIt_Xwt
         bool Remove(IDockContent[] docs); // return true if pane now empty
         void RemoveWidget();
 
-        void ActiveDocChanged();
-
         Canvas Widget { get; }
         void SetDrop(DockPosition? hit);
         void ClearDrop();
         DockPosition? HitTest(Point position);
         void Update(DockPosition? sel);
+        void OnHidden();
     }
     public interface IDockSplitter : IDockLayout
     {
@@ -62,15 +71,20 @@ void GetSize(bool setsize);*/
         Point Location { get; }
         Size MinimumSize { get; }
         Size MaximumSize { get; }
-        Size Size { get; }
+        Size WidgetSize { get; }
         DockPanel DockPanel {get;}
 
         bool HitTest(Point position, out IDockSplitter splitter, out int ind);
     }
-    public interface IDockNotify
+    public interface IDockNotify // optional for IDockContent
     {
         void OnLoaded(IDockPane pane);
         void OnUnloading();
+    }
+    public interface IDockCustomize // optional for IDockContent
+    {
+        bool CanClose { get; }
+        bool CanFloat { get; }
     }
     public enum DockPosition
     {

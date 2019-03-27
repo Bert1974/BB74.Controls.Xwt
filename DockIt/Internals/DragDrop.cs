@@ -8,9 +8,9 @@ namespace BaseLib.DockIt_Xwt
 {
     class DragDrop
     {
-        internal static void StartDrag(DockPane pane, IDockContent[] dockContent, Point position)
+        internal static void StartDrag(DockPane pane, IDockContent[] documents, Point position)
         {
-            pane.DockPanel.xwt.StartDrag(pane,position);
+            pane.DockPanel.xwt.StartDrag(pane,position, documents);
         }
     }
 }

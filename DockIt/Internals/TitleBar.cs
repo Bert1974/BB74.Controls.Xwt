@@ -8,7 +8,7 @@ namespace BaseLib.DockIt_Xwt
 {
     class TitleBar : Canvas
     {
-        class ScrollButtons : Canvas
+        class ScrollButtons : Canvas // dropdown for multiple documents
         {
             private TitleBar titleBar;
             private MenuButton menu;
@@ -40,9 +40,9 @@ namespace BaseLib.DockIt_Xwt
             }
             public double Width => this.Children.Select(_b => _b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width).Sum();
         }
-        class Buttons : Canvas
+        class Buttons : Canvas // document buttons
         {
-            internal class DockButton : Label
+            internal class DockButton : Label // document button
             {
                 private Buttons buttons;
                 internal IDockContent doc;
@@ -81,7 +81,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.Text = doc.TabText;
   
-                    if (object.ReferenceEquals(doc, buttons.titlebar.pane._activedoc))
+                    if (object.ReferenceEquals(doc, buttons.titlebar.pane.Document))
                     {
                         if (doc is IDockToolbar)
                         {
@@ -102,7 +102,8 @@ namespace BaseLib.DockIt_Xwt
                 {
                     if (args.Button == PointerButton.Left)
                     {
-                        this.buttons.Active = this.doc;
+                        this.buttons.titlebar.pane.SetActive(this.doc);
+                        //this.buttons.Active = this.doc;
                         this.captured = true;
                         this.dragpt = args.Position;
                         this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
@@ -118,7 +119,9 @@ namespace BaseLib.DockIt_Xwt
                         if (args.X < this.dragpt.X - dd || args.X >= this.dragpt.X + dd || args.Y < this.dragpt.Y - dd || args.Y >= this.dragpt.Y + dd)
                         {
                             this.captured = false;
+
                             this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+
                             // start drag
 
                             BaseLib.DockIt_Xwt.DragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, this.ConvertToScreenCoordinates(args.Position));
@@ -174,6 +177,7 @@ namespace BaseLib.DockIt_Xwt
 
                         o = b;
                     }
+                    o.Update();
                     var ox = x;
                     var size = o.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                     var w = Math.Max(size.Width, 10);
@@ -187,15 +191,16 @@ namespace BaseLib.DockIt_Xwt
                     this.RemoveChild(o);
                     o.Dispose();
                 }
+                this.QueueDraw();
             }
             public double Width => this.Children.OfType<DockButton>().Select(_b => _b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width).Sum();
 
-            public IDockContent Active
+           /* public IDockContent Active
             {
                 get => this.titlebar.pane.Document;
                 set => this.titlebar.pane.SetActive(value);
             }
-
+            */
             internal void Update()
             {
                 double x = 0;
@@ -214,34 +219,34 @@ namespace BaseLib.DockIt_Xwt
             return new TitleBar(dockPane, true);
         }
 
-        internal void Update()
-        {
-            this.buttons.Update();
-        }
-
         public static TitleBar CreateTabs(DockPane dockPane)
         {
             return new TitleBar(dockPane, false);
         }
 
+
+        internal void Update()
+        {
+            this.buttons.Update();
+        }
         private IEnumerable<IDockContent> docsvis
         {
             get
             {
                 if (!IsInfo && IsHeader)
                 {
-                    if (this.pane._activedoc is IDockToolbar)
+                    if (this.pane.Document is IDockToolbar)
                     {
-                        yield return this.pane._activedoc;
+                        yield return this.pane.Document;
                     }
-                    foreach (var doc in this.pane._docs.OfType<IDockDocument>())
+                    foreach (var doc in this.pane.Documents.OfType<IDockDocument>())
                     {
                         yield return doc;
                     }
                 }
                 else
                 {
-                    foreach (var doc in this.pane._docs.OfType<IDockToolbar>())
+                    foreach (var doc in this.pane.Documents.OfType<IDockToolbar>())
                     {
                         yield return doc;
                     }
@@ -312,11 +317,13 @@ namespace BaseLib.DockIt_Xwt
 
         internal void SetDocuments(List<IDockContent> docs)
         {
-            this.QueueDraw();
+         //   this.QueueDraw();
 
             this.docs = docs.ToArray();
             this.scrollwindow.SetDocuments(this.docs);
             this.buttons.SetDocuments(this.docsvis.ToArray());
+
+            this.Visible = this.docsvis.Count() > 0;
         }
     }
 }

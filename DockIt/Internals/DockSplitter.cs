@@ -28,7 +28,7 @@ namespace BaseLib.DockIt_Xwt
         public Size MinimumSize { get; private set; }
         public Size MaximumSize { get; private set; }
 
-        public Size Size { get; private set; }
+        public Size WidgetSize { get; private set; }
 
         public DockPanel DockPanel { get; private set; }
 
@@ -48,12 +48,12 @@ namespace BaseLib.DockIt_Xwt
         public void Layout(Point pos, Size size)
         {
             this.Location = pos;
-            this.Size = size;
+            this.WidgetSize = size;
 
             if (_dock.Count > 0)
             {
-                var tot = this.Orientation == Orientation.Vertical ? this.Size.Height : this.Size.Width;
-                var wh = this.Orientation != Orientation.Vertical ? this.Size.Height : this.Size.Width;
+                var tot = this.Orientation == Orientation.Vertical ? this.WidgetSize.Height : this.WidgetSize.Width;
+                var wh = this.Orientation != Orientation.Vertical ? this.WidgetSize.Height : this.WidgetSize.Width;
                 var e = 4;// Math.Min(4, tot - 4);
 
                 var pt = Point.Zero;// parent.Location;
@@ -64,13 +64,13 @@ namespace BaseLib.DockIt_Xwt
                 switch (this.Orientation)
                 {
                     case Orientation.Horizontal:
-                        facs = _dock.Select(_p => Math.Max(_p.Size.Width, _p.MinimumSize.Width)).ToArray();
+                        facs = _dock.Select(_p => Math.Max(_p.WidgetSize.Width, _p.MinimumSize.Width)).ToArray();
                         mi = _dock.Select(_p => _p.MinimumSize.Width).ToArray();
                         ma = _dock.Select(_p => _p.MaximumSize.Width).ToArray();
                         mm = _dock.Select(_p => _p.MinimumSize.Height).Max();
                         break;
                     case Orientation.Vertical:
-                        facs = _dock.Select(_p => Math.Max(_p.Size.Height, _p.MinimumSize.Height)).ToArray();
+                        facs = _dock.Select(_p => Math.Max(_p.WidgetSize.Height, _p.MinimumSize.Height)).ToArray();
                         mi = _dock.Select(_p => _p.MinimumSize.Height).ToArray();
                         ma = _dock.Select(_p => _p.MaximumSize.Height).ToArray();
                         mm = _dock.Select(_p => _p.MinimumSize.Width).Max();
@@ -210,21 +210,26 @@ namespace BaseLib.DockIt_Xwt
                 switch (this.Orientation)
                 {
                     case Orientation.Horizontal:
-                        this.Size = new Size(this._dock.Select(_ctl => _ctl.Size.Width).Sum(), this._dock.Select(_ctl => _ctl.Size.Height).Max());
+                        this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Sum(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Max());
                         break;
                     case Orientation.Vertical:
-                        this.Size = new Size(this._dock.Select(_ctl => _ctl.Size.Width).Max(), this._dock.Select(_ctl => _ctl.Size.Height).Sum());
+                        this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Max(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Sum());
                         break;
                 }
             }
         }
         public bool HitTest(Point position, out IDockSplitter splitter, out int ind)
         {
-            if (position.X >= this.Location.X && position.X < this.Location.X + this.Size.Width &&
-                position.Y >= this.Location.Y && position.Y < this.Location.Y + this.Size.Height)
+            if (position.X >= this.Location.X && position.X < this.Location.X + this.WidgetSize.Width &&
+                position.Y >= this.Location.Y && position.Y < this.Location.Y + this.WidgetSize.Height)
             {
                 int cnt = 0, e = 4;
                 double v = 0;
+                switch (this.Orientation)
+                {
+                    case Orientation.Horizontal: v = this.Location.X; break;
+                    case Orientation.Vertical: v = this.Location.Y; break;
+                }
                 foreach (var o in this._dock)
                 {
                     if (o.HitTest(position, out splitter, out ind))
@@ -238,7 +243,7 @@ namespace BaseLib.DockIt_Xwt
                     switch (this.Orientation)
                     {
                         case Orientation.Horizontal:
-                            v += o.Size.Width;
+                            v += o.WidgetSize.Width;
                             if (position.X >= v && position.X < v + e)
                             {
                                 splitter = this;
@@ -247,7 +252,7 @@ namespace BaseLib.DockIt_Xwt
                             }
                             break;
                         case Orientation.Vertical:
-                            v += o.Size.Height;
+                            v += o.WidgetSize.Height;
                             if (position.Y >= v && position.Y < v + e)
                             {
                                 splitter = this;

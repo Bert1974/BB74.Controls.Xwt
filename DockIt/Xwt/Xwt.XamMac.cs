@@ -172,7 +172,7 @@ namespace BaseLib.DockIt_Xwt
                          var e = w.GetType().Invoke(w, "NextEventMatchingMask", new object[] { ev});
                      }*/
             }
-            public void StartDrag(Canvas widget, Point position)
+            public void StartDrag(Canvas widget, Point position, IDockContent[] documents)
             {
                 var r = new DragWindow(this, widget);
                 r.Resizable = false;
@@ -182,6 +182,10 @@ namespace BaseLib.DockIt_Xwt
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(r);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
                 r.Show();
+            }
+            public bool SetPos(WindowFrame window, Rectangle pos)
+            {
+                return false;
             }
 
             private void buttonPressed(object sender, ButtonEventArgs e)
@@ -214,6 +218,11 @@ namespace BaseLib.DockIt_Xwt
                     e = mi.Invoke(o, args);
                 }
                 while (e != null);
+            }
+            
+            void IXwtImpl.SetParent(WindowFrame r, WindowFrame parentWindow)
+            {
+                throw new NotImplementedException();
             }
         }
     }

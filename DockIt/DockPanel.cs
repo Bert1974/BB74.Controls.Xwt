@@ -11,6 +11,10 @@ namespace BaseLib.DockIt_Xwt
 {
     public class DockPanel : Canvas
     {
+        public static bool DefaultFloat { get; set; } = true;
+
+        public event EventHandler DocumentsChanged, ActiveDocumentChanged, ActiveContentChanged;
+
         private IDockLayout _content;
         internal int busy;
         private Size _size;
@@ -18,10 +22,13 @@ namespace BaseLib.DockIt_Xwt
         private Point dragpt;
         private int dragind;
         private bool capture;
-        public IXwt xwt { get; }
+        public XwtImpl xwt { get; }
+        internal IDockFloatForm FloatForm = null;
 
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
         private static IDockPane droptarget = null;
+        private bool firedocschanged;
+
         internal static void SetHighLight(DockPanel dockPanel, Point pt, out IDockPane target, out DockPosition? hit)
         {
             target = null;
@@ -64,23 +71,22 @@ namespace BaseLib.DockIt_Xwt
         }
 
 
+        internal IDockContent DefaultDocument
+        {
+            get
+            {
+                return this.AllLayouts.OfType<IDockPane>().FirstOrDefault(_p => _p.Document != null)?.Document;
+            }
+        }
         public IDockDocument ActiveDocument
         {
-            get; set;
+            get; private set;
         }
 
-        private IDockLayout Current
+        public IDockLayout Current
         {
             get => this._content;
-            set
-            {
-                if (this._content != null)
-                {
-                }
-                if ((this._content = value) != null)
-                {
-                }
-            }
+            private set => this._content = value;
         }
 
         public IEnumerable<IDockContent> AllContent
@@ -127,12 +133,18 @@ namespace BaseLib.DockIt_Xwt
                 (pane as IDockNotify).OnUnloading();
             }
         }
-
-        public DockPanel(IXwt xwt = null)
+        
+        internal DockPanel(FloatWindow floatwindow, XwtImpl xwt)
+            : this(xwt)
+        {
+            this.FloatForm = floatwindow;
+        }
+        public DockPanel(XwtImpl xwt = null)
         {
             this.xwt = xwt ?? XwtImpl.Create();
             this.busy++;
             this.Margin = 0;
+            this.MinWidth = this.MinHeight = 0;
             base.BackgroundColor = Colors.Chocolate;
             base.ExpandHorizontal = base.ExpandVertical = true;
             base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
@@ -178,14 +190,14 @@ namespace BaseLib.DockIt_Xwt
 
         internal static DockPanel[] GetHits(int x, int y)
         {
-            return DockPanel.AllDockPanels.Where(_panel =>
+            return DockPanel.AllDockPanels.Where(_dock =>
             {
-                if (_panel.ParentWindow != null)
+                if (_dock.ParentWindow != null)
                 {
-                    var wp = _panel.ConvertToScreenCoordinates(_panel.Bounds.Location);
+                    var wp = _dock.ConvertToScreenCoordinates(_dock.Bounds.Location);
 
-                    if (x >= wp.X && x < wp.X + _panel.Size.Width &&
-                        y >= wp.Y && y < wp.Y + _panel.Size.Height)
+                    if (x >= wp.X && x < wp.X + _dock.Size.Width &&
+                        y >= wp.Y && y < wp.Y + _dock.Size.Height)
                     {
                         return true;
                     }
@@ -351,32 +363,43 @@ namespace BaseLib.DockIt_Xwt
                 }
             }
         done:
-            EndLayout();
+            EndLayout(true);
 
             return result;
         }
 
-        private void EndLayout()
+        private void EndLayout(bool firedocschanged=false)
         {
+            this.firedocschanged |= firedocschanged;
             if (--this.busy == 0)
             {
                 this._DoLayout();
+
+                if (this.firedocschanged)
+                {
+                    this.DocumentsChanged?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
         private void BeginLayout()
         {
-            this.busy++;
+            if (this.busy++ == 0)
+            {
+                this.firedocschanged = false;
+            }
         }
 
         internal void SetActive(IDockContent value)
         {
-            if (value is IDockDocument)
+            if (!object.ReferenceEquals(value, this.ActiveDocument))
             {
-                this.ActiveDocument = value as IDockDocument;
-            }
-            foreach (var l in this.AllLayouts.OfType<IDockPane>())
-            {
-                l.ActiveDocChanged();
+                if (value is IDockDocument)
+                {
+                    this.ActiveDocument = value as IDockDocument;
+
+                    this.ActiveDocumentChanged?.Invoke(this, EventArgs.Empty);
+                }
+                this.ActiveContentChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         private IDockSplitter FindSplitter(IDockLayout searchfor, out int ind)
@@ -410,10 +433,10 @@ namespace BaseLib.DockIt_Xwt
 
         private void _DoLayout()
         {
-            if (this.busy == 0 && !Size.Zero.Equals(_size))
+            if (this.busy == 0 && !Size.Zero.Equals(_size) && this.Current!=null)
             {
-                this.Current?.GetSize(false);
-                this.Current?.Layout(this.Bounds.Location, this.Bounds.Size);
+                this.Current.GetSize(false);
+                this.Current.Layout(this.Bounds.Location, this.Bounds.Size);
             }
         }
 
@@ -452,12 +475,12 @@ namespace BaseLib.DockIt_Xwt
 
                         //      if ((Control.ModifierKeys & Keys.Shift) != 0)
                         {
-                            s = panes[ind + 0].Size;
+                            s = panes[ind + 0].WidgetSize;
                             pt = panes[ind + 0].Location;
                             panes[ind + 0].Layout(pt, new Size(s.Width + d, s.Height));
 
                             pt.Offset(s.Width - d + e, 0);
-                            s = panes[ind + 1].Size;
+                            s = panes[ind + 1].WidgetSize;
                             panes[ind + 1].Layout(pt, new Size(s.Width - d, s.Height));
                         }
                         /*     else
@@ -506,12 +529,12 @@ namespace BaseLib.DockIt_Xwt
                     break;
                 case Orientation.Vertical:
                     {
-                        s = panes[ind + 0].Size;
+                        s = panes[ind + 0].WidgetSize;
                         pt = panes[ind + 0].Location;
                         panes[ind + 0].Layout(pt, new Size(s.Width, s.Height + d));
 
                         pt.Offset(0, s.Height - d + e);
-                        s = panes[ind + 1].Size;
+                        s = panes[ind + 1].WidgetSize;
                         panes[ind + 1].Layout(pt, new Size(s.Width, s.Height - d));
                     }
                     break;
@@ -589,7 +612,7 @@ namespace BaseLib.DockIt_Xwt
 
         private void CheckCursor(Point position)
         {
-            if (!this.Current.HitTest(position, out IDockSplitter splitter, out int ind) || splitter == null)
+            if (this.Current==null || !this.Current.HitTest(position, out IDockSplitter splitter, out int ind) || splitter == null)
             {
                 base.Cursor = CursorType.Arrow;
             }
@@ -626,11 +649,12 @@ namespace BaseLib.DockIt_Xwt
         private void ClearContent()
         {
             (this.Current as IDockPane)?.RemoveWidget();
+            (this.Current as IDockPane)?.OnHidden();
             this.Current = null;
         }
         internal void RemovePane(IDockSplitter split, IDockLayout panesrc)
         {
-            // !toplevel? -> remove from splitter
+            // nottoplevel? -> remove from splitter
             if (!object.ReferenceEquals(this.Current, panesrc))
             {
                 split.Remove(panesrc, true);
@@ -640,13 +664,14 @@ namespace BaseLib.DockIt_Xwt
                 split = null;
                 this.ClearContent();
 
-                /*  if (this.FloatForm != null)
-                  {
-                      this.FloatForm.Close();
-                  }*/
+                if (this.FloatForm != null)
+                {
+                    this.FloatForm.Close();
+                }
                 ////     OnDocumentsChange(EventArgs.Empty);
                 return;
             }
+            (panesrc as IDockPane)?.OnHidden();
             // splitter now empty?
             if (split.Layouts.Count() == 0)
             {
@@ -697,19 +722,18 @@ namespace BaseLib.DockIt_Xwt
         {
             BeginLayout();
 
-            //move docnum (-1=all) in pansrc to panedst at dockat
+            //move docnum (-1=all) in pansrc to panedst at dockat (panesrc is assumed to be child in this._content)
 
-            // could be mdi-child-window
             var split = FindSplitter(panesrc, out int ind);
 
             // check if not moving to same place
             if (!object.ReferenceEquals(panesrc, panedst) || dockat != DockPosition.Center)
             {
                 // get document to move
-                /*   if (panedst?.DockPanel.FloatForm != null)
-                   {
-                       doc = doc.Where(_doc => (_doc as IDockCustomize)?.CanFloat ?? DockPanel.DefaultFloat).ToArray();
-                   }*/
+                if (panedst?.DockPanel.FloatForm != null)
+                {
+                    doc = doc.Where(_doc => (_doc as IDockCustomize)?.CanFloat ?? DockPanel.DefaultFloat).ToArray();
+                }
                 // remove
                 bool delsrc = panesrc.Remove(doc);
 
@@ -729,7 +753,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 ////             this.ActiveControl = doc.FirstOrDefault();
             }
-            EndLayout();
+            EndLayout(true);
 
             //     OnDocumentsChange(EventArgs.Empty);
         }
@@ -738,11 +762,11 @@ namespace BaseLib.DockIt_Xwt
             bool checkdocs = false;
             //  Debug.Assert(!pane.Controls.Any());
 
-            DockPanel dp = this;
+        //    DockPanel dp = this;
 
-            /*  if (this.FloatForm != null)
+              if (this.FloatForm != null)
               {
-                  dp = this.FloatForm.MainDockPanel;
+                //  dp = this.FloatForm.MainDockPanel;
 
                   this.RemovePane(pane);
                   pane = null;
@@ -751,15 +775,15 @@ namespace BaseLib.DockIt_Xwt
                   {
                       this.FloatForm.Close();
                   }
-                  if (panedst != null && panedst.DockPanel.FloatForm == null)
+                  /*if (panedst != null && panedst.DockPanel.FloatForm == null) // check docs only for mdi
                   {
                       checkdocs = true;
-                  }
+                  }*/
               }
-              else */
+              else 
             {
-                dp = this;
-                if (panedst != null)//&& panedst.DockPanel.FloatForm == null)
+               // dp = this;
+                if (panedst != null &&object.ReferenceEquals(panedst.DockPanel,pane.DockPanel))//&& panedst.DockPanel.FloatForm == null)
                 {
                     //    Debug.Assert(panedst.GetDocuments(-1).Any());
 
@@ -768,13 +792,13 @@ namespace BaseLib.DockIt_Xwt
                           checkdocs = true; // main->main
                       }
                       else */
-                    if (panedst.Documents.Any())
+               /*     if (panedst.Documents.Any())
                     {
                         this.RemovePane(pane);
                     }
-                    else
+                    else*/
                     {
-                        if (this.AllLayouts.OfType<IDockPane>().Where(_t => !object.ReferenceEquals(pane, _t) && !_t.Documents.OfType<IDockDocument>().Any()).Count() > 1)
+                        if (this.AllLayouts.OfType<IDockPane>().Where(_t => !object.ReferenceEquals(pane, _t) && _t.Documents.OfType<IDockDocument>().Any()).Count() > 0)
                         {
                             this.RemovePane(pane);
                         }
@@ -787,8 +811,8 @@ namespace BaseLib.DockIt_Xwt
             }
             if (checkdocs)
             {
-                var empty = dp.AllLayouts.OfType<IDockPane>().Where(_t => !_t.Documents.Any());
-                var docs = dp.AllLayouts.OfType<IDockPane>().Where(_t => _t.Documents.OfType<IDockDocument>().Any());
+                var empty = this.AllLayouts.OfType<IDockPane>().Where(_t => !_t.Documents.Any());
+                var docs = this.AllLayouts.OfType<IDockPane>().Where(_t => _t.Documents.OfType<IDockDocument>().Any());
 
                 if (!docs.Any()) // -> no docs, keep 1
                 {
@@ -798,15 +822,16 @@ namespace BaseLib.DockIt_Xwt
                         {
                             RemovePane(pane);
                         }
+                        // keep 1
                         if (empty.Count() > 1) // query, actual value
                         {
-                            empty = dp.AllLayouts.OfType<IDockPane>().Where(_t => !_t.Documents.Any()).OrderByDescending(_p => _p.Size.Width * _p.Size.Height);
+                            empty = this.AllLayouts.OfType<IDockPane>().Where(_t => !_t.Documents.Any()).OrderByDescending(_p => _p.WidgetSize.Width * _p.WidgetSize.Height);
 
-                            if (empty.Any())
+                            if (empty.Any()) // keep biggest
                             {
                                 foreach (var l in empty.Skip(1).ToArray())
                                 {
-                                    dp.RemovePane(l);
+                                    this.RemovePane(l);
                                 }
                             }
                         }
@@ -816,10 +841,41 @@ namespace BaseLib.DockIt_Xwt
                 {
                     foreach (var l in empty.ToArray())
                     {
-                        dp.RemovePane(l);
+                        this.RemovePane(l);
                     }
                 }
             }
+        }
+        public void FloatPane(IDockPane panesrc, IDockContent[] doc, Point formpos)
+        {
+            BeginLayout();
+
+            //move docnum (-1=all) in pansrc to panedst at dockat
+
+            // could be mdi-child-window, so lookup
+            var split = FindSplitter(panesrc, out int ind);
+            if (split == null)
+            { 
+                Debug.Assert(object.ReferenceEquals(panesrc, this.Current));
+            }
+            if (doc.Length > 0) // only float floatable controls
+            {
+                bool delsrc = panesrc.Remove(doc);
+
+                var form = FloatWindow.Create(this, doc, formpos, out IDockPane panefloat);
+
+                if (delsrc)
+                {
+                    split = FindSplitter(panesrc, out ind);
+                    // RemovePane(split, _panesrc);
+
+                    _CheckRemovePane(panesrc, panefloat);
+                }
+             //   this.ActiveControl = doc.FirstOrDefault();
+            }
+            EndLayout();
+
+        //    OnDocumentsChange(EventArgs.Empty);
         }
     }
 }

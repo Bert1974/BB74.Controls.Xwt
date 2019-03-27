@@ -48,7 +48,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Internals\DragDrop.cs" />
+    <Compile Include="Internals\FloatWindow.cs" />
     <Compile Include="Internals\FrameWork.cs" />
     <Compile Include="Internals\TitleBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -56,10 +58,10 @@
     <Compile Include="Internals\DockSplitter.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="DockPanel.cs" />
-    <Compile Include="Xw.GTK.cs" />
-    <Compile Include="Xwt.XamMac.cs" />
-    <Compile Include="Xwt.WPF.cs" />
-    <Compile Include="Xwt.cs" />
+    <Compile Include="Xwt\Xw.GTK.cs" />
+    <Compile Include="Xwt\Xwt.XamMac.cs" />
+    <Compile Include="Xwt\Xwt.WPF.cs" />
+    <Compile Include="Xwt\Xwt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
