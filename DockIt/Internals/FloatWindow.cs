@@ -133,7 +133,8 @@ namespace BaseLib.DockIt_Xwt
 
             private void SetNewPos(Rectangle pos)
             {
-                owner.DockPanel.xwt.SetPos(this.owner, pos);
+                (owner.DockPanel.xwt as XwtImpl).SetPos(this.owner, pos);
+           //     owner.DockPanel.xwt.SetCapture(this);
             }
 
             private CursorType GetCursor(DragModes mode)
@@ -290,8 +291,8 @@ namespace BaseLib.DockIt_Xwt
             this.maindock = dock;
             this.Location = formpos;
             this.Size = new Size(200, 200);
-            this.Decorated = false;
-            this.Resizable = false;
+           this.Decorated = false;
+      //      this.Resizable = false;
             this.Padding = 0;
 
             this.DockPanel = new DockPanel(this, this.maindock.xwt);

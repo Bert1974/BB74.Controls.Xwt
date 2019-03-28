@@ -167,7 +167,7 @@ namespace BaseLib.DockIt_Xwt
                 return true;
             }
 
-            void IXwtImpl.SetParent(WindowFrame r, WindowFrame parentWindow)
+            void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
                 //     IntPtr hwnd = GetHwnd(r);
                 //      IntPtr hwndmain = GetHwnd(parentWindow);

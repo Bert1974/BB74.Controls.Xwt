@@ -16,7 +16,6 @@ namespace BaseLib.DockIt_Xwt
         {
             DragWindow Create(Canvas widget, Point position);
             bool SetPos(WindowFrame window, Rectangle pos);
-            void SetParent(WindowFrame r, WindowFrame parentWindow);
         }
         protected abstract class DragWindow : Window
         {
@@ -54,7 +53,7 @@ namespace BaseLib.DockIt_Xwt
             }
             return null;
         }
-        private XwtImpl()
+        protected XwtImpl()
         {
         }
         public static XwtImpl Create()

@@ -220,7 +220,7 @@ namespace BaseLib.DockIt_Xwt
                 while (e != null);
             }
             
-            void IXwtImpl.SetParent(WindowFrame r, WindowFrame parentWindow)
+            void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
                 throw new NotImplementedException();
             }

@@ -92,7 +92,7 @@ namespace BaseLib.DockIt_Xwt
         {
             get
             {
-                var r = this.Bounds;
+                var r = new Rectangle(Point.Zero, WidgetSize); ;
 
                 if (this.topbar.Visible)
                 {
@@ -138,11 +138,11 @@ namespace BaseLib.DockIt_Xwt
         {
             if (this.topbar.Visible)
             {
-                this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.Bounds.Width, 22));
+                this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.WidgetSize.Width, 22));
             }
             if (this.bottombar.Visible)
             {
-                this.SetChildBounds(this.bottombar, new Rectangle(0, this.Bounds.Height - 22, this.Bounds.Width, 22));
+                this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - 22, this.WidgetSize.Width, 22));
             }
             //  base.Bounds = new Rectangle(pos, size);
             if (_activedoc != null)

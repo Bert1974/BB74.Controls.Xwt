@@ -10,7 +10,7 @@ namespace BaseLib.DockIt_Xwt
     {
         internal static void StartDrag(DockPane pane, IDockContent[] documents, Point position)
         {
-            pane.DockPanel.xwt.StartDrag(pane,position, documents);
+            (pane.DockPanel.xwt as XwtImpl).StartDrag(pane,position, documents);
         }
     }
 }

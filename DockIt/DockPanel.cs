@@ -23,7 +23,7 @@ namespace BaseLib.DockIt_Xwt
         private Point dragpt;
         private int dragind;
         private bool capture;
-        public XwtImpl xwt { get; }
+        public IXwt xwt { get; }
         internal IDockFloatForm FloatForm = null;
 
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
@@ -134,13 +134,13 @@ namespace BaseLib.DockIt_Xwt
                 (pane as IDockNotify).OnUnloading();
             }
         }
-        
-        internal DockPanel(FloatWindow floatwindow, XwtImpl xwt)
+
+        internal DockPanel(FloatWindow floatwindow, IXwt xwt)
             : this(xwt)
         {
             this.FloatForm = floatwindow;
         }
-        public DockPanel(XwtImpl xwt = null)
+        public DockPanel(IXwt xwt = null)
         {
             this.xwt = xwt ?? XwtImpl.Create();
             this.busy++;

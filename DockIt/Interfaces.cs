@@ -12,6 +12,7 @@ namespace BaseLib.DockIt_Xwt
         void SetCapture(Widget widget);
         void ReleaseCapture(Widget widget);
         void DoEvents();
+        void SetParent(WindowFrame r, WindowFrame parentWindow);
     }
     public interface IDockToolbar : IDockContent
     {

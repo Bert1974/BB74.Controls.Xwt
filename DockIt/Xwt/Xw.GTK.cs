@@ -203,7 +203,7 @@ namespace BaseLib.DockIt_Xwt
 
                 if (System.Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    x11_gdk_pointer_grab(h, true, 0, IntPtr.Zero, IntPtr.Zero, 0);
+                    x11_gdk_pointer_grab(h, true,(1<<5)/*|(1<<9)|(1<10)*//*0x3ffffe*/, IntPtr.Zero, IntPtr.Zero, 0);
                 }
                 else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
                 {
@@ -239,7 +239,7 @@ namespace BaseLib.DockIt_Xwt
                 return false;
             }
             
-            void IXwtImpl.SetParent(WindowFrame r, WindowFrame parentWindow)
+            void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
             }
         }
