@@ -62,6 +62,7 @@
     <Compile Include="Xwt\Xwt.XamMac.cs" />
     <Compile Include="Xwt\Xwt.WPF.cs" />
     <Compile Include="Xwt\Xwt.cs" />
+    <Compile Include="Xwt\Xw.GTK3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

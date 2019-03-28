@@ -71,6 +71,10 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.impl = new GTK();
                 }
+                else if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
+                {
+                    this.impl = new GTK3();
+                }
                 else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                 {
                     this.impl = new XamMac();
