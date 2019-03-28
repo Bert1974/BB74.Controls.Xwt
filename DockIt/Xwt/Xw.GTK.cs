@@ -233,12 +233,6 @@ namespace BaseLib.DockIt_Xwt
 
                 while ((bool)mi_iteration.Invoke(null, new object[0])) { }
             }
-
-            public bool SetPos(WindowFrame window, Rectangle pos)
-            {
-                return false;
-            }
-            
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
             }

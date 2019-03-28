@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xwt.Gtk3.0.2.163\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.163\build\Xwt.Gtk3.props')" />
   <Import Project="..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -63,13 +64,18 @@
     <Reference Include="Xwt.XamMac, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\Xwt.XamMac.0.2.163\lib\net40\Xwt.XamMac.dll</HintPath>
     </Reference>
+    <Reference Include="Xwt.Gtk3">
+      <HintPath>..\packages\Xwt.Gtk3.0.2.163\lib\net40\Xwt.Gtk3.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DockIt\DockPanel.csproj">

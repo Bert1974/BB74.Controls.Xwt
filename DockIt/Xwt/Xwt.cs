@@ -15,7 +15,6 @@ namespace BaseLib.DockIt_Xwt
         protected interface IXwtImpl : IXwt
         {
             DragWindow Create(Canvas widget, Point position);
-            bool SetPos(WindowFrame window, Rectangle pos);
         }
         protected abstract class DragWindow : Window
         {
@@ -111,11 +110,7 @@ namespace BaseLib.DockIt_Xwt
         }
         public void SetPos(WindowFrame window, Rectangle pos)
         {
-            if (!CheckImpl().SetPos(window, pos))
-            {
-                window.Location = pos.Location;
-                window.Size = pos.Size;
-            }
+            (window.GetBackend() as IWindowFrameBackend).Bounds = pos;
         }
         public void SetParent(WindowFrame r, WindowFrame parentWindow)
         {

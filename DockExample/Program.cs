@@ -71,6 +71,12 @@ namespace DockExample
                 dock.Dock(new testtoolitem(), DockPosition.Top);
                 dock.Dock(new IDockContent[] { new testtoolitem(), new testtoolitem(), new testtoolitem(), new testtoolitem(), new testtoolitem() }, DockPosition.Bottom);
             }
+            protected override void OnShown()
+            {
+                base.OnShown();
+
+                dock.OnLoaded();
+            }
             protected override void OnClosed()
             {
                 base.OnClosed();
@@ -103,6 +109,9 @@ namespace DockExample
         [STAThread()]
         static void Main(string[] args)
         {
+#if (__MACOS__)
+            Application.Initialize(ToolkitType.XamMac);
+#else
             if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
             {
                 Application.Initialize(ToolkitType.Gtk);
@@ -111,6 +120,7 @@ namespace DockExample
             {
                 Application.Initialize(ToolkitType.Wpf);
             }
+#endif
             UIHelpers.NewWindow();
             Application.Run();
         }

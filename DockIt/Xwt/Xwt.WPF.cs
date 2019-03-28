@@ -12,10 +12,6 @@ namespace BaseLib.DockIt_Xwt
     {
         class WPF : IXwtImpl
         {
-            [DllImport("user32.dll")]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags);
-
             [DllImport("user32.dll", SetLastError = true)]
             static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
@@ -155,18 +151,6 @@ namespace BaseLib.DockIt_Xwt
             {
                 return new DragWindow(this, widget, position);
             }
-            bool IXwtImpl.SetPos(WindowFrame window, Rectangle pos)
-            {
-                IntPtr hwnd = GetHwnd(window);
-
-                const short SWP_NOZORDER = 0X4;
-                const short SWP_NOCOPYBITS = 0x0100;
-                const short SWP_NOACTIVATE = 0x0010;
-                SetWindowPos(hwnd, IntPtr.Zero, Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y), Convert.ToInt32(pos.Width), Convert.ToInt32(pos.Height), SWP_NOZORDER | SWP_NOCOPYBITS | SWP_NOACTIVATE);
-
-                return true;
-            }
-
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
                 //     IntPtr hwnd = GetHwnd(r);

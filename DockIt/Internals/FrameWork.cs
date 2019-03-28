@@ -50,15 +50,7 @@ namespace BaseLib.DockIt_Xwt
      //   public abstract object GetWindow(IntPtr handle);
 
         protected abstract Rectangle GetWindowRect(IntPtr display, IntPtr form);
-
-        /*public virtual void SetPos(Control ctl, Rectangle r)
-          {
-              ctl.SuspendLayout();
-              ctl.Location = r.Location;
-              ctl.Size = r.Size;
-              ctl.ResumeLayout(true);
-          }*/
-
+        
         public abstract IEnumerable<Tuple<IntPtr,IntPtr>> AllForms(IntPtr display);
 
       /*  private Control Search(Control form, Point point, Point bp)
@@ -82,10 +74,6 @@ namespace BaseLib.DockIt_Xwt
         [DllImport("user32.dll")]
         static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
         
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, int uFlags);
-
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         static extern int GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
@@ -135,13 +123,6 @@ namespace BaseLib.DockIt_Xwt
             {
             }
         }*/
-/*  public override void SetPos(Control ctl, Rectangle r)
-{
-const short SWP_NOZORDER = 0X4;
-const short SWP_NOCOPYBITS = 0x0100;
-const short SWP_NOACTIVATE = 0x0010;
-SetWindowPos(ctl.Handle, IntPtr.Zero, r.X, r.Y, r.Width, r.Height, SWP_NOZORDER| SWP_NOCOPYBITS| SWP_NOACTIVATE);
-}*/
             }
     internal class X11 : PlatForm
     {
