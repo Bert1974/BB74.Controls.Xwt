@@ -10,7 +10,7 @@ namespace BaseLib.DockIt_Xwt
 {
     internal class DockPane : Canvas, IDockPane, IDockNotify
     {
-        class DropTarget : Label
+        class DropTarget : Xwt.Canvas
         {
             private DockPane dockPane;
             public readonly DockPosition pos;
@@ -35,6 +35,15 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.BackgroundColor = Colors.LightYellow;
                 }
+                this.QueueDraw();
+            }
+            protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+            {
+                base.OnDraw(ctx, dirtyRect);
+
+                ctx.SetColor(Colors.Black);
+                ctx.Rectangle(this.Bounds);
+                ctx.Stroke();
             }
         }
         private List<IDockContent> _docs = new List<IDockContent>();
@@ -92,7 +101,7 @@ namespace BaseLib.DockIt_Xwt
         {
             get
             {
-                var r = new Rectangle(Point.Zero, WidgetSize); ;
+                var r = new Rectangle(Point.Zero, WidgetSize);
 
                 if (this.topbar.Visible)
                 {
@@ -121,7 +130,7 @@ namespace BaseLib.DockIt_Xwt
 
           //  this._docs.AddRange(testdoc);
 
-            GetSize(false);
+            GetSize(true);
 
 //            this.Document = this._docs.FirstOrDefault();
   //          this.DockPanel.SetActive(this.Document ?? this.DockPanel.ActiveDocument ?? this.DockPanel.DefaultDocument);
@@ -134,20 +143,25 @@ namespace BaseLib.DockIt_Xwt
             MoveWindows();
         }
 
-        private void MoveWindows()
+        internal void MoveWindows()
         {
-            if (this.topbar.Visible)
+            if (this.WidgetSize.Width>=0&&this.WidgetSize.Height>=0)
             {
-                this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.WidgetSize.Width, 22));
-            }
-            if (this.bottombar.Visible)
-            {
-                this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - 22, this.WidgetSize.Width, 22));
-            }
-            //  base.Bounds = new Rectangle(pos, size);
-            if (_activedoc != null)
-            {
-                this.SetChildBounds(this._activedoc.Widget, DocumentRectangle);
+                if (this.topbar.Visible)
+                {
+                    this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.WidgetSize.Width, 22));
+                    this.topbar.CheckBounds();
+                }
+                if (this.bottombar.Visible)
+                {
+                    this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - 22, this.WidgetSize.Width, 22));
+                    this.topbar.CheckBounds();
+                }
+                //  base.Bounds = new Rectangle(pos, size);
+                if (_activedoc != null)
+                {
+                    this.SetChildBounds(this._activedoc.Widget, DocumentRectangle);
+                }
             }
         }
         public void OnHidden()
@@ -175,10 +189,9 @@ namespace BaseLib.DockIt_Xwt
             {
                 this.Document = docs.FirstOrDefault();
             }
+            this.DockPanel.SetActive(this.DockPanel.ActiveDocument ?? this.Document ?? this.DockPanel.DefaultDocument);
             this.topbar.SetDocuments(this._docs);
             this.bottombar.SetDocuments(this._docs);
-
-            this.DockPanel.SetActive(this.DockPanel.ActiveDocument ?? this.Document ?? this.DockPanel.DefaultDocument);
         }
         public bool Remove(IDockContent[] docs)
         {
@@ -200,8 +213,8 @@ namespace BaseLib.DockIt_Xwt
                 this.Document = this._docs.FirstOrDefault();
             }
             this.DockPanel.SetActive(activedoc ?? this.Document ?? this.DockPanel.DefaultDocument);
-            //this.topbar.SetDocuments(this._docs);
-            //this.bottombar.SetDocuments(this._docs);
+            this.topbar.SetDocuments(this._docs);
+            this.bottombar.SetDocuments(this._docs);
 
             return !this.Documents.Any();
         }
@@ -234,7 +247,7 @@ namespace BaseLib.DockIt_Xwt
 
         public void GetSize(bool setsize)
         {
-            double miw = 64, mih = 48;
+            double miw = 64, mih = 0;
 
             if (_docs.Any())
             {
@@ -244,9 +257,14 @@ namespace BaseLib.DockIt_Xwt
                     mih = Math.Max(miw, doc.Widget.MinHeight);
                 }
             }
-            this.MinimumSize = new Size(miw, mih+44);
+            this.MinimumSize = new Size(miw, mih + 44);
             //   (this as Canvas).MinWidth = miw; // fails with WPF
             //   (this as Canvas).MinHeight =mih;
+
+            if (setsize)
+            {
+                this.WidgetSize = this.MinimumSize;
+            }
         }
 
         public bool HitTest(Point position, out IDockSplitter splitter, out int ind)
@@ -280,9 +298,9 @@ namespace BaseLib.DockIt_Xwt
         {
             var r = new Rectangle(
                 0,
-                this.topbar.Visible ? this.topbar.Bounds.Height : 0,
+                this.topbar.Visible ? 22 : 0,
                 this.Bounds.Width,
-                this.Bounds.Height - (this.topbar.Visible ? this.topbar.HeightRequest : 0) - (this.bottombar.Visible ? this.bottombar.Bounds.Height : 0));
+                this.Bounds.Height - (this.topbar.Visible ?22 : 0) - (this.bottombar.Visible ? 22 : 0));
 
             this.Document?.Widget.Hide();
 
@@ -291,8 +309,9 @@ namespace BaseLib.DockIt_Xwt
             AddDrop(0, r.Top + (r.Height - wh) / 2, DockPosition.Left);
             AddDrop(r.Right - wh, r.Top + (r.Height - wh) / 2, DockPosition.Right);
             AddDrop((r.Width - wh) / 2, r.Top + (r.Height - wh) / 2, DockPosition.Center);
-        }
 
+            Console.WriteLine($"added drops");
+        }
 
         private void AddDrop(double x, double y, DockPosition pos)
         {
@@ -311,19 +330,19 @@ namespace BaseLib.DockIt_Xwt
                 dt.Dispose();
             }
             this.Document?.Widget.Show();
+            Console.WriteLine($"cleared drops");
         }
 
         public DockPosition? HitTest(Point position)
         {
-            DockPosition? r = null;
             foreach (var ctl in this.Children.OfType<DropTarget>().Reverse())
             {
                 if (this.GetChildBounds(ctl).Contains(position))
                 {
-                    r = ctl.pos;
+                    return ctl.pos;
                 }
             }
-            return r;
+            return null;
         }
 
         public void Update(DockPosition? hit)

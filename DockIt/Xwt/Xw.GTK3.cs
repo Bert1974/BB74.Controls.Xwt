@@ -12,77 +12,12 @@ namespace BaseLib.DockIt_Xwt
         {
             class DragWindow : XwtImpl.DragWindow
             {
-                private bool doexit;
-
-                class MyCanvas : Canvas
-                {
-                    private readonly DragWindow owner;
-
-                    public MyCanvas(DragWindow dragWindow)
-                    {
-                        this.owner = dragWindow;
-
-                        ExpandHorizontal = true;
-                        ExpandVertical = true;
-                        CanGetFocus = true;
-                    }
-                    protected override void OnKeyPressed(KeyEventArgs args)
-                    {
-                        if (args.Key == Key.Escape)
-                        {
-                            owner.doclose(false);
-                            args.Handled = true;
-                            return;
-                        }
-                        base.OnKeyPressed(args);
-                    }
-                    protected override void OnButtonPressed(ButtonEventArgs args)
-                    {
-                        base.OnButtonPressed(args);
-                    }
-                    protected override void OnButtonReleased(ButtonEventArgs args)
-                    {
-                        base.OnButtonReleased(args);
-                    }
-                }
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
                     : base(xwt, widget, position)
                 {
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
-
-                    this.Content = new MyCanvas(this);
                 }
-                protected override bool OnCloseRequested()
-                {
-                    if (!this.doexit)
-                    {
-                        this.doclose(false);
-                        return false;
-                    }
-                    return true;
-                }
-                /*   private void Content_KeyPressed(object sender, KeyEventArgs e)
-                   {
-                       if (e.Key == Key.Escape)
-                       {
-                           this.doclose(false);
-                           e.Handled = true;
-                       }
-                   }
-
-                   private void Content_ButtonReleased(object sender, ButtonEventArgs e)
-                   {
-                       this.doclose(e.Button == PointerButton.Left);
-                       e.Handled = true;
-                   }*/
-
-                private void doclose(bool apply)
-                {
-                    this.result = apply;
-                    this.doexit = true;
-                }
-
                 public override void Show()
                 {
                     this.doexit = false;
@@ -95,7 +30,7 @@ namespace BaseLib.DockIt_Xwt
 
                     while (!this.doexit)
                     {
-                        var gtkwin = /*(global::Gtk.Window)*/(this.GetBackend() as IWindowFrameBackend).Window;
+                        var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
                         var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
@@ -111,14 +46,16 @@ namespace BaseLib.DockIt_Xwt
                         int mask = (int)parms[2];
 
 
-                        this.doexit = (mask & 0x100/*button1mask*/) == 0;
+                        this.doexit = (mask & 0x100) == 0;
 
                         this.Location = new Point(x, y).Offset(-5, -5);
                         this.Content.SetFocus();
 
+                        this.CheckMove(new Point(x, y));
                         this.xwt.DoEvents();
 
-                        var dp = DockPanel.GetHits(x, y);
+
+                    /*    var dp = DockPanel.GetHits(x, y);
 
                         if (dp.Any())
                         {
@@ -146,7 +83,7 @@ namespace BaseLib.DockIt_Xwt
                         else
                         {
                             DockPanel.ClrHightlight();
-                        }
+                        }*/
                     }
 
                     this.xwt.ReleaseCapture(this.Content);
@@ -157,63 +94,76 @@ namespace BaseLib.DockIt_Xwt
                     {
                     }
                 }
-
             }
 
-        /*    [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
-            private static extern int x11_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, int time);
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab", CallingConvention = CallingConvention.Cdecl)]
-            private static extern int win_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, int time);
+            [DllImport("libgdk-3-0.dll", EntryPoint = "gdk_device_grab")]
+            private static extern int x11_gdk_device_grab(IntPtr device, IntPtr gdkwindow, int ownerevents, bool owner_events, int mask, IntPtr cursor, int time);
+            [DllImport("libgdk-3-0.dll", EntryPoint = "gdk_device_ungrab")]
+            private static extern int x11_gdk_device_ungrab(IntPtr device, int time);
 
+            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
+            private static extern int x11_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, int time);/*     [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab", CallingConvention = CallingConvention.Cdecl)]
+                  private static extern int win_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, int time);
+                  */
             [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab")]
             private static extern void x11_gdk_pointer_ungrab(int time);
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab", CallingConvention = CallingConvention.Cdecl)]
-            private static extern void win_gdk_pointer_ungrab(int time);*/
+            /*       [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab", CallingConvention = CallingConvention.Cdecl)]
+                    private static extern void win_gdk_pointer_ungrab(int time);*/
 
             public void ReleaseCapture(Widget widget)
             {
-           /*     var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
                 var tn = backend.GetType().FullName;
                 var w = backend.GetType().GetPropertyValue(backend, "Widget");
                 var gdk = w.GetType().GetPropertyValue(w, "GdkWindow");
                 var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
+                var disp = gdk.GetType().GetPropertyValue(gdk, "Display");
+                var devs = disp.GetType().GetPropertyValue(disp, "DeviceManager");
+                var dev = devs.GetType().GetPropertyValue(devs, "ClientPointer");
 
-                if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                //   if (System.Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    x11_gdk_pointer_ungrab(0);
+
+                    x11_gdk_device_ungrab((IntPtr)dev.GetType().GetPropertyValue(dev, "Handle"), 0);
+
+                    //      x11_gdk_pointer_ungrab(0);
                 }
-                else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    win_gdk_pointer_ungrab(0);
-                    //   Gdk.Pointer.Ungrab(0);
-                }*/
+                /*    else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        win_gdk_pointer_ungrab(0);
+                        //   Gdk.Pointer.Ungrab(0);
+                    }*/
             }
 
             public void SetCapture(Widget widget)
             {
-     /*           var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
-               var tn = backend.GetType().FullName;
+                var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                //    var tn = backend.GetType().FullName;
                 var w = backend.GetType().GetPropertyValue(backend, "Widget");
                 var gdk = w.GetType().GetPropertyValue(w, "GdkWindow");
                 var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
+                var disp = gdk.GetType().GetPropertyValue(gdk, "Display");
+                var devs = disp.GetType().GetPropertyValue(disp, "DeviceManager");
+                var dev = devs.GetType().GetPropertyValue(devs, "ClientPointer");
 
-                if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                // if (System.Environment.OSVersion.Platform == PlatformID.Unix)
                 {
-                    x11_gdk_pointer_grab(h, true,(1<<5)/*|(1<<9)|(1<10), IntPtr.Zero, IntPtr.Zero, 0);
+                    x11_gdk_device_grab((IntPtr)dev.GetType().GetPropertyValue(dev, "Handle"), h, 2, true, (1 << 5), IntPtr.Zero, 0);
+                    //     x11_gdk_pointer_grab(h, true,(1<<5), IntPtr.Zero, IntPtr.Zero, 0);
                 }
-                else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-                {
-                    throw new NotImplementedException();
-                }
-                else
-                {
-                    win_gdk_pointer_grab(h, true, 0, IntPtr.Zero, IntPtr.Zero, 0);
-                    //   Gdk.Pointer.Grab((backend as global::Xwt.GtkBackend.CanvasBackend).Widget.GdkWindow, true, Gdk.EventMask.AllEventsMask, null, null, 0);
-                }*/
+                /*         else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
+                         {
+                             throw new NotImplementedException();
+                         }
+                         else
+                         {
+                             win_gdk_pointer_grab(h, true, 0, IntPtr.Zero, IntPtr.Zero, 0);
+                             //   Gdk.Pointer.Grab((backend as global::Xwt.GtkBackend.CanvasBackend).Widget.GdkWindow, true, Gdk.EventMask.AllEventsMask, null, null, 0);
+                         }*/
             }
 
             public XwtImpl.DragWindow Create(Canvas widget, Point position)
@@ -232,6 +182,5 @@ namespace BaseLib.DockIt_Xwt
             {
             }
         }
-
     }
 }

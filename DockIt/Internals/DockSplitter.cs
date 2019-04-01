@@ -207,7 +207,8 @@ namespace BaseLib.DockIt_Xwt
 
             if (setsize)
             {
-                switch (this.Orientation)
+                this.WidgetSize = this.MinimumSize;
+         /*       switch (this.Orientation)
                 {
                     case Orientation.Horizontal:
                         this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Sum(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Max());
@@ -215,7 +216,7 @@ namespace BaseLib.DockIt_Xwt
                     case Orientation.Vertical:
                         this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Max(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Sum());
                         break;
-                }
+                }*/
             }
         }
         public bool HitTest(Point position, out IDockSplitter splitter, out int ind)

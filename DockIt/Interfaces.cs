@@ -73,7 +73,7 @@ void GetSize(bool setsize);*/
         Size MinimumSize { get; }
         Size MaximumSize { get; }
         Size WidgetSize { get; }
-        DockPanel DockPanel {get;}
+        DockPanel DockPanel { get; }
 
         bool HitTest(Point position, out IDockSplitter splitter, out int ind);
     }
@@ -98,7 +98,7 @@ void GetSize(bool setsize);*/
         Float
     }
     public enum Orientation
-    { 
+    {
         Horizontal,
         Vertical
     }

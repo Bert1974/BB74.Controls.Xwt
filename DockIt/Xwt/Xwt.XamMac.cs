@@ -16,70 +16,12 @@ namespace BaseLib.DockIt_Xwt
         {
             class DragWindow : XwtImpl.DragWindow
             {
-                private bool doexit;
-
-                class MyCanvas : Canvas
-                {
-                    private readonly DragWindow owner;
-
-                    public MyCanvas(DragWindow dragWindow)
-                    {
-                        this.owner = dragWindow;
-
-                        ExpandHorizontal = true;
-                        ExpandVertical = true;
-                        CanGetFocus = true;
-                    }
-                    protected override void OnKeyPressed(KeyEventArgs args)
-                    {
-                        if (args.Key == Key.Escape)
-                        {
-                            owner.doclose(false);
-                            args.Handled = true;
-                            return;
-                        }
-                        base.OnKeyPressed(args);
-                    }
-                    protected override void OnButtonPressed(ButtonEventArgs args)
-                    {
-                        base.OnButtonPressed(args);
-                    }
-                    protected override void OnButtonReleased(ButtonEventArgs args)
-                    {
-                        base.OnButtonReleased(args);
-                    }
-                }
                 public DragWindow(IXwt wxt, Canvas widget, Point position)
                     : base(wxt,widget, position)
                 {
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
-
-                    this.Content = new MyCanvas(this);
                 }
-
-                protected override bool OnCloseRequested()
-                {
-                    if (!this.doexit)
-                    {
-                        this.doclose(false);
-                        return false;
-                    }
-                    return true;
-                }
-                private void doclose(bool apply)
-                {
-                    this.result = apply;
-                    this.doexit = true;
-                }
-
-                private void Content_MouseMoved(object sender, MouseMovedEventArgs e)
-                {
-                    var w = (this.GetBackend() as IWindowFrameBackend).Window;
-                    var pt = (sender as Widget).ConvertToScreenCoordinates(e.Position).Offset(-5, -5);
-                    this.Location = pt;
-                }
-
                 public override void Show()
                 {
                     this.doexit = false;
@@ -88,7 +30,7 @@ namespace BaseLib.DockIt_Xwt
                     (this as Window).Show();
 
                     this.Content.SetFocus();
-                    this.xwt.SetCapture(this.Content);
+                 //  this.xwt.SetCapture(this.Content);
 
                     while (!this.doexit)
                     {
@@ -109,19 +51,26 @@ namespace BaseLib.DockIt_Xwt
                         //  int mask = (int)parms[2];
 
                         var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
-                        var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
+                       var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
 
                         this.doexit = (Convert.ToUInt32(mask) & 1/*button1mask*/) == 0;
 
-                        this.Location = new Point(x, y).Offset(-5, -5);
-                        this.Content.SetFocus();
+                        //              this.Location = new Point(x, y).Offset(-5, -5);
+                        //               this.Content.SetFocus();
+
+                        var xwtmacbackend = XwtImpl.GetType("Xwt.Mac.MacDesktopBackend");
+                        var cgsizetype = XwtImpl.GetType("CoreGraphics.CGPoint");
+
+                        var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
+                        var pt2 = (Xwt.Point)xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
+
+                        this.CheckMove(pt2);
 
                         this.xwt.DoEvents();
+                            //               var dp = DockPanel.GetHits(x, y);
 
-                        var dp = DockPanel.GetHits(x, y);
-
-                        if (dp.Any())
-                        {
+                            //                if (dp.Any())
+                            {
                           //  var rootwin = screen.GetType().GetPropertyValue(screen, "RootWindow");
 
                         /*    var wins = (Array)rootwin.GetType().GetPropertyValue(rootwin, "Children");
@@ -143,13 +92,13 @@ namespace BaseLib.DockIt_Xwt
 
                             DockPanel.SetHighLight(hit, new Point(x - wp.X, y - wp.Y), out this.droppane, out this.drophit);*/
                         }
-                        else
+                  //      else
                         {
-                            DockPanel.ClrHightlight();
+                 //           DockPanel.ClrHightlight();
                         }
                     }
 
-                    this.xwt.ReleaseCapture(this.Content);
+              //      this.xwt.ReleaseCapture(this.Content);
                     DockPanel.ClrHightlight();
                     this.Close();
 
@@ -159,7 +108,7 @@ namespace BaseLib.DockIt_Xwt
                 }
             }
 
-            class eventhandlerinfo
+ /*           class eventhandlerinfo
             {
                 public EventInfo ei;
                 public FieldInfo fi;
@@ -173,7 +122,7 @@ namespace BaseLib.DockIt_Xwt
                 //     internal MulticastDelegate value;
             }
             private Dictionary<string, eventhandlerinfo> ei = new Dictionary<string, eventhandlerinfo>();
-            private Dictionary<string, eventdelegate> hh = new Dictionary<string, eventdelegate>();
+            private Dictionary<string, eventdelegate> hh = new Dictionary<string, eventdelegate>();*/
 
             public void ReleaseCapture(Widget widget)
             {
@@ -181,14 +130,14 @@ namespace BaseLib.DockIt_Xwt
             }
             void KillCapture()
             {
-                foreach (var h in this.hh.Values.Reverse())
+             /*  foreach (var h in this.hh.Values.Reverse())
                 {
                     this.ei[h.name].ei.RemoveEventHandler(h.widget, h.handler);
                 }
-                this.hh.Clear();
+                this.hh.Clear();*/
             }
 
-            private void AddEvent<T>(Widget widget, string name, EventHandler<T> func)
+      /*      private void AddEvent<T>(Widget widget, string name, EventHandler<T> func)
                 where T : EventArgs
             {
                 if (!this.ei.TryGetValue(name, out eventhandlerinfo e))
@@ -220,7 +169,7 @@ namespace BaseLib.DockIt_Xwt
                     e.ei.AddEventHandler(widget, func);
                     //     e.ei.AddEventHandler(widget, func);
                 }
-            }
+            }*/
             public void SetCapture(Widget widget)
             {
                 KillCapture();
@@ -234,10 +183,10 @@ namespace BaseLib.DockIt_Xwt
 
                 // three method// subclass oview, override 3x? OpenTK.Platform.MacOS?
 
-                AddEvent<ButtonEventArgs>(widget, "buttonPressed", this.buttonPressed);
+           /*     AddEvent<ButtonEventArgs>(widget, "buttonPressed", this.buttonPressed);
                 AddEvent<ButtonEventArgs>(widget, "buttonReleased", this.buttonReleased);
                 AddEvent<MouseMovedEventArgs>(widget, "mouseMoved", this.mouseMoved);
-
+                */
 
                 /*      eveinthandelerinfo ei = null;
 
@@ -279,7 +228,7 @@ namespace BaseLib.DockIt_Xwt
                          var e = w.GetType().Invoke(w, "NextEventMatchingMask", new object[] { ev});
                      }*/
             }
-            public void StartDrag(Canvas widget, Point position, IDockContent[] documents)
+      /*      public void StartDrag(Canvas widget, Point position, IDockContent[] documents)
             {
                 var r = new DragWindow(this, widget, position);
                 r.Resizable = false;
@@ -289,8 +238,8 @@ namespace BaseLib.DockIt_Xwt
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(r);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
                 r.Show();
-            }
-            private void buttonPressed(object sender, ButtonEventArgs e)
+            }*/
+       /*    private void buttonPressed(object sender, ButtonEventArgs e)
             {
             }
             private void buttonReleased(object sender, ButtonEventArgs e)
@@ -299,7 +248,7 @@ namespace BaseLib.DockIt_Xwt
             private void mouseMoved(object sender, MouseMovedEventArgs e)
             {
             }
-
+            */
             XwtImpl.DragWindow IXwtImpl.Create(Canvas widget, Point position)
             {
                 return new DragWindow(this, widget, position);

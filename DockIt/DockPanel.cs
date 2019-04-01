@@ -24,11 +24,15 @@ namespace BaseLib.DockIt_Xwt
         private int dragind;
         private bool capture;
         public IXwt xwt { get; }
+
+        private Window mainwindow;
         internal IDockFloatForm FloatForm = null;
 
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
         private static IDockPane droptarget = null;
         private bool firedocschanged;
+
+        private bool onloadedfired = false;
 
         internal static void SetHighLight(DockPanel dockPanel, Point pt, out IDockPane target, out DockPosition? hit)
         {
@@ -45,13 +49,10 @@ namespace BaseLib.DockIt_Xwt
                     break;
                 }
             }
-
             if (!object.ReferenceEquals(target, DockPanel.droptarget))
             {
-                if (DockPanel.droptarget != null)
-                {
-                    ClrHightlight();
-                }
+                ClrHightlight();
+
                 if ((DockPanel.droptarget = target) != null)
                 {
                     DockPanel.droptarget?.SetDrop(hit);
@@ -136,13 +137,14 @@ namespace BaseLib.DockIt_Xwt
         }
 
         internal DockPanel(FloatWindow floatwindow, IXwt xwt)
-            : this(xwt)
+            : this((Window)floatwindow, xwt)
         {
             this.FloatForm = floatwindow;
         }
-        public DockPanel(IXwt xwt = null)
+        public DockPanel(Window mainwindow, IXwt xwt = null)
         {
             this.xwt = xwt ?? XwtImpl.Create();
+            this.mainwindow = mainwindow; // ParentWindow
             this.busy++;
             this.Margin = 0;
             this.MinWidth = this.MinHeight = 0;
@@ -155,6 +157,29 @@ namespace BaseLib.DockIt_Xwt
             this.busy--;
 
             DockPanel.AllDockPanels.Add(this);
+
+            if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
+            {
+                if (!mainwindow.Visible)
+                {
+                    this.mainwindow.Shown += showfunc;
+                }
+            }
+        }
+        private void showfunc(object sender, EventArgs e)
+        {
+            this.mainwindow.Shown -= showfunc;
+
+            var t = XwtImpl.GetType("GLib.Idle");
+            var t2 = XwtImpl.GetType("GLib.IdleHandler");
+            var mi = t.GetMethod("Add", new Type[] { t2 });
+            mi.Invoke(null, new object[] { Delegate.CreateDelegate(t2, this, "dolayoutnow") });
+        }
+        private bool dolayoutnow()
+        {
+            this._size = this.Bounds.Size;
+            _DoLayout();
+            return false;
         }
         protected override void Dispose(bool disposing)
         {
@@ -177,9 +202,9 @@ namespace BaseLib.DockIt_Xwt
         }
         protected override void OnBoundsChanged()
         {
+            base.OnBoundsChanged();
             this._size = this.Bounds.Size;
             this._DoLayout();
-            // base.OnBoundsChanged();
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
@@ -206,13 +231,13 @@ namespace BaseLib.DockIt_Xwt
                 return false;
             }).ToArray();
         }
-        internal static DockPanel CheckHit(IntPtr handle, double x, double y)
+        internal static DockPanel CheckHit(object handle, double x, double y)
         {
             return DockPanel.AllDockPanels.FirstOrDefault(_dp =>
             {
                 var backend = typeof(Xwt.Window).GetPropertyValuePrivate(_dp.ParentWindow, "Backend") as Xwt.Backends.IWindowFrameBackend;
 
-                if (handle == backend.NativeHandle) // check if window to check
+                if (object.ReferenceEquals(handle, backend.Window))// == backend.NativeHandle) // check if window to check
                 {
                     var wp = _dp.ConvertToScreenCoordinates(_dp.Bounds.Location);
 
@@ -224,6 +249,20 @@ namespace BaseLib.DockIt_Xwt
                 }
                 return false;
             });
+        }
+        private void CheckOnloaded()
+        {
+           /* if (this.Current!=null&&!onloadedfired &&(this.ParentWindow?.Visible??false))
+            {
+                if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
+                {
+                    this._size = this.Bounds.Size;
+                    this.Current.GetSize(false);
+                    this.Current.Layout(this.Bounds.Location, this.Bounds.Size);
+                }
+                this.OnLoaded();
+                onloadedfired = true;
+            }*/
         }
         public IDockPane Dock(IDockContent testdoc, DockPosition pos = DockPosition.Center, IDockPane destination = null)
         {
@@ -440,10 +479,15 @@ namespace BaseLib.DockIt_Xwt
 
         private void _DoLayout()
         {
-            if (this.busy == 0 && !Size.Zero.Equals(_size) && this.Current!=null)
+            if (this.busy == 0)
             {
-                this.Current.GetSize(false);
-                this.Current.Layout(this.Bounds.Location, this.Bounds.Size);
+                CheckOnloaded();
+                if (!Size.Zero.Equals(_size) && this.Current != null)
+                {
+
+                    this.Current.GetSize(false);
+                    this.Current.Layout(this.Bounds.Location, this.Bounds.Size);
+                }
             }
         }
 

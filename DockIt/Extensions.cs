@@ -42,6 +42,10 @@ namespace BaseLib.DockIt_Xwt
         }
         public static object GetFieldValue(this Type type, object instance, string propertyname)
         {
+            return type.GetField(propertyname, BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField).GetValue(instance);
+        }
+        public static object GetFieldValueStatic(this Type type, object instance, string propertyname)
+        {
             return type.GetField(propertyname, BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField).GetValue(instance);
         }
 

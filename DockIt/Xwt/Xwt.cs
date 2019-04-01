@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using Xwt;
 using Xwt.Backends;
+using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
@@ -18,9 +19,61 @@ namespace BaseLib.DockIt_Xwt
         }
         protected abstract class DragWindow : Window
         {
+            protected class MyCanvas : Xwt.Canvas
+            {
+                private readonly DragWindow owner;
+
+                public MyCanvas(DragWindow dragWindow)
+                {
+                    this.owner = dragWindow;
+
+                    this.Margin = 0;
+                    this.MinWidth = this.MinHeight = 10;
+                    this.ExpandHorizontal = true;
+                    this.ExpandVertical = true;
+                    this.CanGetFocus = true;
+                    this.BackgroundColor = Colors.LightYellow;
+
+                    this.ButtonPressed += (s, e) => { };
+                    this.ButtonReleased += (s, e) => { };
+                    this.MouseMoved += (s, e) => { };
+                }
+                protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+                {
+                    base.OnDraw(ctx, dirtyRect);
+
+                    ctx.SetColor(Colors.Black);
+                    ctx.Rectangle(this.Bounds);
+                    ctx.Stroke();
+                }
+                protected override void OnKeyPressed(KeyEventArgs args)
+                {
+                    if (args.Key == Key.Escape)
+                    {
+                        owner.doclose(false);
+                        args.Handled = true;
+                        return;
+                    }
+                    base.OnKeyPressed(args);
+                }
+                protected override void OnButtonPressed(ButtonEventArgs args)
+                {
+                    owner.doclose(false);
+                    //    base.OnButtonPressed(args);
+                }
+                protected override void OnButtonReleased(ButtonEventArgs args)
+                {
+                    owner.doclose(true);
+                    //     base.OnButtonReleased(args);
+                }
+                protected override void OnMouseMoved(MouseMovedEventArgs args)
+                {
+                    owner.CheckMove(this.ConvertToScreenCoordinates(args.Position));
+                }
+            }
             protected readonly IXwt xwt;
             protected readonly Widget widget;
-            public bool result { get; protected set; }
+            internal bool result, doexit;
             internal DockPosition? drophit;
             internal IDockPane droppane;
 
@@ -29,13 +82,57 @@ namespace BaseLib.DockIt_Xwt
                 this.xwt = wxt;
                 this.widget = widget;
 
-                this.Resizable = false;
-                this.Decorated = false; 
+                this.result = this.doexit = false;
+
+                //  this.Resizable = false;
+                this.Decorated = false;
                 this.Location = position.Offset(-5, -5);
                 this.Size = new Size(32, 32);
                 this.Opacity = 0.8;
+                this.Padding = 0;
+
+                this.Content = new MyCanvas(this);
             }
             public new abstract void Show();
+            protected virtual void doclose(bool apply)
+            {
+                this.result = apply;
+                this.doexit = true;
+            }
+            protected override bool OnCloseRequested()
+            {
+                if (!this.doexit)
+                {
+                    this.doclose(false);
+                    return false;
+                }
+                return true;
+            }
+            protected virtual void CheckMove(Point pt)
+            {
+                (this.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt.Offset(-5, -5),new Size(32,32));
+
+                var hits = BaseLib.DockIt_Xwt.PlatForm.Instance.Search(this, pt); // all hit window-handle son system
+
+                foreach (var w in hits)
+                {
+                    if (object.ReferenceEquals(this.BackendHost.Backend.Window, w.Item2))
+                    {
+                        continue;// hit through dragwindow
+                    }
+                    var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
+
+                    if (hit != null)
+                    {
+                        var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
+
+                        DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out this.droppane, out this.drophit);
+                        return;
+                    }
+                    break; // don't know enumerated strange window with wpf
+                }
+                DockPanel.ClrHightlight();
+            }
         }
 
         private IXwtImpl impl;
@@ -97,16 +194,21 @@ namespace BaseLib.DockIt_Xwt
         public void StartDrag(IDockPane widget, Point position, IDockContent[] documents)
         {
             var dragwin = CheckImpl().Create(widget.Widget, position);
-            dragwin.Show();
+            
+            Application.InvokeAsync(() =>
+            {
+                dragwin.Show();
 
-            if (dragwin.result && dragwin.droppane != null && dragwin.drophit.HasValue)
-            {
-                widget.DockPanel.MovePane(widget as IDockPane, documents, dragwin.droppane, dragwin.drophit.Value);
-            }
-            else if (dragwin.result)
-            {
-                widget.DockPanel.FloatPane(widget, documents, dragwin.Location.Offset(5,5));
-            }
+                if (dragwin.result && dragwin.droppane != null && dragwin.drophit.HasValue)
+                {
+                    widget.DockPanel.MovePane(widget as IDockPane, documents, dragwin.droppane, dragwin.drophit.Value);
+                }
+                else if (dragwin.result)
+                {
+                    widget.DockPanel.FloatPane(widget, documents, dragwin.Location.Offset(5, 5));
+                }
+                dragwin.Dispose();
+            });
         }
         public void /*IXwt.*/DoEvents()
         {

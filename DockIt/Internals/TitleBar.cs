@@ -106,7 +106,7 @@ namespace BaseLib.DockIt_Xwt
                         //this.buttons.Active = this.doc;
                         this.captured = true;
                         this.dragpt = args.Position;
-                        this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                       this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
                         return;
                     }
                     base.OnButtonPressed(args);
@@ -120,11 +120,12 @@ namespace BaseLib.DockIt_Xwt
                         {
                             this.captured = false;
 
-                            this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                            this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
 
                             // start drag
 
                             BaseLib.DockIt_Xwt.DragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, this.ConvertToScreenCoordinates(args.Position));
+                            return;
                         }
                     }
                     base.OnMouseMoved(args);
@@ -212,8 +213,10 @@ namespace BaseLib.DockIt_Xwt
                     this.SetChildBounds(b, new Rectangle(scrollpos + x, 2, w, 18));
                     x += w + 8;
                 }
+                this.QueueDraw();
             }
         }
+ 
         public static TitleBar CreateHeader(DockPane dockPane)
         {
             return new TitleBar(dockPane, true);
@@ -277,7 +280,10 @@ namespace BaseLib.DockIt_Xwt
         protected override void OnBoundsChanged()
         {
             base.OnBoundsChanged();
-
+            CheckBounds();
+        }
+        internal void CheckBounds()
+        { 
             var buttonsize = this.buttons.Width;// GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
             var scrollsize = this.scrollwindow.Width;
 
@@ -312,6 +318,10 @@ namespace BaseLib.DockIt_Xwt
         {
             base.OnDraw(ctx, dirtyRect);
 
+            ctx.SetColor(this.BackgroundColor);
+            ctx.Rectangle(this.Bounds);
+            ctx.Fill();
+
       //      ctx.DrawTextLayout(new TextLayout(this) { Text = pane.Document?.TabText ?? "-" }, 0, 0);
         }
 
@@ -323,7 +333,11 @@ namespace BaseLib.DockIt_Xwt
             this.scrollwindow.SetDocuments(this.docs);
             this.buttons.SetDocuments(this.docsvis.ToArray());
 
-            this.Visible = this.docsvis.Count() > 0;
+            if (this.Visible != this.docsvis.Any())
+            {
+                this.Visible = this.docsvis.Any();
+                this.pane.MoveWindows();
+            }
         }
     }
 }

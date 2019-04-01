@@ -19,7 +19,15 @@ namespace DockExample
             public testdockitem()
             {
                 this.MinWidth = this.MinHeight = 100;
-                this.BackgroundColor = Colors.Aquamarine;
+                this.BackgroundColor = Colors.White;
+            }
+            protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+            {
+                base.OnDraw(ctx, dirtyRect);
+
+                ctx.SetColor(this.BackgroundColor);
+                ctx.Rectangle(this.Bounds);
+                ctx.Fill();
             }
         }
         class testtoolitem : Canvas, IDockToolbar
@@ -33,7 +41,7 @@ namespace DockExample
                 this.BackgroundColor = Colors.Aquamarine;
             }
         }
-        public mainwindow()
+        public mainwindow(IXwt xwt)
         {
             this.Title = $"Xwt Demo Application {Xwt.Toolkit.CurrentEngine.Type}";
             this.Width = 150; this.Height = 150;
@@ -65,7 +73,7 @@ namespace DockExample
             menu.Items.Add(dockmenu);
 
             this.MainMenu = menu;
-            this.Content = dock = new DockPanel();
+            this.Content = dock = new DockPanel(this, xwt);
 
             dock.Dock(new testdockitem());
             dock.Dock(new testtoolitem(), DockPosition.Top);
@@ -75,7 +83,7 @@ namespace DockExample
         {
             base.OnShown();
 
-            dock.OnLoaded();
+  //          dock.OnLoaded();
         }
         protected override void OnClosed()
         {

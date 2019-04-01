@@ -17,68 +17,9 @@ namespace BaseLib.DockIt_Xwt
 
             class DragWindow : XwtImpl.DragWindow
             {
-                private bool doexit;
-
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
                     : base(xwt, widget, position)
                 {
-                    this.Content = new Canvas()
-                    {
-                        ExpandHorizontal = true,
-                        ExpandVertical = true,
-                        CanGetFocus = true
-                    };
-                    this.Content.MouseMoved += Content_MouseMoved;
-                    this.Content.ButtonPressed += Content_ButtonPressed;
-                    this.Content.ButtonReleased += Content_ButtonReleased;
-                }
-                protected override bool OnCloseRequested()
-                {
-                    if (!this.doexit)
-                    {
-                        close(false);
-                        return false;
-                    }
-                    return base.OnCloseRequested();
-                }
-                private void Content_ButtonReleased(object sender, ButtonEventArgs e)
-                {
-                    close(e.Button == PointerButton.Left);
-                }
-                private void Content_ButtonPressed(object sender, ButtonEventArgs e)
-                {
-                    close(false);
-                }
-                private void close(bool apply)
-                {
-                    this.result = apply;
-                    this.doexit = true;
-                }
-                private void Content_MouseMoved(object sender, MouseMovedEventArgs e)
-                {
-                    var pt = (sender as Widget).ConvertToScreenCoordinates(e.Position);
-                    this.Location = pt.Offset(-5, -5);
-
-                    var hits = BaseLib.DockIt_Xwt.PlatForm.Instance.Search(IntPtr.Zero, pt); // all hit window-handle son system
-
-                    foreach (var w in hits)
-                    {
-                        if (BackendHost.Backend.NativeHandle == w.Item2)
-                        {
-                            continue;// hit through dragwindow
-                        }
-                        var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
-
-                        if (hit != null)
-                        {
-                            var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
-
-                            DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out this.droppane, out this.drophit);
-                            return;
-                        }
-                        //       break; // don't know enumerated strange window with wpf
-                    }
-                    DockPanel.ClrHightlight();
                 }
                 public override void Show()
                 {

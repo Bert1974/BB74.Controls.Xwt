@@ -17,7 +17,7 @@ namespace DockExample
         }
         public static void NewWindow()
         {
-            var mainWindow = new mainwindow()
+            var mainWindow = new mainwindow(Program.xwt)
             {
             };
             Program.AddWindow(mainWindow);
@@ -28,6 +28,8 @@ namespace DockExample
     class Program
     {
         static readonly List<mainwindow> openwindows = new List<mainwindow>();
+
+        public static IXwt xwt { get; private set; }
 
         [STAThread()]
         static void Main(string[] args)
@@ -44,6 +46,7 @@ namespace DockExample
                 InitToolkit(ToolkitType.Wpf);
             }
 #endif
+            Program.xwt = (IXwt)XwtImpl.Create();
             UIHelpers.NewWindow();
             Application.Run();
         }
