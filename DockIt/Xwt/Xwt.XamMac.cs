@@ -17,7 +17,7 @@ namespace BaseLib.DockIt_Xwt
             class DragWindow : XwtImpl.DragWindow
             {
                 public DragWindow(IXwt wxt, Canvas widget, Point position)
-                    : base(wxt,widget, position)
+                    : base(wxt,widget, position, false)
                 {
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
@@ -64,7 +64,7 @@ namespace BaseLib.DockIt_Xwt
                         var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
                         var pt2 = (Xwt.Point)xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
 
-                        this.CheckMove(pt2);
+                        this.CheckMove(pt2, true);
 
                         this.xwt.DoEvents();
                             //               var dp = DockPanel.GetHits(x, y);

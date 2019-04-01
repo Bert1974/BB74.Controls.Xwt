@@ -13,7 +13,7 @@ namespace BaseLib.DockIt_Xwt
             class DragWindow : XwtImpl.DragWindow
             {
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget, position)
+                    : base(xwt, widget, position, false)
                 {
                 }
                 public override void Show()
@@ -47,7 +47,7 @@ namespace BaseLib.DockIt_Xwt
 
                             this.Location = new Point(x, y).Offset(-5, -5);
 
-                            this.CheckMove(new Point(x, y));
+                            this.CheckMove(new Point(x, y),true);
 
                             this.xwt.DoEvents();
                         }
@@ -65,6 +65,7 @@ namespace BaseLib.DockIt_Xwt
                         throw;
                     }
                 }
+
                 protected override BackendHost CreateBackendHost()
                 {
                     return base.CreateBackendHost();

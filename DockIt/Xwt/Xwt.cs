@@ -22,10 +22,12 @@ namespace BaseLib.DockIt_Xwt
             protected class MyCanvas : Xwt.Canvas
             {
                 private readonly DragWindow owner;
+                private readonly bool checkmouse;
 
-                public MyCanvas(DragWindow dragWindow)
+                public MyCanvas(DragWindow dragWindow, bool checkmouse)
                 {
                     this.owner = dragWindow;
+                    this.checkmouse = checkmouse;
 
                     this.Margin = 0;
                     this.MinWidth = this.MinHeight = 10;
@@ -68,7 +70,11 @@ namespace BaseLib.DockIt_Xwt
                 }
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
-                    owner.CheckMove(this.ConvertToScreenCoordinates(args.Position));
+                    if (this.checkmouse)
+                    {
+                        var pt = this.ConvertToScreenCoordinates(args.Position);
+                        owner.CheckMove(pt, true);
+                    }
                 }
             }
             protected readonly IXwt xwt;
@@ -77,7 +83,7 @@ namespace BaseLib.DockIt_Xwt
             internal DockPosition? drophit;
             internal IDockPane droppane;
 
-            protected DragWindow(IXwt wxt, Canvas widget, Point position)
+            protected DragWindow(IXwt wxt, Canvas widget, Point position, bool checkmouse)
             {
                 this.xwt = wxt;
                 this.widget = widget;
@@ -96,9 +102,9 @@ namespace BaseLib.DockIt_Xwt
                 {
                     var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
                     wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
-                    wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
+                    //wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
                 }
-                this.Content = new MyCanvas(this);
+                this.Content = new MyCanvas(this, checkmouse);
             }
             public new abstract void Show();
             protected virtual void doclose(bool apply)
@@ -115,33 +121,9 @@ namespace BaseLib.DockIt_Xwt
                 }
                 return true;
             }
-            protected virtual void CheckMove(Point pt)
+            protected void CheckMove(Point point, bool setpos)
             {
-                (this.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt.Offset(-5, -5),new Size(32,32));
-
-                var hits = BaseLib.DockIt_Xwt.PlatForm.Instance.Search(this, pt); // all hit window-handle son system
-
-                foreach (var w in hits)
-                {
-                    if (object.ReferenceEquals(this.BackendHost.Backend.Window, w.Item2))
-                    {
-                        continue;// hit through dragwindow
-                    }
-                    var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
-
-                    if (hit != null)
-                    {
-                        var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
-
-                        DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out this.droppane, out this.drophit);
-                        return;
-                    }
-                    if (Toolkit.CurrentEngine.Type != ToolkitType.Wpf)
-                    {
-                        break; // don't know enumerated strange window with wpf
-                    }
-                }
-                DockPanel.ClrHightlight();
+                XwtImpl.CheckMove(this, point, setpos, ref this.droppane, ref this.drophit);
             }
         }
 
@@ -158,6 +140,37 @@ namespace BaseLib.DockIt_Xwt
                     return type;
             }
             return null;
+        }
+        public static void CheckMove(Window window, Point pt, bool setpos, ref IDockPane droppane, ref DockPosition? drophit)
+        {
+            if (setpos)
+            {
+                (window.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt.Offset(-5, -5), new Size(32, 32));
+            }
+            var hits = BaseLib.DockIt_Xwt.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
+
+            foreach (var w in hits)
+            {
+                if (object.ReferenceEquals((window.GetBackend() as IWindowBackend).Window, w.Item2))
+                {
+                    continue;// hit through dragwindow
+                }
+                var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
+
+                if (hit != null)
+                {
+                    var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
+
+                    DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out droppane, out drophit);
+                    return;
+                }
+                if (Toolkit.CurrentEngine.Type != ToolkitType.Wpf)
+                {
+                    break; // don't know enumerated strange window with wpf
+                }
+            }
+            droppane = null; drophit = null;
+            DockPanel.ClrHightlight();
         }
         protected XwtImpl()
         {

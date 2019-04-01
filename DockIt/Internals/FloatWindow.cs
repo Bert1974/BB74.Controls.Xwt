@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xwt;
+using Xwt.Backends;
 using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
     class FloatWindow : Xwt.Window, IDockFloatForm
     {
-        private readonly DockPanel DockPanel;
+        public DockPanel/*IDockFloatForm.*/ DockPanel { get; private set; }
         private readonly ResizeCanvas Canvas;
         internal DockPanel maindock;
         private bool titlebarvisible;
@@ -38,6 +39,8 @@ namespace BaseLib.DockIt_Xwt
             private DragModes captured = DragModes.None;
             private Point orgpt;
             private Rectangle orgpos;
+            private IDockPane droppane;
+            private DockPosition? drophit;
 
             public ResizeCanvas(FloatWindow owner)
             {
@@ -88,6 +91,7 @@ namespace BaseLib.DockIt_Xwt
                     if (hit != DragModes.None)
                     {
                         this.captured = hit;
+                        this.drophit = null;this.droppane = null;
                         this.orgpt = base.ConvertToScreenCoordinates(args.Position);
                         this.orgpos = new Rectangle(this.owner.Location, base.Size);
                         owner.DockPanel.xwt.SetCapture(this);
@@ -103,6 +107,18 @@ namespace BaseLib.DockIt_Xwt
                     Rectangle r = GetDragPos(args.Position);
                     if (r.Width >= 0 && r.Height >= 0)
                     {
+                        if (this.captured == DragModes.Move)
+                        {
+                            if (this.drophit.HasValue)
+                            {
+                                owner.DockPanel.xwt.ReleaseCapture(this);
+                                this.captured = DragModes.None;
+
+                                owner.DockPanel.MovePane(this.owner, this.droppane, this.drophit.Value);
+
+                                return;
+                            }
+                        }
                         SetNewPos(r);
                     }
                     owner.DockPanel.xwt.ReleaseCapture(this);
@@ -120,7 +136,12 @@ namespace BaseLib.DockIt_Xwt
                     {
                         SetNewPos(r);
                     }
-                    base.Cursor = GetCursor(captured);
+                    var pt = base.ConvertToScreenCoordinates(args.Position);
+                    if (this.captured == DragModes.Move)
+                    {
+                        XwtImpl.CheckMove(this.owner, pt, false, ref this.droppane, ref this.drophit);
+                    }
+                    base.Cursor = GetCursor(captured, pt);
                     //        base.Capture = true;
                     return;
                 }
@@ -128,7 +149,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     base.OnMouseMoved(args);
                 }
-                base.Cursor = GetCursor(HitTest(args.Position));
+                base.Cursor = GetCursor(HitTest(args.Position), args.Position);
             }
 
             private void SetNewPos(Rectangle pos)
@@ -137,7 +158,7 @@ namespace BaseLib.DockIt_Xwt
            //     owner.DockPanel.xwt.SetCapture(this);
             }
 
-            private CursorType GetCursor(DragModes mode)
+            private CursorType GetCursor(DragModes mode, Point pt)
             {
                 CursorType c = CursorType.Arrow;
                 switch (mode)
@@ -150,6 +171,8 @@ namespace BaseLib.DockIt_Xwt
                     case DragModes.LeftBottom: c = CursorType.ResizeSW; break;
                     case DragModes.Bottom: c = CursorType.ResizeDown; break;
                     case DragModes.RightBottom: c = CursorType.ResizeSE; break;
+
+                    case DragModes.Move: c = CursorType.Move;    break;
                 }
                 return c;
             }

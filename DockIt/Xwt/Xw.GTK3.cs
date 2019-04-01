@@ -13,7 +13,7 @@ namespace BaseLib.DockIt_Xwt
             class DragWindow : XwtImpl.DragWindow
             {
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget, position)
+                    : base(xwt, widget, position, false)
                 {
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
@@ -51,7 +51,7 @@ namespace BaseLib.DockIt_Xwt
                         this.Location = new Point(x, y).Offset(-5, -5);
                         this.Content.SetFocus();
 
-                        this.CheckMove(new Point(x, y));
+                        CheckMove(new Point(x, y), true);
                         this.xwt.DoEvents();
 
 

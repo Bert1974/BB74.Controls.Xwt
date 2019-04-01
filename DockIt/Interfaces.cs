@@ -28,7 +28,7 @@ namespace BaseLib.DockIt_Xwt
     public interface IDockFloatForm //: IDockPane//, IDockNotify
     {
         Xwt.Window Form { get; }
-        // DockPanel DockPanel { get; }
+        DockPanel DockPanel { get; }
         //  DockPanel MainDockPanel { get; }
 
         IDockPane DockToolbar(IDockContent[] controls, DockPosition pos, IDockPane destination);

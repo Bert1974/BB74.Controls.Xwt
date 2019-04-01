@@ -15,10 +15,23 @@ namespace BaseLib.DockIt_Xwt
             [DllImport("user32.dll", SetLastError = true)]
             static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 
+       /*     [DllImport("user32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            static extern bool GetCursorPos(ref POINT lpPoint);
+
+            struct POINT
+            {
+                public int x, y;
+                public static implicit operator Point(POINT pt)
+                {
+                    return new Point(pt.x, pt.y);
+                }
+            }*/
+
             class DragWindow : XwtImpl.DragWindow
             {
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget, position)
+                    : base(xwt, widget, position, true)
                 {
                 }
                 public override void Show()
@@ -32,6 +45,9 @@ namespace BaseLib.DockIt_Xwt
 
                     while (!this.doexit)
                     {
+                      /*  POINT pt = new POINT();
+                        GetCursorPos(pt);
+                        this.CheckMove(pt);*/
                         this.xwt.DoEvents();
                     }
                     this.xwt.ReleaseCapture(this.Content);

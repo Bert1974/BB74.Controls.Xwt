@@ -72,6 +72,10 @@ namespace BaseLib.DockIt_Xwt
             DockPanel.droptarget = null;
         }
 
+        public bool Contains(IDockLayout item)
+        {
+            return this.AllContent.Any(_l => object.ReferenceEquals(_l, item));
+        }
 
         internal IDockContent DefaultDocument
         {
@@ -312,100 +316,157 @@ namespace BaseLib.DockIt_Xwt
                 var r = (IDockPane)new DockPane(this, testdoc);
                 result = r;
 
-                if (object.ReferenceEquals(destination, this.Current))// object.ReferenceEquals(this.Current, this.DocumentPane))
-                {
-                    var oldpane = this.Current as IDockLayout;
-
-                    this.Current = null;
-
-                    switch (pos)
-                    {
-                        case DockPosition.Top:
-                            this.Current = new DockSplitter(this, r, oldpane, Orientation.Vertical);
-                            break;
-                        case DockPosition.Bottom:
-                            this.Current = new DockSplitter(this, oldpane, r, Orientation.Vertical);
-                            break;
-                        case DockPosition.Left:
-                            this.Current = new DockSplitter(this, r, oldpane, Orientation.Horizontal);
-                            break;
-                        case DockPosition.Right:
-                            this.Current = new DockSplitter(this, oldpane, r, Orientation.Horizontal);
-                            break;
-                    }
-                }
-                else
-                {
-                    var dw = destination as IDockLayout;//.Control.Parent as DockWindow;
-                    switch (pos)
-                    {
-                        case DockPosition.Left:
-                        case DockPosition.Right:
-                            {
-                                if (split.Orientation == Orientation.Horizontal)
-                                {
-                                    switch (pos)
-                                    {
-                                        case DockPosition.Left:
-                                            split.Insert(ind, r as IDockLayout);
-                                            break;
-                                        case DockPosition.Right:
-                                            split.Insert(ind + 1, r as IDockLayout);
-                                            break;
-                                    }
-                                }
-                                else
-                                {
-                                    split.Remove(destination, false);
-                                    switch (pos)
-                                    {
-                                        case DockPosition.Left:
-                                            split.Insert(ind, new DockSplitter(this, r, dw, Orientation.Horizontal));
-                                            break;
-                                        case DockPosition.Right:
-                                            split.Insert(ind, new DockSplitter(this, dw, r, Orientation.Horizontal));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                        case DockPosition.Top:
-                        case DockPosition.Bottom:
-                            {
-                                if (split.Orientation == Orientation.Vertical)
-                                {
-                                    switch (pos)
-                                    {
-                                        case DockPosition.Top:
-                                            split.Insert(ind, r as IDockLayout);
-                                            break;
-                                        case DockPosition.Bottom:
-                                            split.Insert(ind + 1, r as IDockLayout);
-                                            break;
-                                    }
-                                }
-                                else
-                                {
-                                    split.Remove(destination, false);
-                                    switch (pos)
-                                    {
-                                        case DockPosition.Top:
-                                            split.Insert(ind, new DockSplitter(this, r as IDockLayout, dw, Orientation.Vertical));
-                                            break;
-                                        case DockPosition.Bottom:
-                                            split.Insert(ind, new DockSplitter(this, dw, r as IDockLayout, Orientation.Vertical));
-                                            break;
-                                    }
-                                }
-                            }
-                            break;
-                    }
-                }
+                _DoDock(r, destination, pos);
             }
         done:
             EndLayout(true);
 
             return result;
+        }
+        public IDockLayout Dock(IDockSplitter todock, DockPosition pos = DockPosition.Center, IDockPane destination = null)
+        {
+            BeginLayout();
+
+            if (this.Current == null)
+            {
+                this.Current = new DockPane(this,new IDockContent[0]);
+            }
+            if (destination == null)
+            {
+                destination = AllLayouts.OfType<IDockPane>().FirstOrDefault(_l => _l.Documents.OfType<IDockDocument>().Any()) ??
+                              AllLayouts.OfType<IDockPane>().FirstOrDefault(_l => _l.Documents.OfType<IDockContent>().Count() == 0) ??
+                              AllLayouts.OfType<IDockPane>().FirstOrDefault();
+
+               /* if (destination == null)// first pane?
+                {
+                    Debug.Assert(this.Current == null);
+
+                    this.Current = destination = new DockPane(this, testdoc.Cast<IDockDocument>().ToArray());
+                    testdoc = testdoc.OfType<IDockToolbar>().Cast<IDockContent>().ToArray();
+
+                    if (!testdoc.Any())
+                    {
+                        result = destination;
+                        goto done;
+                    }
+                }*/
+            }
+            Debug.Assert(destination != null);
+
+            IDockLayout result;
+
+            if (pos == DockPosition.Center)
+            {
+                Debug.Assert(false);
+                //destination.Add(testdoc);
+                //result = destination;
+                result = null;
+            }
+            else
+            {
+                var r = todock;
+                result = r;
+                _DoDock(todock,destination,pos);
+
+            }
+        done:
+            EndLayout(true);
+            return result;
+        }
+
+        private void _DoDock(IDockLayout r, IDockPane destination, DockPosition pos)
+        {
+            var split = FindSplitter(destination, out int ind);// this dw.Parent as DockSplitter;
+
+            if (object.ReferenceEquals(destination, this.Current))// object.ReferenceEquals(this.Current, this.DocumentPane))
+            {
+                var oldpane = this.Current as IDockLayout;
+
+                this.Current = null;
+
+                switch (pos)
+                {
+                    case DockPosition.Top:
+                        this.Current = new DockSplitter(this, r, oldpane, Orientation.Vertical);
+                        break;
+                    case DockPosition.Bottom:
+                        this.Current = new DockSplitter(this, oldpane, r, Orientation.Vertical);
+                        break;
+                    case DockPosition.Left:
+                        this.Current = new DockSplitter(this, r, oldpane, Orientation.Horizontal);
+                        break;
+                    case DockPosition.Right:
+                        this.Current = new DockSplitter(this, oldpane, r, Orientation.Horizontal);
+                        break;
+                }
+            }
+            else
+            {
+                var dw = destination as IDockLayout;//.Control.Parent as DockWindow;
+                switch (pos)
+                {
+                    case DockPosition.Left:
+                    case DockPosition.Right:
+                        {
+                            if (split.Orientation == Orientation.Horizontal)
+                            {
+                                switch (pos)
+                                {
+                                    case DockPosition.Left:
+                                        split.Insert(ind, r as IDockLayout);
+                                        break;
+                                    case DockPosition.Right:
+                                        split.Insert(ind + 1, r as IDockLayout);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                split.Remove(destination, false);
+                                switch (pos)
+                                {
+                                    case DockPosition.Left:
+                                        split.Insert(ind, new DockSplitter(this, r, dw, Orientation.Horizontal));
+                                        break;
+                                    case DockPosition.Right:
+                                        split.Insert(ind, new DockSplitter(this, dw, r, Orientation.Horizontal));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    case DockPosition.Top:
+                    case DockPosition.Bottom:
+                        {
+                            if (split.Orientation == Orientation.Vertical)
+                            {
+                                switch (pos)
+                                {
+                                    case DockPosition.Top:
+                                        split.Insert(ind, r as IDockLayout);
+                                        break;
+                                    case DockPosition.Bottom:
+                                        split.Insert(ind + 1, r as IDockLayout);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                split.Remove(destination, false);
+                                switch (pos)
+                                {
+                                    case DockPosition.Top:
+                                        split.Insert(ind, new DockSplitter(this, r as IDockLayout, dw, Orientation.Vertical));
+                                        break;
+                                    case DockPosition.Bottom:
+                                        split.Insert(ind, new DockSplitter(this, dw, r as IDockLayout, Orientation.Vertical));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
         }
 
         private void EndLayout(bool firedocschanged=false)
@@ -768,6 +829,55 @@ namespace BaseLib.DockIt_Xwt
                 split.GetSize(false);
                 ////        OnDocumentsChange(EventArgs.Empty);
             }
+        }
+        public IDockLayout MovePane(IDockFloatForm window, IDockPane panedst, DockPosition dockat)
+        {
+            IDockLayout result = null;
+            BeginLayout();
+
+            //move docnum (-1=all) in pansrc to panedst at dockat (panesrc is assumed to be child in this._content)
+
+            // check if not moving to same place
+            if (!window.DockPanel.Contains(panedst))
+            {
+                if (window.DockPanel.Current is IDockPane)
+                {
+                    var srcpane = window.DockPanel.Current as IDockPane;
+                    var docs = srcpane.Documents.ToArray();
+
+                    srcpane.Remove(docs);
+
+                    //add
+                    if (dockat == DockPosition.Center)
+                    {
+                        panedst.Add(docs);
+                        result = panedst;
+                    }
+                    else
+                    {
+                        result = panedst.DockPanel.Dock(docs, dockat, panedst);
+                    }
+                    window.Close();
+                }
+                else
+                {
+                    Debug.Assert(window.DockPanel.Current is IDockSplitter);
+
+                    var srcsplit = window.DockPanel.Current as IDockSplitter;
+
+                    foreach(var  pane in srcsplit.Layouts.OfType<IDockPane>())
+                    {
+                        pane.RemoveWidget();
+                    }
+                    if (dockat != DockPosition.Center)
+                    {
+                        result = panedst.DockPanel.Dock(srcsplit, dockat, panedst);
+                    }
+                }
+            }
+            EndLayout(true);
+
+            return result;
         }
         public void MovePane(IDockPane panesrc, IDockContent[] doc, IDockPane panedst, DockPosition dockat)
         {
