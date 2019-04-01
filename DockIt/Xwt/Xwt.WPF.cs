@@ -33,6 +33,9 @@ namespace BaseLib.DockIt_Xwt
                 public DragWindow(IXwt xwt, Canvas widget, Point position)
                     : base(xwt, widget, position, true)
                 {
+                    var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                    wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
+                    //wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
                 }
                 public override void Show()
                 {

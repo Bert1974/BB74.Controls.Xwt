@@ -98,12 +98,6 @@ namespace BaseLib.DockIt_Xwt
                 this.Opacity = 0.8;
                 this.Padding = 0;
 
-                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
-                {
-                    var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                    wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
-                    //wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
-                }
                 this.Content = new MyCanvas(this, checkmouse);
             }
             public new abstract void Show();
