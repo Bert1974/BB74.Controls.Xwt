@@ -88,9 +88,16 @@ namespace BaseLib.DockIt_Xwt
                 this.Decorated = false;
                 this.Location = position.Offset(-5, -5);
                 this.Size = new Size(32, 32);
+                this.Width = this.Height = 32;
                 this.Opacity = 0.8;
                 this.Padding = 0;
 
+                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
+                {
+                    var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                    wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
+                    wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
+                }
                 this.Content = new MyCanvas(this);
             }
             public new abstract void Show();
@@ -129,7 +136,10 @@ namespace BaseLib.DockIt_Xwt
                         DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out this.droppane, out this.drophit);
                         return;
                     }
-                    break; // don't know enumerated strange window with wpf
+                    if (Toolkit.CurrentEngine.Type != ToolkitType.Wpf)
+                    {
+                        break; // don't know enumerated strange window with wpf
+                    }
                 }
                 DockPanel.ClrHightlight();
             }
