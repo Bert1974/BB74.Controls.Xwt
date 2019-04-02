@@ -63,10 +63,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
+    <Compile Include="BaseLib\Extensions.cs" />
     <Compile Include="Internals\DragDrop.cs" />
     <Compile Include="Internals\FloatWindow.cs" />
-    <Compile Include="Internals\FrameWork.cs" />
+    <Compile Include="BaseLib\FrameWork.cs" />
     <Compile Include="Internals\TitleBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internals\DockPane.cs" />
