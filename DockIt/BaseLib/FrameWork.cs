@@ -65,14 +65,19 @@ namespace BaseLib.XwtPlatForm
         }
         public static PlatForm Instance { get; private set; }// forms-enumerator
 
-        public IEnumerable<Tuple<IntPtr, object>> Search(Window window, Point pt)
+        public IEnumerable<Tuple<IntPtr, object>> Search(WindowFrame window, Point pt)
         {
             var disp = GetDisplay(window);
             return AllForms(disp, window.GetBackend() as IWindowFrameBackend).Where(_t => GetWindowRect(disp, _t.Item2).Contains(pt));
         }
+        public IEnumerable<Tuple<IntPtr, object>> AllForms(WindowFrame windowfordisplay)
+        {
+            var disp = GetDisplay(windowfordisplay);
+            return AllForms(disp, windowfordisplay.GetBackend() as IWindowFrameBackend);
+        }
         public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
 
-        protected virtual IntPtr GetDisplay(Window window) => IntPtr.Zero;
+        protected virtual IntPtr GetDisplay(WindowFrame window) => IntPtr.Zero;
         protected abstract Rectangle GetWindowRect(IntPtr display, object form);
 
         private static void LoadDlls(string dllversion)
@@ -385,7 +390,7 @@ namespace BaseLib.XwtPlatForm
         protected abstract IntPtr getxdisplay(IntPtr display);
         protected abstract IntPtr getxid(IntPtr gdkwin);
 
-        protected override IntPtr GetDisplay(Window window)
+        protected override IntPtr GetDisplay(WindowFrame window)
         {
             var gtkkwin = (window.GetBackend() as IWindowFrameBackend).Window;
             var gdkdisp = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Display");

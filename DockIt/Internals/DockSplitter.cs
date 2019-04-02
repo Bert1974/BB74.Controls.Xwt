@@ -9,14 +9,23 @@ namespace BaseLib.DockIt_Xwt
     {
         private List<IDockLayout> _dock = new List<IDockLayout>();
 
-        public DockSplitter(DockPanel dockPanel, IDockLayout p1, IDockLayout p2, Orientation orientation)
+        private DockSplitter(DockPanel dockPanel, Orientation orientation)
         {
             this.DockPanel = dockPanel;
-
+            this.Orientation = orientation;
+        }
+        public DockSplitter(DockPanel dockPanel, IDockLayout p1, IDockLayout p2, Orientation orientation)
+            : this(dockPanel, orientation)
+        {
             this._dock.Add(p1);
             this._dock.Add(p2);
-
-            this.Orientation = orientation;
+           // GetSize(true);
+        }
+        public DockSplitter(DockPanel dockPanel, Orientation orientation, IDockLayout[] dockContent)
+            : this(dockPanel, orientation)
+        {
+            this._dock.AddRange(dockContent.Cast<IDockLayout>());
+            GetSize(true);
         }
 
         public IEnumerable<IDockLayout> Layouts => this._dock;

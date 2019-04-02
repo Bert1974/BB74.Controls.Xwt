@@ -2,7 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml;
 using Xwt;
 using Xwt.Drawing;
 
@@ -30,6 +33,8 @@ namespace BaseLib.DockIt_Xwt
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
         private static IDockPane droptarget = null;
         private bool firedocschanged;
+
+        private readonly List<IDockFloatForm> floating = new List<IDockFloatForm>();
 
         private bool onloadedfired = false;
 
@@ -138,12 +143,84 @@ namespace BaseLib.DockIt_Xwt
                 (pane as IDockNotify).OnUnloading();
             }
         }
-
         internal DockPanel(FloatWindow floatwindow, IXwt xwt)
             : this((Window)floatwindow, xwt)
         {
             this.FloatForm = floatwindow;
         }
+        
+        public void LoadXml(string filename, DeserializeDockContent deserializeDockContent = null)
+        {
+            using (var stream = File.OpenRead(filename))
+            {
+                LoadXml(stream, deserializeDockContent);
+            }
+        }
+        public bool LoadXml(Stream stream, DeserializeDockContent deserializeDockContent = null)
+        {
+            var xmlReader = XmlReader.Create(stream,
+                new XmlReaderSettings()
+                {
+                    IgnoreComments = true,
+                    IgnoreProcessingInstructions = true,
+                    IgnoreWhitespace = true
+                });
+
+            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
+            var data = (DockSave)serializer.Deserialize(xmlReader);
+            
+            BeginLayout();
+
+            foreach (var ctl in this.AllLayouts.OfType<IDockPane>().ToArray())
+            {
+                ctl.RemoveWidget();
+            }
+            
+            this.Current = null;
+
+            this.floating.ToList().ForEach(_f => _f.Close());
+
+            IDockLayout pane = null;
+            try
+            {
+                if (data != null)
+                {
+                    pane = data.Restore(this, deserializeDockContent) as IDockLayout;
+                }
+            }
+            catch { }
+            this.Current = pane ?? new DockPane(this, new IDockContent[0]);
+
+            EndLayout();
+
+            return pane != null;
+        }
+        public void SaveXml(string filename)
+        {
+            using (var stream = File.Create(filename))
+            {
+                SaveXml(stream);
+            }
+        }
+        public void SaveXml(Stream stream)
+        {
+            var data = DockState.SaveState(this);
+            
+            var xmlWriter = XmlWriter.Create(stream,
+                new XmlWriterSettings()
+                {
+                    Encoding = new UTF8Encoding(false, true),
+                    ConformanceLevel = ConformanceLevel.Document,
+                    Indent = true,
+                    IndentChars = " ",
+                    NewLineHandling = NewLineHandling.Entitize
+                });
+
+            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
+            serializer.Serialize(xmlWriter, data);
+        }
+
+
         public DockPanel(Window mainwindow, IXwt xwt = null)
         {
             this.xwt = xwt ?? XwtImpl.Create();
@@ -322,7 +399,7 @@ namespace BaseLib.DockIt_Xwt
 
             return result;
         }
-        public IDockLayout Dock(IDockSplitter todock, DockPosition pos = DockPosition.Center, IDockPane destination = null)
+        public IDockLayout Dock(IDockLayout todock, DockPosition pos = DockPosition.Center, IDockPane destination = null)
         {
             BeginLayout();
 
@@ -467,8 +544,25 @@ namespace BaseLib.DockIt_Xwt
                 }
             }
         }
+        internal void RemoveFloat(IDockFloatForm window)
+        {
+            this.floating.Remove(window);
+        }
 
-        private void EndLayout(bool firedocschanged=false)
+        internal void AddFloat(IDockFloatForm window)
+        {
+            this.floating.Add(window);
+        }
+
+        internal void BeginLayout()
+        {
+            if (this.busy++ == 0)
+            {
+                this.firedocschanged = false;
+            }
+        }
+
+        internal void EndLayout(bool firedocschanged=false)
         {
             this.firedocschanged |= firedocschanged;
             if (--this.busy == 0)
@@ -485,14 +579,6 @@ namespace BaseLib.DockIt_Xwt
         private void OnDocumentChanged()
         {
             this.DocumentsChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void BeginLayout()
-        {
-            if (this.busy++ == 0)
-            {
-                this.firedocschanged = false;
-            }
         }
 
         internal void SetActive(IDockContent value)

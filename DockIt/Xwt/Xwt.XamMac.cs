@@ -33,27 +33,12 @@ namespace BaseLib.DockIt_Xwt
                         Type t = PlatForm.GetType("AppKit.NSEvent");
                         var pt=t.GetPropertyValueStatic("CurrentMouseLocation");
                         var mask = t.GetPropertyValueStatic("CurrentPressedMouseButtons");
-                      /*  var gtkwin = (this.GetBackend() as IWindowFrameBa∫ckend).Window;
-                        var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                        var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");*/
-
-                        //  Type t = PlatForm.GetType("Gdk.ModifierType");
-
-                        //   var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                        //   var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
-                        //    mi.Invoke(display, parms);
-                        //                        display.GetType().Invoke(display, "GetPointer", parms);
-                        //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
-                        //  int mask = (int)parms[2];
 
                         var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
                        var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
 
                         this.doexit = (Convert.ToUInt32(mask) & 1/*button1mask*/) == 0;
-
-                        //              this.Location = new Point(x, y).Offset(-5, -5);
-                        //               this.Content.SetFocus();
-
+                        
                         var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
                         var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
 
@@ -63,35 +48,6 @@ namespace BaseLib.DockIt_Xwt
                         this.CheckMove(pt2, true);
 
                         this.xwt.DoEvents();
-                            //               var dp = DockPanel.GetHits(x, y);
-
-                            //                if (dp.Any())
-                            {
-                          //  var rootwin = screen.GetType().GetPropertyValue(screen, "RootWindow");
-
-                        /*    var wins = (Array)rootwin.GetType().GetPropertyValue(rootwin, "Children");
-
-                            var allwin = wins.OfType<object>().Where(_gdkwin => DockPanel.AllDockPanels.Any(_dp =>
-                            {
-                                var w = (_dp.ParentWindow?.GetBackend() as IWindowFrameBackend)?.Window;
-                                return object.ReferenceEquals(w.GetType().GetPropertyValue(w, "GdkWindow"), _dp);
-                            })).ToList();
-
-                            var hit = dp.OrderBy(_dp =>
-                            {
-                                var w = (_dp.ParentWindow?.GetBackend() as IWindowFrameBackend)?.Window;
-                                var w2 = w.GetType().GetPropertyValue(w, "GdkWindow");
-                                return allwin.IndexOf(w2);
-                            }).First();
-
-                            var wp = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
-
-                            DockPanel.SetHighLight(hit, new Point(x - wp.X, y - wp.Y), out this.droppane, out this.drophit);*/
-                        }
-                  //      else
-                        {
-                 //           DockPanel.ClrHightlight();
-                        }
                     }
 
               //      this.xwt.ReleaseCapture(this.Content);

@@ -10,11 +10,26 @@ namespace BaseLib.DockIt_Xwt
         void DoEvents();
         void SetParent(WindowFrame r, WindowFrame parentWindow);
     }
-    public interface IDockToolbar : IDockContent
+    public interface IDockToolbar : IDockContent // use this for your docking toolbar widget
     {
     }
-    public interface IDockDocument : IDockContent
+    public interface IDockDocument : IDockContent// use this for your docking document widget
     {
+    }
+    public interface IDockNotify // optional for IDockContent
+    {
+        void OnLoaded(IDockPane pane);
+        void OnUnloading();
+    }
+    public interface IDockCustomize // optional for IDockContent
+    {
+        bool CanClose { get; }
+        bool CanFloat { get; }
+    }
+    public delegate IDockContent DeserializeDockContent(string persistString);
+    public interface IDockSerializable // optional for IDockContent
+    {
+        string Serialize();
     }
     public interface IDockContent
     {
@@ -55,11 +70,6 @@ namespace BaseLib.DockIt_Xwt
 
         void Insert(int ind, IDockLayout dockLayout);
         void Remove(IDockLayout destination, bool removewidget);
-        /*    Orientation Orientation { get; }
-
-void Insert(int ind, IDockLayout dockTarget);
-void Remove(IDockLayout dw, bool removewindow);
-void GetSize(bool setsize);*/
     }
     public interface IDockLayout
     {
@@ -72,16 +82,6 @@ void GetSize(bool setsize);*/
         DockPanel DockPanel { get; }
 
         bool HitTest(Point position, out IDockSplitter splitter, out int ind);
-    }
-    public interface IDockNotify // optional for IDockContent
-    {
-        void OnLoaded(IDockPane pane);
-        void OnUnloading();
-    }
-    public interface IDockCustomize // optional for IDockContent
-    {
-        bool CanClose { get; }
-        bool CanFloat { get; }
     }
     public enum DockPosition
     {

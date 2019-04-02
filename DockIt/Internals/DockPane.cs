@@ -87,7 +87,7 @@ namespace BaseLib.DockIt_Xwt
             }
         }
 
-        public Size WidgetSize { get; private set; }
+        public Size WidgetSize { get; internal set; }
 
         public Size MinimumSize { get; private set; }
 
@@ -128,7 +128,6 @@ namespace BaseLib.DockIt_Xwt
 
           //  this._docs.AddRange(testdoc);
 
-            GetSize(true);
 
 //            this.Document = this._docs.FirstOrDefault();
   //          this.DockPanel.SetActive(this.Document ?? this.DockPanel.ActiveDocument ?? this.DockPanel.DefaultDocument);
@@ -137,6 +136,7 @@ namespace BaseLib.DockIt_Xwt
             this.DockPanel.AddChild(this);
 
             Add(testdoc);
+            GetSize(true);
 
             MoveWindows();
         }

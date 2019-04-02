@@ -294,6 +294,10 @@ namespace BaseLib.DockIt_Xwt
         }
         public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)
         {
+            return Create(dock, docs, new Rectangle(formpos, new Size(200, 200)), out panefloat);
+        }
+        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Rectangle formpos, out IDockPane panefloat)
+        {
             var r = new FloatWindow(dock, docs, formpos);
 
             r.Show();
@@ -301,15 +305,18 @@ namespace BaseLib.DockIt_Xwt
             dock.xwt.SetParent(r, r.maindock.ParentWindow);
 
             panefloat = r.DockPanel.Current as IDockPane;
+
+            r.maindock.AddFloat(r);
+
             return r;
         }
-        private FloatWindow(DockPanel dock, IDockContent[] docs, Point formpos)
+        private FloatWindow(DockPanel dock, IDockContent[] docs, Rectangle formpos)
         {
             while (dock.FloatForm != null) { dock = (dock.FloatForm as FloatWindow).maindock; }
 
             this.maindock = dock;
-            this.Location = formpos;
-            this.Size = new Size(200, 200);
+            this.Location = formpos.Location;
+            this.Size = formpos.Size;
            this.Decorated = false;
       //      this.Resizable = false;
             this.Padding = 0;
@@ -348,6 +355,11 @@ namespace BaseLib.DockIt_Xwt
                     this.Canvas.QueueDraw();
                 }
             }
+        }
+        protected override void OnClosed()
+        {
+            this.maindock.RemoveFloat(this);
+            base.OnClosed();
         }
         void IDockFloatForm.Close()
         {
