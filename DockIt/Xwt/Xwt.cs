@@ -1,5 +1,6 @@
 ﻿using BaseLib.XwtPlatForm;
 using System;
+using System.Linq;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
@@ -12,6 +13,7 @@ namespace BaseLib.DockIt_Xwt
         {
             DragWindow Create(Canvas widget, Point position);
         }
+        #region DragWindow
         protected abstract class DragWindow : Window
         {
             protected class MyCanvas : Xwt.Canvas
@@ -115,7 +117,7 @@ namespace BaseLib.DockIt_Xwt
 
                 this.Content = new MyCanvas(this, checkmouse);
             }
-            public new abstract void Show(out IDockPane dockpane,out DockPosition? dockat);
+            public abstract void Show(out IDockPane dockpane,out DockPosition? dockat);
             protected virtual void doclose(bool apply)
             {
                 this.result = apply;
@@ -135,6 +137,7 @@ namespace BaseLib.DockIt_Xwt
                 XwtImpl.CheckMove(this, point, setpos, ref this.droppane, ref this.drophit);
             }
         }
+        #endregion
 
         private IXwtImpl impl;
 
@@ -179,18 +182,11 @@ namespace BaseLib.DockIt_Xwt
                     {
                         break;
                     }
-                    //Console.WriteLine($"{w.Item2.GetType().FullName}");
                 }
-                else if (PlatForm.OSPlatform != PlatformID.MacOSX)
+                else
                 {
                     break;
                 }
-                /*
-                else if (Toolkit.CurrentEngine.Type != ToolkitType.XamMac)
-                {
-                    Console.WriteLine($"{w.Item2.GetType().FullName}");
-               //     break; // don't know enumerated strange window with wpf
-                }*/
             }
             droppane = null; drophit = null;
             DockPanel.ClrHightlight();

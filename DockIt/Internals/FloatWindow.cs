@@ -313,6 +313,7 @@ namespace BaseLib.DockIt_Xwt
            this.Decorated = false;
       //      this.Resizable = false;
             this.Padding = 0;
+            this.Title = "Properties";
 
             this.DockPanel = new DockPanel(this, this.maindock.xwt);
             this.Content = this.Canvas = new ResizeCanvas(this);

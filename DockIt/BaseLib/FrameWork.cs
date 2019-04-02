@@ -150,7 +150,7 @@ namespace BaseLib.XwtPlatForm
         }
         public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, IWindowFrameBackend window)
         {
-            var wi = CGWindowListCopyWindowInfo(0x11, 0);
+            var wi = CGWindowListCopyWindowInfo(0x1, 0);
 
             var count = CFArrayGetCount(wi);
 
@@ -166,13 +166,12 @@ namespace BaseLib.XwtPlatForm
             var appid = (int)typensrunapp.GetPropertyValue(curapp, "ProcessIdentifier");
 
             var kCGWindowIsOnscreen = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowIsOnscreen");
+            var name_window = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName");
             var id_window = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowNumber");
             var id_owner = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowOwnerPID");
             var kCGWindowBounds = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowBounds");
-
-            IntPtr NSNumber = OpenTK.Platform.MacOS.Class.Get("NSNumber");
-
-            for (int nit = 0; nit < count; nit++)
+            
+            for (int nit = 0; nit <count; nit++)
             {
                 var cfdict = CFArrayGetValueAtIndex(wi, nit);
 
@@ -185,19 +184,11 @@ namespace BaseLib.XwtPlatForm
 
                     if (i2 == appid)
                     {
-                        foreach (var nswin in winarray)
+                        foreach (var nswin in winarray) // AppKit.NSApplication.SharedApplication.Windows
                         {
-/*#if DEBUG
-                            if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
-                            {
-                                object r2 = Activator.CreateInstance(cgrecttype, new object[] { rr.x, rr.y, rr.w, rr.h });
-                                var r3 = (Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
-                           }
-#endif*/
                             object nint = nswin.GetType().GetPropertyValue(nswin, "WindowNumber");
                             if ((nint as System.IConvertible).ToInt32(null) == windowid)
                             {
-                              //  Console.WriteLine($"found {nswin}={(nswin as IWindowFrameBackend).Bounds} {(nswin as IWindowFrameBackend).Title}");
                                 yield return new Tuple<IntPtr, object>(new IntPtr(windowid), nswin);
                             }
                         }
@@ -206,13 +197,14 @@ namespace BaseLib.XwtPlatForm
                     {
                         if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
                         {
+                            var name = OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict, name_window));
                             object r2 = Activator.CreateInstance(cgrecttype, new object[] { rr.x, rr.y, rr.w, rr.h });
                             var r3 = (Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
-
-                            //         if ()
-                            //         Console.WriteLine($"{windowid}={r3}={OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict,OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName")))}");
-
-                            yield return new Tuple<IntPtr, object>(new IntPtr(windowid), r3);
+                            
+                            if (name != "Dock") // todo check with screenbounds
+                            {
+                                yield return new Tuple<IntPtr, object>(new IntPtr(windowid), r3);
+                            }
                         }
                     }
                 }
