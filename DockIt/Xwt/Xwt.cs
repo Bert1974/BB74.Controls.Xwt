@@ -1,11 +1,5 @@
 ﻿using BaseLib.XwtPlatForm;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;

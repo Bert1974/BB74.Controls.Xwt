@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Security;
+﻿using System.Collections.Generic;
 using Xwt;
-using Xwt.Backends;
 
 namespace BaseLib.DockIt_Xwt
 {

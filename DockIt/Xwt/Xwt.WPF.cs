@@ -1,9 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using BaseLib.XwtPlatForm;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
-using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Backends;
 
