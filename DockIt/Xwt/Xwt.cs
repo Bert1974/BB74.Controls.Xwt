@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.XwtPlatForm;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -39,6 +40,10 @@ namespace BaseLib.DockIt_Xwt
                     this.ButtonPressed += (s, e) => { };
                     this.ButtonReleased += (s, e) => { };
                     this.MouseMoved += (s, e) => { };
+                }
+                protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+                {
+                    return new Size(32, 32);// base.OnGetPreferredSize(widthConstraint, heightConstraint);
                 }
                 protected override void OnDraw(Context ctx, Rectangle dirtyRect)
                 {
@@ -97,6 +102,7 @@ namespace BaseLib.DockIt_Xwt
                 this.Width = this.Height = 32;
                 this.Opacity = 0.8;
                 this.Padding = 0;
+                this.Title = "dragform";
 
                 this.Content = new MyCanvas(this, checkmouse);
             }
@@ -141,7 +147,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 (window.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt.Offset(-5, -5), new Size(32, 32));
             }
-            var hits = BaseLib.DockIt_Xwt.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
+            var hits = BaseLib.XwtPlatForm.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
 
             foreach (var w in hits)
             {
@@ -158,10 +164,24 @@ namespace BaseLib.DockIt_Xwt
                     DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out droppane, out drophit);
                     return;
                 }
-                if (Toolkit.CurrentEngine.Type != ToolkitType.Wpf)
+                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                 {
-                    break; // don't know enumerated strange window with wpf
+                    if (w.Item2.GetType().FullName != "Microsoft.VisualStudio.DesignTools.WpfTap.WpfVisualTreeService.Adorners.AdornerLayerWindow")
+                    {
+                        break;
+                    }
+                    //Console.WriteLine($"{w.Item2.GetType().FullName}");
                 }
+                else if (PlatForm.OSPlatform != PlatformID.MacOSX)
+                {
+                    break;
+                }
+                /*
+                else if (Toolkit.CurrentEngine.Type != ToolkitType.XamMac)
+                {
+                    Console.WriteLine($"{w.Item2.GetType().FullName}");
+               //     break; // don't know enumerated strange window with wpf
+                }*/
             }
             droppane = null; drophit = null;
             DockPanel.ClrHightlight();
@@ -177,7 +197,7 @@ namespace BaseLib.DockIt_Xwt
         {
             if (impl == null)
             {
-                if (Toolkit.CurrentEngine.Type==ToolkitType.Wpf)
+                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                 {
                     this.impl = new WPF();
                 }
@@ -193,7 +213,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.impl = new XamMac();
                 }
-                else 
+                else
                 {
                     throw new NotImplementedException();
                 }
@@ -211,7 +231,7 @@ namespace BaseLib.DockIt_Xwt
         public void StartDrag(IDockPane widget, Point position, IDockContent[] documents)
         {
             var dragwin = CheckImpl().Create(widget.Widget, position);
-            
+
             Application.InvokeAsync(() =>
             {
                 dragwin.Show();

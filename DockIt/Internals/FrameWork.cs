@@ -1,88 +1,125 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Xwt;
 using Xwt.Backends;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.XwtPlatForm
 {
     public abstract class PlatForm
     {
-        public static readonly PlatForm Instance = PlatForm.Create(); // forms-enumerator
-
-        private static PlatForm Create()
+        public static Type GetType(string typeName)
         {
-            if (System.Environment.OSVersion.Platform != PlatformID.MacOSX &&
-                System.Environment.OSVersion.Platform != PlatformID.Unix)
+            var type = Type.GetType(typeName);
+            if (type != null) return type;
+            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
             {
-                return new Win32();
+                type = a.GetType(typeName);
+                if (type != null)
+                    return type;
             }
-            /*      else if (System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-                  {
-                      //todo implemenent
-                      throw new NotImplementedException("OSX PlatForm");
-                  }*/
-            else
+            return null;
+        }
+        public static void Initialize(ToolkitType type)
+        {
+            switch (type)
             {
-                if (Directory.Exists("/Applications")
-                       & Directory.Exists("/System")
-                       & Directory.Exists("/Users")
-                       & Directory.Exists("/Volumes"))
+                case ToolkitType.Gtk3:
+                    LoadDlls("3.0");
+                    break;
+                case ToolkitType.Gtk:
+                    LoadDlls("2.0");
+                    break;
+            }
+            Application.Initialize(type);
+            Instance = Create();
+        }
+
+        public static PlatformID OSPlatform
+        {
+            get
+            {
+                if (System.Environment.OSVersion.Platform != PlatformID.MacOSX &&
+                    System.Environment.OSVersion.Platform != PlatformID.Unix)
                 {
-                    return new Cocoa(); 
+                    return PlatformID.Win32Windows;
                 }
                 else
                 {
-                    return new X11();
-                }
-            }
-            //   throw new NotImplementedException("Platform");
-        }
-        
-        public IEnumerable<Tuple<IntPtr, object>> Search(Window window, Point pt)
-        {
-            foreach (var form in AllForms(window.GetBackend() as IWindowFrameBackend))
-            {
-                Rectangle r = GetWindowRect(form.Item2);
-
-           //     if (!(form is BaseLib.DockIt.Internals.DragForm) && form.Visible)
-                {
-                    if (pt.X >= r.X && pt.X < r.X + r.Width &&
-                        pt.Y >= r.Y && pt.Y < r.Y + r.Height)
+                    if (Directory.Exists("/Applications")
+                           & Directory.Exists("/System")
+                           & Directory.Exists("/Users")
+                           & Directory.Exists("/Volumes"))
                     {
-                        yield return form;//Search(form, form.PointToClient(pt), Point.Empty);
+                        return PlatformID.MacOSX;
+                    }
+                    else
+                    {
+                        return PlatformID.Unix;
                     }
                 }
             }
-            //return null;
         }
+        public static PlatForm Instance { get; private set; }// forms-enumerator
 
-     //   public abstract object GetWindow(IntPtr handle);
-
-        protected abstract Rectangle GetWindowRect(object form);
-        
-        public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(Xwt.Backends.IWindowFrameBackend window);
-
-      /*  private Control Search(Control form, Point point, Point bp)
+        public IEnumerable<Tuple<IntPtr, object>> Search(Window window, Point pt)
         {
-            foreach (Control ctl in form.Controls)
-            {
-                Rectangle r = new Rectangle(bp.X + ctl.Location.X, bp.Y + ctl.Location.Y, ctl.Width, ctl.Height);
+            var disp = GetDisplay(window);
+            return AllForms(disp, window.GetBackend() as IWindowFrameBackend).Where(_t => GetWindowRect(disp, _t.Item2).Contains(pt));
+        }
+        protected virtual IntPtr GetDisplay(Window window) => IntPtr.Zero;
+        protected abstract Rectangle GetWindowRect(IntPtr display, object form);
+        public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
 
-                if (r.Contains(point))
-                {
-                    return Search(ctl, point, r.Location) ?? ctl;
-                }
+        private static void LoadDlls(string dllversion)
+        {
+            LoadDll("gdk-sharp", dllversion);
+            LoadDll("glib-sharp", dllversion);
+            LoadDll("pango-sharp", dllversion);
+            LoadDll("gdk-sharp", dllversion);
+            LoadDll("gtk-sharp", dllversion);
+            LoadDll("atk-sharp", dllversion);
+        }
+        private static void LoadDll(string name, string dllversion)
+        {
+            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                Assembly.LoadFile($"/usr/lib/cli/{name}-{dllversion}/{name}.dll");
             }
-            return null;
-        }*/
+            else
+            {
+                Assembly.Load(new AssemblyName($"{name}, Version={dllversion}"));
+            }
+        }
+        private static PlatForm Create()
+        {
+            switch (OSPlatform)
+            {
+                case PlatformID.Win32Windows: return new Win32();
+                case PlatformID.MacOSX: return new XamMac();
+                case PlatformID.Unix:
+                    {
+                        if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
+                        {
+                            return new X11_GTK3();
+                        }
+                        else
+                        {
+                            return new X11_GTK2();
+                        }
+                    }
+            }
+            throw new NotImplementedException();
+        }
     }
 
-    internal class Cocoa : PlatForm
+    internal class XamMac : PlatForm
     {
-     //   const string qlib = "/System/Library/Frameworks/QuartzCore.framework/QuartzCore";
+        //   const string qlib = "/System/Library/Frameworks/QuartzCore.framework/QuartzCore";
         const string qlib = @"/System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/CoreGraphics";
 
         [DllImport(qlib)]
@@ -98,6 +135,8 @@ namespace BaseLib.DockIt_Xwt
         [DllImport(qlib)]
         static extern int CFDictionaryGetCount(IntPtr dict);
         [DllImport(qlib)]
+        static extern bool CFDictionaryContainsKey(IntPtr dict, IntPtr key);
+        [DllImport(qlib)]
         static extern int CFDictionaryGetKeysAndValues(IntPtr dict, IntPtr[] keys, IntPtr[] values);
 
         [DllImport(qlib)]
@@ -107,22 +146,22 @@ namespace BaseLib.DockIt_Xwt
         [StructLayout(LayoutKind.Sequential)]
         struct CGRect
         {
-           public double x, y, w, h;
+            public double x, y, w, h;
         }
-        public override IEnumerable<Tuple<IntPtr, object>> AllForms(IWindowFrameBackend window)
+        public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, IWindowFrameBackend window)
         {
             var wi = CGWindowListCopyWindowInfo(0x11, 0);
 
             var count = CFArrayGetCount(wi);
 
-            var xwtmacbackend = XwtImpl.GetType("Xwt.Mac.MacDesktopBackend");
-            var cgrecttype = XwtImpl.GetType("CoreGraphics.CGRect");
+            var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
+            var cgrecttype = PlatForm.GetType("CoreGraphics.CGRect");
 
-            var typensapp = XwtImpl.GetType("AppKit.NSApplication");
+            var typensapp = PlatForm.GetType("AppKit.NSApplication");
             var app = typensapp.GetPropertyValueStatic("SharedApplication");
             var winarray = (Array)app.GetType().GetPropertyValue(app, "Windows");
 
-            var typensrunapp = XwtImpl.GetType("AppKit.NSRunningApplication");
+            var typensrunapp = PlatForm.GetType("AppKit.NSRunningApplication");
             var curapp = typensrunapp.GetPropertyValueStatic("CurrentApplication");
             var appid = (int)typensrunapp.GetPropertyValue(curapp, "ProcessIdentifier");
 
@@ -151,6 +190,7 @@ namespace BaseLib.DockIt_Xwt
                             object nint = nswin.GetType().GetPropertyValue(nswin, "WindowNumber");
                             if ((nint as System.IConvertible).ToInt32(null) == windowid)
                             {
+                                Console.WriteLine($"found {nswin}={(nswin as IWindowFrameBackend).Bounds}");
                                 yield return new Tuple<IntPtr, object>(new IntPtr(windowid), nswin);
                                 continue;
                             }
@@ -161,7 +201,11 @@ namespace BaseLib.DockIt_Xwt
                         if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
                         {
                             object r2 = Activator.CreateInstance(cgrecttype, new object[] { rr.x, rr.y, rr.w, rr.h });
-                            var r3=(Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect",r2);
+                            var r3 = (Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
+
+                            //         if ()
+                            //         Console.WriteLine($"{windowid}={r3}={OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict,OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName")))}");
+
                             yield return new Tuple<IntPtr, object>(new IntPtr(windowid), r3);
                             continue;
                         }
@@ -170,7 +214,7 @@ namespace BaseLib.DockIt_Xwt
             }
             OpenTK.Platform.MacOS.Cocoa.SendVoid(wi, OpenTK.Platform.MacOS.Selector.Release);
         }
-        protected override Rectangle GetWindowRect(object form)
+        protected override Rectangle GetWindowRect(IntPtr display, object form)
         {
             if (form is IWindowFrameBackend)
             {
@@ -190,7 +234,7 @@ namespace BaseLib.DockIt_Xwt
 
         [DllImport("user32.dll")]
         static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
-        
+
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         static extern int GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
@@ -206,16 +250,24 @@ namespace BaseLib.DockIt_Xwt
         [DllImport("user32.dll", SetLastError = true)]
         static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
-        protected override Rectangle GetWindowRect(object form)
+        protected override Rectangle GetWindowRect(IntPtr display, object form)
         {
-            var t = XwtImpl.GetType("System.Windows.Interop.WindowInteropHelper");
-            var wih = Activator.CreateInstance(t, new object[] { form });
-            var hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
+            IntPtr hwnd;
+            if (form is IntPtr)
+            {
+                hwnd = (IntPtr)form;
+            }
+            else
+            {
+                var t = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
+                var wih = Activator.CreateInstance(t, new object[] { form });
+                hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
+            }
             RECT r = new RECT();
             GetWindowRect(hwnd, out r);
             return new Rectangle(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);
         }
-        public override IEnumerable<Tuple<IntPtr, object>> AllForms(Xwt.Backends.IWindowFrameBackend window)
+        public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window)
         {
             var found = new List<IntPtr>();
             EnumWindowsProc func = (hwnd, lparam) =>
@@ -230,54 +282,82 @@ namespace BaseLib.DockIt_Xwt
 
             if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
             {
-                var t = XwtImpl.GetType("System.Windows.Interop.HwndSource");
+                var t = PlatForm.GetType("System.Windows.Interop.HwndSource");
 
                 return found.Select(_h =>
                {
                    var obj = t.InvokeStatic("FromHwnd", _h);
                    obj = obj?.GetType().GetPropertyValue(obj, "RootVisual");
-                   return new Tuple<IntPtr, object>(_h, obj);
-               }).Where(_t => _t.Item2 != null);
+                   return new Tuple<IntPtr, object>(_h, obj ?? _h);
+               });
             }
-            return found.Select(_h=>new Tuple<IntPtr, object>(_h,_h));
+            else
+            {
+                return found.Select(_h => new Tuple<IntPtr, object>(_h, _h));
+            }
+        }
+    }
+    internal class X11_GTK2 : X11
+    {
+        [DllImport("libgdk-win32-2.0-0.dll")]
+        internal extern static IntPtr gdk_x11_drawable_get_xid(IntPtr window);
+
+        [DllImport("libgdk-win32-2.0-0.dll")]
+        public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
+
+        protected override IntPtr getxdisplay(IntPtr display)
+        {
+            return gdk_x11_display_get_xdisplay(display);
         }
 
-     /*   public override object GetWindow(IntPtr handle)
+        protected override IntPtr getxid(IntPtr gdkwin)
         {
-            var backend = this.Window.
+            return gdk_x11_drawable_get_xid(gdkwin);
+        }
+    }
+    internal class X11_GTK3 : X11
+    {
+        [DllImport("libgdk-3-0.dll")]
+        internal extern static IntPtr gdk_x11_window_get_xid(IntPtr window);
 
-            var t = XwtImpl.GetType("System.Windows.Interop.HwndSource");
-            var hwndhit = t.InvokeStatic("FromHwnd", new object[] { handle });
+        [DllImport("libgdk-3-0.dll")]
+        public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
 
-            if (hwndhit != null)
+        protected override IntPtr getxdisplay(IntPtr display)
+        {
+            return gdk_x11_display_get_xdisplay(display);
+        }
+
+        protected override IntPtr getxid(IntPtr gdkwin)
+        {
+            return gdk_x11_window_get_xid(gdkwin);
+        }
+        protected override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
+        {
+            if (!(gtkwin is IntPtr))
             {
+                var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
+                var t = gdkwin.GetType();
+                var xy = new object[] { 0, 0 };
+                t.Invoke(gdkwin, "GetOrigin", xy);
+                return new Rectangle((int)xy[0], (int)xy[1], (int)t.GetPropertyValue(gdkwin, "Width"), (int)t.GetPropertyValue(gdkwin, "Height"));
             }
-        }*/
-            }
-    internal class X11 : PlatForm
+            return base.GetWindowRect(xdisp, gtkwin);
+        }
+    }
+    internal abstract class X11 : PlatForm
     {
         const string libX11 = "libX11";
 
         [DllImport(libX11)]
-        public extern static IntPtr XOpenDisplay(IntPtr display);
-
-        [DllImport(libX11)]
-        public extern static int XCloseDisplay(IntPtr display);
-
-        [DllImport(libX11)]
         public extern static int XQueryTree(IntPtr display, IntPtr window, out IntPtr root_return, out IntPtr parent_return, out IntPtr children_return, out int nchildren_return);
-
-        [DllImport(libX11)]
-        public extern static IntPtr XRootWindow(IntPtr display, int screen_number);
-
-        [DllImport(libX11)]
-        public extern static int XDefaultScreen(IntPtr display);
 
         [DllImport(libX11)]
         public extern static int XFree(IntPtr data);
 
         [DllImport(libX11)]
         public extern static void XGetWindowAttributes(IntPtr display, IntPtr hwnd, ref XWindowAttributes wndAttr);
+
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct XWindowAttributes
@@ -305,51 +385,45 @@ namespace BaseLib.DockIt_Xwt
             public IntPtr screen;            /* back pointer to correct screen */
         }
 
-        public override IEnumerable<Tuple<IntPtr, object>> AllForms(Xwt.Backends.IWindowFrameBackend window)
+        protected abstract IntPtr getxdisplay(IntPtr display);
+        protected abstract IntPtr getxid(IntPtr gdkwin);
+
+        protected override IntPtr GetDisplay(Window window)
         {
-            //    var display = XOpenDisplay(IntPtr.Zero);
+            var gtkkwin = (window.GetBackend() as IWindowFrameBackend).Window;
+            var gdkdisp = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Display");
+            var display = (IntPtr)gdkdisp.GetType().GetPropertyValue(gdkdisp, "Handle");
+            var xdisp = getxdisplay(display);
+            return xdisp;
+        }
+        public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr xdisp, Xwt.Backends.IWindowFrameBackend window)
+        {
+            var gtkkwin = window.Window;
+            var gdkscr = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Screen");
+            var rw = gdkscr.GetType().GetPropertyValue(gdkscr, "RootWindow");
+            var rwh = (IntPtr)rw.GetType().GetPropertyValue(rw, "Handle");
+            var rootWindow = getxid(rwh);
             try
             {
-          //    var gtkkwin = window.Window;
-           //     var gdkdisp = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Display");
-            //    var gdkscr = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Screen");
-            //    var rw = gdkscr.GetType().GetPropertyValue(gdkscr, "RootWindow");
-            //   var h = (IntPtr)disp.GetType().GetPropertyValue(disp, "Handle");
-             //   var screen = XDefaultScreen(display);
-             //   var rootWindow = XRootWindow(display, screen);
+                var d = new Dictionary<IntPtr, object>();
 
-                //    window.Window;
-
-                foreach (var form in _AllWindows(null, null))
+                foreach (var _gtkwin in ((Array)PlatForm.GetType("Gtk.Window").InvokeStatic("ListToplevels")).Cast<object>())
                 {
-                    yield return new Tuple<IntPtr, object>((IntPtr)form.GetType().GetPropertyValue(form,"Handle"), form);
+                    var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
+                    if (gdkwin != null)
+                    {
+                        d[getxid((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"))] = _gtkwin;
+                    }
                 }
+                return _AllWindows(xdisp, rootWindow, d);
             }
             finally
             {
-            //    XCloseDisplay(display);
             }
         }
-
-
-        [DllImport("libgdk-win32-2.0-0.dll")]
-        public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
-
-        private IEnumerable<object> _AllWindows(object display, object win)
+        private IEnumerable<Tuple<IntPtr, object>> _AllWindows(IntPtr display, IntPtr rootWindow, Dictionary<IntPtr, object> gtkwins, int level=0)
         {
-            Type t = XwtImpl.GetType("Gtk.Window");
-            var a= t.InvokeStatic("ListToplevels");
-            return ((Array)a).Cast<object>().Reverse();
-         //   var wins = (Array)win.GetType().GetPropertyValue(win, "Children");
-
-         //          return wins.Cast<Object>();
-
-          /*  var xdisp = gdk_x11_display_get_xdisplay((IntPtr)display.GetType().GetPropertyValue(display, "Handle"));
-            var visual=win.GetType().GetPropertyValue(win,"Visual);")
-            var status = XQueryTree(
-                    xdisp, 
-                    (IntPtr)win.GetType().GetPropertyValue(win,"Handle"),
-                     out IntPtr root_return, out IntPtr parent_return, out IntPtr children_return, out int nchildren_return);
+            var status = XQueryTree(display, rootWindow, out IntPtr root_return, out IntPtr parent_return, out IntPtr children_return, out int nchildren_return);
 
             if (nchildren_return > 0)
             {
@@ -360,28 +434,54 @@ namespace BaseLib.DockIt_Xwt
 
                     for (int nit = children.Length - 1; nit >= 0; nit--)
                     {
-                        yield return children[nit];
+                        if (gtkwins.TryGetValue(children[nit], out object gtkwin))
+                        {
+                            yield return new Tuple<IntPtr, object>(children[nit], gtkwin);
+                        }
+                        else
+                        {
+                            if (level == 0)
+                            {
+                                bool fnd = false;
+                                foreach (var form in _AllWindows(display, children[nit], gtkwins, level + 1))
+                                {
+                                    if (form.Item2 != null)
+                                    {
+                                        fnd = true;
+                                    }
+                                    yield return form;
+                                }
+                                if (!fnd)
+                                {
+                                    yield return new Tuple<IntPtr, object>(children[nit], children[nit]);
+                                }
+                            }
+                        }
                     }
                 }
                 finally
                 {
                     XFree(children_return);
                 }
-            }*/
+            }
         }
-        protected override Rectangle GetWindowRect(object gtkwin)
+        protected override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
         {
-            var v1 = new object[] { 0, 0 };
-            var v2 = new object[] { 0, 0 };
-
-            gtkwin.GetType().Invoke(gtkwin, "GetPosition", v1);
-            gtkwin.GetType().Invoke(gtkwin, "GetSize", v2);
-
-            //var r = gdkwin.GetType().GetPropertyValue(gdkwin, "FrameExtents");
-            //   var display = gdkwin.GetType().GetPropertyValue(gdkwin, "Display");
-            //   var attr = new XWindowAttributes();
-            //   XGetWindowAttributes((IntPtr)display.GetType().GetPropertyValue(display,"Handle"), (IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"), ref attr);
-            return new Rectangle((int)v1[0], (int)v1[1], (int)v2[0], (int)v2[1]);
+            if (gtkwin is IntPtr)
+            {
+                var attr = new XWindowAttributes();
+                XGetWindowAttributes(xdisp, (IntPtr)gtkwin, ref attr);
+                return new Rectangle(attr.x, attr.y, attr.width, attr.height);
+            }
+            else
+            {
+                var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
+                var xy = new object[] { 0, 0 };
+                var wh = new object[] { 0, 0 };
+                gdkwin.GetType().Invoke(gdkwin, "GetOrigin", xy);
+                gdkwin.GetType().Invoke(gdkwin, "GetSize", wh);
+                return new Rectangle((int)xy[0], (int)xy[1],(int)wh[0],(int)wh[1]);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Backends;
 
@@ -34,10 +35,10 @@ namespace BaseLib.DockIt_Xwt
                         var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
-                        Type t = XwtImpl.GetType("Gdk.ModifierType");
+                        Type t = PlatForm.GetType("Gdk.ModifierType");
 
                         var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                        var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
+                        var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
                         mi.Invoke(display, parms);
                         //                        display.GetType().Invoke(display, "GetPointer", parms);
                         //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
@@ -172,7 +173,7 @@ namespace BaseLib.DockIt_Xwt
             }
             public void DoEvents()
             {
-                Type tctx = XwtImpl.GetType("GLib.MainContext");
+                Type tctx = PlatForm.GetType("GLib.MainContext");
 
                 var mi_iteration = tctx.GetMethod("Iteration", new Type[0]);
 

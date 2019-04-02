@@ -3,7 +3,7 @@ using System.Reflection;
 using Xwt;
 using Xwt.Backends;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib
 {
     internal static class Extension
     {
@@ -19,7 +19,6 @@ namespace BaseLib.DockIt_Xwt
         {
             return type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, arguments);
         }
-
         public static object Invoke(this Type type, object instance, string method, params object[] arguments)
         {
             return type.GetMethod(method, BindingFlags.Public | BindingFlags.Instance).Invoke(instance, arguments);

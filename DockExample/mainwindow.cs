@@ -1,6 +1,5 @@
 ﻿using BaseLib.DockIt_Xwt;
 using System;
-using System.Collections.Generic;
 using Xwt;
 using Xwt.Drawing;
 
@@ -82,8 +81,10 @@ namespace DockExample
         protected override void OnShown()
         {
             base.OnShown();
-
-  //          dock.OnLoaded();
+            var backend = this.BackendHost.Backend as Xwt.Backends.IWindowFrameBackend;
+            var gtkkwin = backend.Window;
+       //     var gdkwin = gtkkwin.GetType().GetPropertyValue(gtkkwin, "GdkWindow");
+            //          dock.OnLoaded();
         }
         protected override void OnClosed()
         {

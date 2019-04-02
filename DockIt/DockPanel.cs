@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Drawing;
 
@@ -174,8 +175,8 @@ namespace BaseLib.DockIt_Xwt
         {
             this.mainwindow.Shown -= showfunc;
 
-            var t = XwtImpl.GetType("GLib.Idle");
-            var t2 = XwtImpl.GetType("GLib.IdleHandler");
+            var t = PlatForm.GetType("GLib.Idle");
+            var t2 = PlatForm.GetType("GLib.IdleHandler");
             var mi = t.GetMethod("Add", new Type[] { t2 });
             mi.Invoke(null, new object[] { Delegate.CreateDelegate(t2, this, "dolayoutnow") });
         }

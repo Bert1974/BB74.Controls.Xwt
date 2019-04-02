@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Backends;
 
@@ -32,22 +33,22 @@ namespace BaseLib.DockIt_Xwt
                             var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                             var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
-                            Type t = XwtImpl.GetType("Gdk.ModifierType");
+                            Type t = PlatForm.GetType("Gdk.ModifierType");
 
                             var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                            var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
+                            var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
                             mi.Invoke(display, parms);
                             //                        display.GetType().Invoke(display, "GetPointer", parms);
                             //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
                             int x = (int)parms[0];
                             int y = (int)parms[1];
                             int mask = (int)parms[2];
-                            
+
                             this.doexit = (mask & 0x100) == 0;
 
                             this.Location = new Point(x, y).Offset(-5, -5);
 
-                            this.CheckMove(new Point(x, y),true);
+                            this.CheckMove(new Point(x, y), true);
 
                             this.xwt.DoEvents();
                         }
@@ -64,11 +65,6 @@ namespace BaseLib.DockIt_Xwt
                     {
                         throw;
                     }
-                }
-
-                protected override BackendHost CreateBackendHost()
-                {
-                    return base.CreateBackendHost();
                 }
             }
             /*       [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "/*")]
@@ -149,8 +145,8 @@ namespace BaseLib.DockIt_Xwt
             }
             public void DoEvents()
             {
-                Type tctx = XwtImpl.GetType("Gtk.Application");
-                var t2 = XwtImpl.GetType("Gdk.Threads");
+                Type tctx = PlatForm.GetType("Gtk.Application");
+                var t2 = PlatForm.GetType("Gdk.Threads");
 
                 var mi_iteration = tctx.GetMethod("RunIteration", new Type[] { typeof(bool) });
 
@@ -167,6 +163,5 @@ namespace BaseLib.DockIt_Xwt
             {
             }
         }
-
     }
 }

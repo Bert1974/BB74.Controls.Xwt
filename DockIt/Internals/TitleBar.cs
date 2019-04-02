@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Drawing;
 
@@ -151,7 +152,7 @@ namespace BaseLib.DockIt_Xwt
 
                 var nativectl= this.GetBackend().NativeWidget;
 
-                Type t = XwtImpl.GetType("System.Windows.Controls.Panel");
+                Type t = PlatForm.GetType("System.Windows.Controls.Panel");
 
                 if (nativectl.GetType().IsDerived(t))
                 {

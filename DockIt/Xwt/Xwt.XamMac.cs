@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using BaseLib.XwtPlatForm;
 using Xwt;
 using Xwt.Backends;
 
@@ -34,17 +35,17 @@ namespace BaseLib.DockIt_Xwt
 
                     while (!this.doexit)
                     {
-                        Type t = XwtImpl.GetType("AppKit.NSEvent");
+                        Type t = PlatForm.GetType("AppKit.NSEvent");
                         var pt=t.GetPropertyValueStatic("CurrentMouseLocation");
                         var mask = t.GetPropertyValueStatic("CurrentPressedMouseButtons");
                       /*  var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
                         var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");*/
 
-                        //  Type t = XwtImpl.GetType("Gdk.ModifierType");
+                        //  Type t = PlatForm.GetType("Gdk.ModifierType");
 
                         //   var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                        //   var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
+                        //   var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
                         //    mi.Invoke(display, parms);
                         //                        display.GetType().Invoke(display, "GetPointer", parms);
                         //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
@@ -58,8 +59,8 @@ namespace BaseLib.DockIt_Xwt
                         //              this.Location = new Point(x, y).Offset(-5, -5);
                         //               this.Content.SetFocus();
 
-                        var xwtmacbackend = XwtImpl.GetType("Xwt.Mac.MacDesktopBackend");
-                        var cgsizetype = XwtImpl.GetType("CoreGraphics.CGPoint");
+                        var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
+                        var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
 
                         var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
                         var pt2 = (Xwt.Point)xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
@@ -174,7 +175,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 KillCapture();
                 /*         var backend = widget.GetBackend().NativeWidget;
-                         //    Type t = XwtImpl.GetType("AppKit.NSView");
+                         //    Type t = PlatForm.GetType("AppKit.NSView");
                          var props = backend.GetType().GetProperties().Where(_p => _p.Name == "Widget").ToArray();
                          // var w = typeof(global::Xwt.Backends.IWidgetBackend).GetPropertyValue(backend, "Widget");
                          //      (widget.ParentWindow as global::Xwt.WindowFrame).
@@ -223,7 +224,7 @@ namespace BaseLib.DockIt_Xwt
 
                      while (true)
                      {
-                         Type et = XwtImpl.GetType("AppKit.NSEventMask");
+                         Type et = PlatForm.GetType("AppKit.NSEventMask");
                          var ev = Enum.ToObject(et, 0x42);
                          var e = w.GetType().Invoke(w, "NextEventMatchingMask", new object[] { ev});
                      }*/
@@ -256,12 +257,12 @@ namespace BaseLib.DockIt_Xwt
 
             public void DoEvents()
             {
-                var t = XwtImpl.GetType("AppKit.NSApplication");
+                var t = PlatForm.GetType("AppKit.NSApplication");
                 object o = t.GetPropertyValueStatic("SharedApplication");
                 object e;
-                object mask = Enum.Parse(XwtImpl.GetType("AppKit.NSEventMask"), "AnyEvent");
-                object now = XwtImpl.GetType("Foundation.NSDate").GetPropertyValueStatic("Now");
-                object mode = Enum.Parse(XwtImpl.GetType("Foundation.NSRunLoopMode"), "EventTracking");
+                object mask = Enum.Parse(PlatForm.GetType("AppKit.NSEventMask"), "AnyEvent");
+                object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("Now");
+                object mode = Enum.Parse(PlatForm.GetType("Foundation.NSRunLoopMode"), "EventTracking");
                 object[] args = { mask, now, mode, true };
                 var mi = o.GetType().GetMethod("NextEvent", args.Select(_a => _a.GetType()).ToArray());
                 do
@@ -273,7 +274,7 @@ namespace BaseLib.DockIt_Xwt
 
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
-                Type et = XwtImpl.GetType("AppKit.NSWindowLevel");
+                Type et = PlatForm.GetType("AppKit.NSWindowLevel");
                 var level = Enum.ToObject(et, 3L/*floating*/);
                 var w = (r.GetBackend() as IWindowFrameBackend).Window;
                 w.GetType().SetPropertyValue(w, "Level", level);
