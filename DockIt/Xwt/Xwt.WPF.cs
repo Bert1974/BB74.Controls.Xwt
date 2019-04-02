@@ -39,7 +39,7 @@ namespace BaseLib.DockIt_Xwt
 
                     var t = PlatForm.GetType("System.Windows.ResizeMode");
                     wpfwin.GetType().SetPropertyValue(wpfwin, "ResizeMode", Enum.Parse(t, "NoResize"));
-                    //        wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
+                    wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
 
                     base.Size = new Size(32, 32);
                 }
@@ -103,18 +103,22 @@ namespace BaseLib.DockIt_Xwt
             }
             void IXwt.ReleaseCapture(Widget widget)
             {
-                var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
-                var w = backend.GetType().GetPropertyValue(backend, "Widget");
-                w.GetType().Invoke(w, "ReleaseMouseCapture");
+                if (widget != null)
+                {
+                    var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                    var w = backend.GetType().GetPropertyValue(backend, "Widget");
+                    w.GetType().Invoke(w, "ReleaseMouseCapture");
+                }
             }
-
             void IXwt.SetCapture(Widget widget)
             {
-                var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
-                var w = backend.GetType().GetPropertyValue(backend, "Widget");
-                w.GetType().Invoke(w, "CaptureMouse");
+                if (widget != null)
+                {
+                    var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                    var w = backend.GetType().GetPropertyValue(backend, "Widget");
+                    w.GetType().Invoke(w, "CaptureMouse");
+                }
             }
-
             public XwtImpl.DragWindow Create(Canvas widget, Point position)
             {
                 return new DragWindow(this, widget, position);
