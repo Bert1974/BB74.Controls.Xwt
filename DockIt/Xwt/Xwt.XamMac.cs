@@ -23,7 +23,7 @@ namespace BaseLib.DockIt_Xwt
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
                 }
-                public override void Show()
+                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
                 {
                     this.doexit = false;
                     this.result = true;
@@ -38,7 +38,7 @@ namespace BaseLib.DockIt_Xwt
                         Type t = PlatForm.GetType("AppKit.NSEvent");
                         var pt=t.GetPropertyValueStatic("CurrentMouseLocation");
                         var mask = t.GetPropertyValueStatic("CurrentPressedMouseButtons");
-                      /*  var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                      /*  var gtkwin = (this.GetBackend() as IWindowFrameBa∫ckend).Window;
                         var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");*/
 
@@ -103,9 +103,7 @@ namespace BaseLib.DockIt_Xwt
                     DockPanel.ClrHightlight();
                     this.Close();
 
-                    if (this.result)
-                    {
-                    }
+                    base.SetResult(out dockpane, out dockat);
                 }
             }
 

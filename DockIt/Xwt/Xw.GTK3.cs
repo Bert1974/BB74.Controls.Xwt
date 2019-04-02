@@ -19,7 +19,7 @@ namespace BaseLib.DockIt_Xwt
                     var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                     (backend as IWindowFrameBackend).ShowInTaskbar = false;
                 }
-                public override void Show()
+                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
                 {
                     this.doexit = false;
                     this.result = true;
@@ -91,9 +91,7 @@ namespace BaseLib.DockIt_Xwt
                     DockPanel.ClrHightlight();
                     this.Close();
 
-                    if (this.result)
-                    {
-                    }
+                    base.SetResult(out dockpane, out dockat);
                 }
             }
 

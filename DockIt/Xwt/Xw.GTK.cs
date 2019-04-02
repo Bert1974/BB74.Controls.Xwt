@@ -17,7 +17,7 @@ namespace BaseLib.DockIt_Xwt
                     : base(xwt, widget, position, false)
                 {
                 }
-                public override void Show()
+                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
                 {
                     try
                     {
@@ -57,9 +57,7 @@ namespace BaseLib.DockIt_Xwt
                         DockPanel.ClrHightlight();
                         this.Close();
 
-                        if (this.result)
-                        {
-                        }
+                        base.SetResult(out dockpane, out dockat);
                     }
                     catch (Exception e)
                     {

@@ -71,9 +71,10 @@ namespace BaseLib.XwtPlatForm
             var disp = GetDisplay(window);
             return AllForms(disp, window.GetBackend() as IWindowFrameBackend).Where(_t => GetWindowRect(disp, _t.Item2).Contains(pt));
         }
+        public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
+
         protected virtual IntPtr GetDisplay(Window window) => IntPtr.Zero;
         protected abstract Rectangle GetWindowRect(IntPtr display, object form);
-        public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
 
         private static void LoadDlls(string dllversion)
         {
@@ -187,12 +188,18 @@ namespace BaseLib.XwtPlatForm
                     {
                         foreach (var nswin in winarray)
                         {
+/*#if DEBUG
+                            if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
+                            {
+                                object r2 = Activator.CreateInstance(cgrecttype, new object[] { rr.x, rr.y, rr.w, rr.h });
+                                var r3 = (Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
+                           }
+#endif*/
                             object nint = nswin.GetType().GetPropertyValue(nswin, "WindowNumber");
                             if ((nint as System.IConvertible).ToInt32(null) == windowid)
                             {
-                                Console.WriteLine($"found {nswin}={(nswin as IWindowFrameBackend).Bounds}");
+                              //  Console.WriteLine($"found {nswin}={(nswin as IWindowFrameBackend).Bounds} {(nswin as IWindowFrameBackend).Title}");
                                 yield return new Tuple<IntPtr, object>(new IntPtr(windowid), nswin);
-                                continue;
                             }
                         }
                     }
@@ -207,7 +214,6 @@ namespace BaseLib.XwtPlatForm
                             //         Console.WriteLine($"{windowid}={r3}={OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict,OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName")))}");
 
                             yield return new Tuple<IntPtr, object>(new IntPtr(windowid), r3);
-                            continue;
                         }
                     }
                 }

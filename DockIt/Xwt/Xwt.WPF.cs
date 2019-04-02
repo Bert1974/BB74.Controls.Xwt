@@ -43,11 +43,11 @@ namespace BaseLib.DockIt_Xwt
 
                     base.Size = new Size(32, 32);
                 }
-                public override void Show()
+                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
                 {
                     this.doexit = false;
 
-                    (this as Window).Show();
+                    this.Show();
                     this.Content.SetFocus();
 
                     this.xwt.SetCapture(this.Content);
@@ -64,6 +64,8 @@ namespace BaseLib.DockIt_Xwt
                     DockPanel.ClrHightlight();
 
                     base.Close();
+
+                    base.SetResult(out dockpane, out dockat);
                 }
             }
 

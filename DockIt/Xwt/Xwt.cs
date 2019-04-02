@@ -82,6 +82,21 @@ namespace BaseLib.DockIt_Xwt
                     }
                 }
             }
+
+            internal void SetResult(out IDockPane dockpane, out DockPosition? dockat)
+            {
+                if (this.result)
+                {
+                    dockpane = this.droppane;
+                    dockat = this.drophit;
+                }
+                else
+                {
+                    dockpane = null;
+                    dockat = null;
+                }
+            }
+
             protected readonly IXwt xwt;
             protected readonly Widget widget;
             internal bool result, doexit;
@@ -106,7 +121,7 @@ namespace BaseLib.DockIt_Xwt
 
                 this.Content = new MyCanvas(this, checkmouse);
             }
-            public new abstract void Show();
+            public new abstract void Show(out IDockPane dockpane,out DockPosition? dockat);
             protected virtual void doclose(bool apply)
             {
                 this.result = apply;
@@ -234,11 +249,11 @@ namespace BaseLib.DockIt_Xwt
 
             Application.InvokeAsync(() =>
             {
-                dragwin.Show();
+                dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
 
-                if (dragwin.result && dragwin.droppane != null && dragwin.drophit.HasValue)
+                if (dragwin.result && droppane != null && drophit.HasValue)
                 {
-                    widget.DockPanel.MovePane(widget as IDockPane, documents, dragwin.droppane, dragwin.drophit.Value);
+                    widget.DockPanel.MovePane(widget as IDockPane, documents, droppane, drophit.Value);
                 }
                 else if (dragwin.result)
                 {
