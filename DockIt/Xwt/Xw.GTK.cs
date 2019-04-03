@@ -158,6 +158,13 @@ namespace BaseLib.DockIt_Xwt
             }
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
+                try
+                {
+                    var gtkwin = (r.GetBackend() as IWindowFrameBackend).Window;
+                    var gtkwinparent = (parentWindow.GetBackend() as IWindowFrameBackend).Window;
+                    gtkwin.GetType().SetPropertyValue(gtkwin, "TransientFor", gtkwinparent);
+                }
+                catch { }
             }
         }
     }
