@@ -7,6 +7,7 @@ namespace BaseLib.DockIt_Xwt
 {
     internal class DockSplitter : IDockSplitter
     {
+        private static int SplitSize => DockPanel.SplitSize;
         private List<IDockLayout> _dock = new List<IDockLayout>();
 
         private DockSplitter(DockPanel dockPanel, Orientation orientation)
@@ -63,7 +64,6 @@ namespace BaseLib.DockIt_Xwt
             {
                 var tot = this.Orientation == Orientation.Vertical ? this.WidgetSize.Height : this.WidgetSize.Width;
                 var wh = this.Orientation != Orientation.Vertical ? this.WidgetSize.Height : this.WidgetSize.Width;
-                var e = 4;// Math.Min(4, tot - 4);
 
                 var pt = Point.Zero;// parent.Location;
 
@@ -87,7 +87,7 @@ namespace BaseLib.DockIt_Xwt
                     default:
                         throw new NotImplementedException();
                 }
-                tot = Math.Max(tot - e * (_dock.Count - 1), 0);
+                tot = Math.Max(tot - SplitSize * (_dock.Count - 1), 0);
                 var min = mi.Sum();
 
                 wh = Math.Max(wh, mm);
@@ -167,7 +167,7 @@ namespace BaseLib.DockIt_Xwt
                         this.Orientation == Orientation.Vertical ? new Point(this.Location.X + 0, this.Location.Y + v1) : new Point(this.Location.X + v1, this.Location.Y + 0),
                         this.Orientation == Orientation.Vertical ? new Size(wh, v2 - v1) : new Size(v2 - v1, wh));
 
-                    xy += e;
+                    xy += SplitSize;
 
                 }
                 /*     int splitpos = 0;
@@ -198,19 +198,19 @@ namespace BaseLib.DockIt_Xwt
             }
 
             double miw = 0, mih = 0;
-            int dw = 0, dh = 0, e=4;
+            int dw = 0, dh = 0;
 
             switch (this.Orientation)
             {
                 case Orientation.Horizontal:
                     miw = this._dock.Select(_p => _p.MinimumSize.Width).Sum();
                     mih = this._dock.Select(_p => _p.MinimumSize.Height).Max();
-                    dw = (this._dock.Count - 1) * e;
+                    dw = (this._dock.Count - 1) * SplitSize;
                     break;
                 case Orientation.Vertical:
                     miw = this._dock.Select(_p => _p.MinimumSize.Width).Max();
                     mih = this._dock.Select(_p => _p.MinimumSize.Height).Sum();
-                    dh = (this._dock.Count - 1) * e;
+                    dh = (this._dock.Count - 1) * SplitSize;
                     break;
                 default:
                     throw new NotImplementedException();

@@ -55,8 +55,8 @@ namespace BaseLib.DockIt_Xwt
             { 
                 //base.OnBoundsChanged()
                 this.SetChildBounds(owner.DockPanel, new Rectangle(
-                            dragsize, dragsize + (this.owner.titlebarvisible ? 22 : 0),
-                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? 22 : 0)));
+                            dragsize, dragsize + (this.owner.titlebarvisible ? TitleBar.TitleBarHeight : 0),
+                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? TitleBar.TitleBarHeight : 0)));
             }
             protected override void OnDraw(Context ctx, Rectangle dirtyRect)
             {
@@ -64,7 +64,7 @@ namespace BaseLib.DockIt_Xwt
 
                 if (this.owner.titlebarvisible)
                 {
-                    var r = new Rectangle(0, 0, this.Bounds.Width, 22);
+                    var r = new Rectangle(0, 0, this.Bounds.Width, TitleBar.TitleBarHeight);
 
                     ctx.SetColor(DockPanel.TitlebarColor);
                     ctx.Rectangle(r);
@@ -188,7 +188,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     if (this.owner.titlebarvisible)
                     {
-                        if (pt.Y >= dragsize && pt.Y < 22 && pt.X >= dragsize && pt.X < this.Bounds.Width - dragsize)
+                        if (pt.Y >= dragsize && pt.Y < TitleBar.TitleBarHeight && pt.X >= dragsize && pt.X < this.Bounds.Width - dragsize)
                         {
                             return DragModes.Move;
                         }

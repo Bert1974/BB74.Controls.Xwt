@@ -9,6 +9,8 @@ namespace BaseLib.DockIt_Xwt
 {
     class TitleBar : Canvas
     {
+        public static int TitleBarHeight { get; set; } = 24;
+
         class ScrollButtons : Canvas // dropdown for multiple documents
         {
             private TitleBar titleBar;
@@ -279,7 +281,7 @@ namespace BaseLib.DockIt_Xwt
         {
             this.IsHeader = isheader;
             this.pane = pane;
-            this.MinHeight = HeightRequest = 22;
+            this.MinHeight = HeightRequest = TitleBar.TitleBarHeight;
             this.BackgroundColor = DockPanel.TitlebarColor;
 
             this.buttons = new Buttons(this);
@@ -314,8 +316,8 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else // buttons and menu
                 {
-                    this.SetChildBounds(this.buttons, new Rectangle(Point.Zero, new Size(x, 22)));
-                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, 0), new Size(scrollsize, 22)));
+                    this.SetChildBounds(this.buttons, new Rectangle(Point.Zero, new Size(x, TitleBar.TitleBarHeight)));
+                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, 0), new Size(scrollsize, TitleBar.TitleBarHeight)));
                     this.buttons.Visible = true;
                     this.scrollwindow.Visible = true;
                 }

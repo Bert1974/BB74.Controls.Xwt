@@ -16,6 +16,8 @@ namespace BaseLib.DockIt_Xwt
     {
         public static bool DefaultFloat { get; set; } = true;
         public static Color TitlebarColor { get; set; } = Colors.LightBlue;
+        public static int SplitSize { get; set; } = 4;
+        public static int TitleBarHeight { get => TitleBar.TitleBarHeight; set => TitleBar.TitleBarHeight = value; }
 
         public event EventHandler DocumentsChanged, ActiveDocumentChanged, ActiveContentChanged;
 
@@ -888,7 +890,6 @@ namespace BaseLib.DockIt_Xwt
             if (d == 0) { return; }
             Size s;
             Point pt;
-            int e = 4;
             var panes = dragsplit.Layouts.ToArray();
 
             busy++;
@@ -904,7 +905,7 @@ namespace BaseLib.DockIt_Xwt
                             pt = panes[ind + 0].Location;
                             panes[ind + 0].Layout(pt, new Size(s.Width + d, s.Height));
 
-                            pt.Offset(s.Width - d + e, 0);
+                            pt.Offset(s.Width - d + SplitSize, 0);
                             s = panes[ind + 1].WidgetSize;
                             panes[ind + 1].Layout(pt, new Size(s.Width - d, s.Height));
                         }
@@ -912,21 +913,20 @@ namespace BaseLib.DockIt_Xwt
                              {
                                  var mi = panes.Take(ind + 1).Select(_p => (_p as Control).MinimumSize.Width).ToArray();
                                  var ci = panes.Take(ind + 1).Select(_p => (_p as Control).Width).ToArray();
+                                 
 
-                                 int e = 4;
-
-                                 int ct = ci.Sum() - mi.Sum() + (ind + 1) * e;
+                                 int ct = ci.Sum() - mi.Sum() + (ind + 1) * SplitSize;
                                  int nt = ct + d;
 
                                  double ee = 0;
 
                                  for (int nit = 0; nit <= ind; nit++)
                                  {
-                                     var ne = ee + e + mi[nit] + (ci[nit] - mi[nit]) * nt / (double)ct;
+                                     var ne = ee + SplitSize + mi[nit] + (ci[nit] - mi[nit]) * nt / (double)ct;
                                      int w = (int)ne - (int)ee;
                                      s = (panes[ind] as Control).Size;
                                      (panes[ind] as Control).Location = new Point((int)ee, 0);
-                                     (panes[ind] as Control).Size = new Size(w - e, s.Height);
+                                     (panes[ind] as Control).Size = new Size(w - SplitSize, s.Height);
                                      panes[ind].DoLayout();
 
                                      ee = ne;
@@ -934,16 +934,16 @@ namespace BaseLib.DockIt_Xwt
                                  mi = panes.Skip(ind + 1).Select(_p => (_p as Control).MinimumSize.Width).ToArray();
                                  ci = panes.Skip(ind + 1).Select(_p => (_p as Control).Width).ToArray();
 
-                                 ct = ci.Sum()-mi.Sum()+((panes.Length-(ind+1))-1)*e;
+                                 ct = ci.Sum()-mi.Sum()+((panes.Length-(ind+1))-1)*SplitSize;
                                  nt = ct - d;
 
                                  for (int nit = ind+1; nit <= ind; nit++)
                                  {
-                                     var ne = ee + e + mi[nit] + (ci[nit] - mi[nit]) * nt / (double)ct;
+                                     var ne = ee + SplitSize + mi[nit] + (ci[nit] - mi[nit]) * nt / (double)ct;
                                      int w = (int)ne - (int)ee;
                                      s = (panes[ind] as Control).Size;
                                      (panes[ind] as Control).Location = new Point((int)ee, 0);
-                                     (panes[ind] as Control).Size = new Size(w - e, s.Height);
+                                     (panes[ind] as Control).Size = new Size(w - SplitSize, s.Height);
                                      panes[ind].DoLayout();
 
                                      ee = ne;
@@ -958,7 +958,7 @@ namespace BaseLib.DockIt_Xwt
                         pt = panes[ind + 0].Location;
                         panes[ind + 0].Layout(pt, new Size(s.Width, s.Height + d));
 
-                        pt.Offset(0, s.Height - d + e);
+                        pt.Offset(0, s.Height - d + SplitSize);
                         s = panes[ind + 1].WidgetSize;
                         panes[ind + 1].Layout(pt, new Size(s.Width, s.Height - d));
                     }

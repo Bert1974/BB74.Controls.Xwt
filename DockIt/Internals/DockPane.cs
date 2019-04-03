@@ -103,11 +103,11 @@ namespace BaseLib.DockIt_Xwt
 
                 if (this.topbar.Visible)
                 {
-                    r = new Rectangle(r.Left, r.Top + 22, r.Width, r.Height - 22);
+                    r = new Rectangle(r.Left, r.Top + TitleBar.TitleBarHeight, r.Width, r.Height - TitleBar.TitleBarHeight);
                 }
                 if (this.bottombar.Visible)
                 {
-                    r = new Rectangle(r.Left, r.Top, r.Width, r.Height - 22);
+                    r = new Rectangle(r.Left, r.Top, r.Width, r.Height - TitleBar.TitleBarHeight);
                 }
                 if (r.Width < 0 || r.Height < 0) return Rectangle.Zero;
                 return r;
@@ -144,12 +144,12 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (this.topbar.Visible)
                 {
-                    this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.WidgetSize.Width, 22));
+                    this.SetChildBounds(this.topbar, new Rectangle(0, 0, this.WidgetSize.Width, TitleBar.TitleBarHeight));
                     this.topbar.CheckBounds();
                 }
                 if (this.bottombar.Visible)
                 {
-                    this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - 22, this.WidgetSize.Width, 22));
+                    this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - TitleBar.TitleBarHeight, this.WidgetSize.Width, TitleBar.TitleBarHeight));
                     this.bottombar.CheckBounds();
                 }
                 //  base.Bounds = new Rectangle(pos, size);
@@ -272,7 +272,10 @@ namespace BaseLib.DockIt_Xwt
                     mih = Math.Max(miw, doc.Widget.MinHeight);
                 }
             }
-            this.MinimumSize = new Size(miw, mih + 44);
+            bool v1 = this.topbar.Visible;
+            bool v2 = this.bottombar.Visible;
+
+            this.MinimumSize = new Size(miw, mih + (v1 ? TitleBar.TitleBarHeight : 0) + (v2 ? TitleBar.TitleBarHeight : 0));
             //   (this as Canvas).MinWidth = miw; // fails with WPF
             //   (this as Canvas).MinHeight =mih;
 
@@ -317,9 +320,9 @@ namespace BaseLib.DockIt_Xwt
         {
             var r = new Rectangle(
                 0,
-                this.topbar.Visible ? 22 : 0,
+                this.topbar.Visible ? TitleBar.TitleBarHeight : 0,
                 this.Bounds.Width,
-                this.Bounds.Height - (this.topbar.Visible ?22 : 0) - (this.bottombar.Visible ? 22 : 0));
+                this.Bounds.Height - (this.topbar.Visible ?TitleBar.TitleBarHeight : 0) - (this.bottombar.Visible ? TitleBar.TitleBarHeight : 0));
 
             this.Document?.Widget.Hide();
 
