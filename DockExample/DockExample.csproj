@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xwt.Gtk3.0.2.163\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.163\build\Xwt.Gtk3.props')" />
-  <Import Project="..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props')" />
+  <Import Project="..\packages\Xwt.Gtk3.0.2.165\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.165\build\Xwt.Gtk3.props')" />
+  <Import Project="..\packages\Xwt.Gtk.0.2.165\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.165\build\Xwt.Gtk.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -46,20 +46,29 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Xwt, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xwt.0.2.163\lib\net40\Xwt.dll</HintPath>
+    <Reference Include="Xwt, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.0.2.165\lib\net40\Xwt.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xwt.Gtk, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xwt.Gtk.0.2.163\lib\net40\Xwt.Gtk.dll</HintPath>
+    <Reference Include="Xwt.Gtk, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.0.2.165\lib\net40\Xwt.Gtk.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xwt.Gtk.Windows, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.163\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+    <Reference Include="Xwt.Gtk.Mac, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.165\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xwt.Gtk3">
-      <HintPath>..\packages\Xwt.Gtk3.0.2.163\lib\net40\Xwt.Gtk3.dll</HintPath>
+    <Reference Include="Xwt.Gtk.Windows, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.165\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xwt.WPF, Version=0.2.163.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xwt.WPF.0.2.163\lib\net40\Xwt.WPF.dll</HintPath>
+    <Reference Include="Xwt.Gtk3, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk3.0.2.165\lib\net40\Xwt.Gtk3.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xwt.WPF, Version=0.2.165.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.WPF.0.2.165\lib\net40\Xwt.WPF.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -68,21 +77,22 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DockIt\DockPanel.csproj">
       <Project>{d50c178e-866c-47d4-903f-87a1553b3273}</Project>
       <Name>DockPanel</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xwt.Gtk.0.2.163\build\Xwt.Gtk.props'))" />
+    <Error Condition="!Exists('..\packages\Xwt.Gtk.0.2.165\build\Xwt.Gtk.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xwt.Gtk.0.2.165\build\Xwt.Gtk.props'))" />
+    <Error Condition="!Exists('..\packages\Xwt.Gtk3.0.2.165\build\Xwt.Gtk3.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xwt.Gtk3.0.2.165\build\Xwt.Gtk3.props'))" />
   </Target>
 </Project>
