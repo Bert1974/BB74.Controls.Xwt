@@ -65,7 +65,6 @@ namespace BaseLib.DockIt_Xwt
                 this.owner = owner;
                 this.Margin = 0;
                 this.ExpandHorizontal = this.ExpandVertical = true;
-                base.BackgroundColor = Colors.Pink;
                 this.AddChild(owner.DockPanel);
             }
             protected override void OnBoundsChanged()

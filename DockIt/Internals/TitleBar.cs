@@ -10,6 +10,7 @@ namespace BaseLib.DockIt_Xwt
     class TitleBar : Canvas
     {
         public static int TitleBarHeight { get; set; } = 24;
+        private static int TitleBarButtonSpacing { get; } = 8;
 
         class ScrollButtons : Canvas // dropdown for multiple documents
         {
@@ -65,11 +66,11 @@ namespace BaseLib.DockIt_Xwt
                     {
                         if (value)
                         {
-                            this.BackgroundColor = Colors.Red;
+                            this.BackgroundColor = (this.doc is IDockDocument) ? DockPanel.DocumentActiveColor : DockPanel.ToolbarActiveColor;
                         }
                         else
                         {
-                            this.BackgroundColor = Colors.Transparent;
+                            this.BackgroundColor = (this.doc is IDockDocument) ? DockPanel.DocumentInactiveColor : DockPanel.ToolbarInactiveColor;
                         }
                     }
                 }
@@ -90,17 +91,14 @@ namespace BaseLib.DockIt_Xwt
                 internal void Update()
                 {
                     this.Text = doc.TabText;
-  
-                    if (object.ReferenceEquals(doc, buttons.titlebar.pane.Document))
+
+                    if (doc is IDockDocument) // highlight active document
                     {
-                        if (doc is IDockToolbar)
-                        {
-                            this.Active = true;
-                        }
-                        else
-                        {
-                            this.Active = object.ReferenceEquals(doc, buttons.titlebar.pane.DockPanel.ActiveDocument);
-                        }
+                        this.Active = object.ReferenceEquals(doc, buttons.titlebar.pane.DockPanel.ActiveDocument);
+                    }
+                    else if (object.ReferenceEquals(doc, buttons.titlebar.pane.Document)) // active in pane?
+                    {
+                         this.Active = true;
                     }
                     else
                     {
@@ -198,7 +196,7 @@ namespace BaseLib.DockIt_Xwt
                     var size = o.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                     var w = Math.Max(size.Width, 10);
                     this.SetChildBounds(o, new Rectangle(scrollpos + x, 2, w, 18));
-                    x += w + 8;
+                    x += w + TitleBarButtonSpacing;
                 }
                 var tr = current.Where(_b => !docs.Any(_d => object.ReferenceEquals(_b.doc, _d))).ToArray();
 
@@ -209,7 +207,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 this.QueueDraw();
             }
-            public double Width => this.Children.OfType<DockButton>().Select(_b => _b.Size.Width).Sum() + (this.Children.Count()-1)*8;
+            public double Width => this.Children.OfType<DockButton>().Select(_b => _b.Size.Width).Sum() + (this.Children.Count() - 1) * TitleBarButtonSpacing;
 
            /* public IDockContent Active
             {
@@ -217,7 +215,7 @@ namespace BaseLib.DockIt_Xwt
                 set => this.titlebar.pane.SetActive(value);
             }
             */
-            internal void Update()
+        /*    internal void Update()
             {
                 double x = 0;
                 foreach (var b in this.Children.OfType<Buttons.DockButton>())
@@ -226,10 +224,10 @@ namespace BaseLib.DockIt_Xwt
                     var size = b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                     var w = Math.Max(size.Width, 10);
                     this.SetChildBounds(b, new Rectangle(scrollpos + x, 2, w, 18));
-                    x += w + 8;
+                    x += w + TitleBarButtonSpacing;
                 }
                 this.QueueDraw();
-            }
+            }*/
         }
  
         public static TitleBar CreateHeader(DockPane dockPane)
@@ -243,10 +241,10 @@ namespace BaseLib.DockIt_Xwt
         }
 
 
-        internal void Update()
+   /*     internal void Update()
         {
             this.buttons.Update();
-        }
+        }*/
         private IEnumerable<IDockContent> docsvis
         {
             get

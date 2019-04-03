@@ -20,18 +20,18 @@ namespace BaseLib.DockIt_Xwt
                 this.WidthRequest = dockPane.wh;
                 this.HeightRequest = dockPane.wh;
                 this.Opacity = .8f;
-                this.BackgroundColor = Colors.LightYellow;
+                this.BackgroundColor = DockPanel.DropTargetColor;
             }
 
             internal void SetHighLight(bool highlighted)
             {
                 if (highlighted)
                 {
-                    this.BackgroundColor = Colors.OrangeRed;
+                    this.BackgroundColor = DockPanel.DropTargetColorSelected;
                 }
                 else
                 {
-                    this.BackgroundColor = Colors.LightYellow;
+                    this.BackgroundColor = DockPanel.DropTargetColor;
                 }
                 this.QueueDraw();
             }

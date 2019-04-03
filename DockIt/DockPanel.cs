@@ -15,7 +15,15 @@ namespace BaseLib.DockIt_Xwt
     public class DockPanel : Canvas
     {
         public static bool DefaultFloat { get; set; } = true;
-        public static Color TitlebarColor { get; set; } = Colors.LightBlue;
+
+        public static Color TitlebarColor { get; set; } = Colors.Gray;
+        public static Color DocumentActiveColor { get; set; } = Colors.LightBlue;
+        public static Color ToolbarActiveColor { get; set; } = Colors.LightBlue;
+        public static Color ToolbarInactiveColor { get; set; } = Colors.LightGray;
+        public static Color DocumentInactiveColor { get; set; } = Colors.LightGray;
+        public static Color DropTargetColor { get; set; } = Colors.LightYellow;
+        public static Color DropTargetColorSelected { get; set; } = Colors.OrangeRed;
+
         public static int SplitSize { get; set; } = 4;
         public static int TitleBarHeight { get => TitleBar.TitleBarHeight; set => TitleBar.TitleBarHeight = value; }
 
@@ -229,7 +237,6 @@ namespace BaseLib.DockIt_Xwt
             this.busy++;
             this.Margin = 0;
             this.MinWidth = this.MinHeight = 0;
-            base.BackgroundColor = Colors.Chocolate;
             base.ExpandHorizontal = base.ExpandVertical = true;
             base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
 

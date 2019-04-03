@@ -28,7 +28,7 @@ namespace BaseLib.DockIt_Xwt
                     this.ExpandHorizontal = true;
                     this.ExpandVertical = true;
                     this.CanGetFocus = true;
-                    this.BackgroundColor = Colors.LightYellow;
+                    this.BackgroundColor = DockPanel.DropTargetColor;
 
                     /*    this.ButtonPressed += (s, e) => { };
                         this.ButtonReleased += (s, e) => { };
