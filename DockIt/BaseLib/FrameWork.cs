@@ -35,7 +35,6 @@ namespace BaseLib.XwtPlatForm
                     break;
             }
             Application.Initialize(type);
-            Instance = Create();
         }
 
         public static PlatformID OSPlatform
@@ -63,8 +62,18 @@ namespace BaseLib.XwtPlatForm
                 }
             }
         }
-        public static PlatForm Instance { get; private set; }// forms-enumerator
-
+        private static PlatForm _instance = null;
+        public static PlatForm Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = Create();
+                }
+                return _instance;
+            }
+        }
         public IEnumerable<Tuple<IntPtr, object>> Search(WindowFrame window, Point pt)
         {
             var disp = GetDisplay(window);

@@ -34,7 +34,7 @@ namespace DockExample
         static void Main(string[] args)
         {
 #if (__MACOS__)
-             BaseLib.XwtPlatForm.PlatForm.Initialize(ToolkitType.XamMac);
+            Application.Initialize((ToolkitType.XamMac);
 #else
             if (System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
             {
@@ -42,7 +42,7 @@ namespace DockExample
             }
             else
             {
-                BaseLib.XwtPlatForm.PlatForm.Initialize(ToolkitType.Wpf);
+                Application.Initialize(ToolkitType.Wpf);
             }
 #endif
             Program.xwt = (IXwt)XwtImpl.Create();
