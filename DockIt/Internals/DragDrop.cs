@@ -391,6 +391,7 @@ namespace BaseLib.DockIt_Xwt
 
         internal static void StartDrag(FloatWindow owner, Point position)
         {
+            owner.Visible = false;
             DragWindow dragwin = CreateDragWin(owner.DockPanel.xwt, position, owner.DockPanel.Current.WidgetSize);
 
             Application.InvokeAsync(() =>
@@ -403,7 +404,8 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (dragwin.result)
                 {
-                    // still floating? move or so?
+                    owner.Location = dragwin.Location.Offset(5, 5);
+                    owner.Visible = true;
                 }
                 dragwin.Dispose();
             });
@@ -422,7 +424,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (dragwin.result)
                 {
-                    pane.DockPanel.FloatPane(pane, documents, dragwin.Location.Offset(5, 5));
+                    pane.DockPanel.FloatPane(pane, documents, dragwin.Location.Offset(5, 5), pane.WidgetSize);
                 }
                 dragwin.Dispose();
             });

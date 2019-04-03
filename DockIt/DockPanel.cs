@@ -1326,7 +1326,7 @@ namespace BaseLib.DockIt_Xwt
                 }
             }
         }
-        public void FloatPane(IDockPane panesrc, IDockContent[] doc, Point formpos)
+        public void FloatPane(IDockPane panesrc, IDockContent[] doc, Point formpos, Size formsize)
         {
             BeginLayout();
 
@@ -1342,7 +1342,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 bool delsrc = panesrc.Remove(doc);
 
-                var form = FloatWindow.Create(this, doc, formpos, out IDockPane panefloat);
+                var form = FloatWindow.Create(this, doc, new Rectangle(formpos, formsize), out IDockPane panefloat);
 
                 if (delsrc)
                 {
