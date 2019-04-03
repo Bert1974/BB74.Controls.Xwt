@@ -1,0 +1,10 @@
+focusmac
+mdi pane
+e & enzo eruit
+better layout:
+-keep same on dock
+example-app:
+-dock dockpanel.dump
+
+next project opentk:
+cleanup xwtimpl
