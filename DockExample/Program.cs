@@ -34,7 +34,7 @@ namespace DockExample
         static void Main(string[] args)
         {
 #if (__MACOS__)
-            Application.Initialize((ToolkitType.XamMac);
+            Application.Initialize(ToolkitType.XamMac);
 #else
             if (System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
             {
