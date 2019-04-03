@@ -1,12 +1,32 @@
 ﻿using System;
 using System.Diagnostics;
 using Xwt;
+using Xwt.Backends;
 using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
     class FloatWindow : Xwt.Window, IDockFloatForm
     {
+        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)
+        {
+            return Create(dock, docs, new Rectangle(formpos, new Size(200, 200)), out panefloat);
+        }
+        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Rectangle formpos, out IDockPane panefloat)
+        {
+            var r = new FloatWindow(dock, docs, formpos);
+
+            r.Show();
+
+            dock.xwt.SetParent(r, r.maindock.ParentWindow);
+
+            panefloat = r.DockPanel.Current as IDockPane;
+
+            r.maindock.AddFloat(r);
+
+            return r;
+        }
+
         public DockPanel/*IDockFloatForm.*/ DockPanel { get; private set; }
         private readonly ResizeCanvas Canvas;
         internal DockPanel maindock;
@@ -28,6 +48,7 @@ namespace BaseLib.DockIt_Xwt
             RightBottom
         }
 
+        #region ResizeCanvas
         class ResizeCanvas : Xwt.Canvas
         {
             const int dragsize = 4;
@@ -302,24 +323,8 @@ namespace BaseLib.DockIt_Xwt
                 return new Rectangle(0, 0, -1, -1);
             }
         }
-        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)
-        {
-            return Create(dock, docs, new Rectangle(formpos, new Size(200, 200)), out panefloat);
-        }
-        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Rectangle formpos, out IDockPane panefloat)
-        {
-            var r = new FloatWindow(dock, docs, formpos);
+        #endregion
 
-            r.Show();
-
-            dock.xwt.SetParent(r, r.maindock.ParentWindow);
-
-            panefloat = r.DockPanel.Current as IDockPane;
-
-            r.maindock.AddFloat(r);
-
-            return r;
-        }
         private FloatWindow(DockPanel dock, IDockContent[] docs, Rectangle formpos)
         {
             while (dock.FloatForm != null) { dock = (dock.FloatForm as FloatWindow).maindock; }

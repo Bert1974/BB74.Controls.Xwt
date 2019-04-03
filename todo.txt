@@ -1,6 +1,7 @@
 focusmac
 mdi pane
-e & enzo eruit
+titlebar pane dock
+floatwindow & dragwindow groote en size
 better layout:
 -keep same on dock
 example-app:
