@@ -1,2 +1,6 @@
 # Dockit.Xwt
-Free C# XWT docking-widget
+Free C# docking-widget for the Xwt framework.
+
+Docking.Xwt supports for now Xwt's WPF, GTK2, XamMac layout engines.
+
+
