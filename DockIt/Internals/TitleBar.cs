@@ -24,22 +24,29 @@ namespace BaseLib.DockIt_Xwt
                 var size = menu.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                 base.SetChildBounds(menu, new Rectangle(Point.Zero, size));
             }
-
             public void SetDocuments(IDockContent[] docs)
             {
                 var m = new Menu();
 
                 foreach(var doc in docs)
                 {
-                    m.Items.Add(new MenuItem(doc.TabText));
+                    var mi = new CheckBoxMenuItem(doc.TabText) { Checked = object.ReferenceEquals(this.titleBar.pane.Document, doc), Tag = doc };
+                    mi.Clicked += Mi_Clicked;
+                    m.Items.Add(mi);
                 }
                 this.menu.Menu = m;
             }
+
+            private void Mi_Clicked(object sender, EventArgs e)
+            {
+                this.titleBar.pane.SetActive((sender as MenuItem).Tag as IDockContent);
+            }
+
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
                 return menu.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
             }
-            public double Width => this.Children.Select(_b => _b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width).Sum();
+            public double Width => this.Children.Select(_b => _b.Size.Width).Sum();
         }
         class Buttons : Canvas // document buttons
         {
@@ -103,11 +110,16 @@ namespace BaseLib.DockIt_Xwt
                 {
                     if (args.Button == PointerButton.Left)
                     {
+                        var opos = this.buttons.GetChildBounds(this);
                         this.buttons.titlebar.pane.SetActive(this.doc);
-                        //this.buttons.Active = this.doc;
-                        this.captured = true;
-                        this.dragpt = args.Position;
-                       this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+
+                        if (opos.Equals(this.buttons.GetChildBounds(this)))
+                        {
+                            //this.buttons.Active = this.doc;
+                            this.captured = true;
+                            this.dragpt = args.Position;
+                            this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                        }
                         return;
                     }
                     base.OnButtonPressed(args);
@@ -195,7 +207,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 this.QueueDraw();
             }
-            public double Width => this.Children.OfType<DockButton>().Select(_b => _b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width).Sum();
+            public double Width => this.Children.OfType<DockButton>().Select(_b => _b.Size.Width).Sum() + (this.Children.Count()-1)*8;
 
            /* public IDockContent Active
             {
@@ -333,6 +345,8 @@ namespace BaseLib.DockIt_Xwt
             this.docs = docs.ToArray();
             this.scrollwindow.SetDocuments(this.docs);
             this.buttons.SetDocuments(this.docsvis.ToArray());
+
+            CheckBounds();
 
             if (this.Visible != this.docsvis.Any())
             {
