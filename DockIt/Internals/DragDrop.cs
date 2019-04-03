@@ -404,7 +404,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (dragwin.result)
                 {
-                    owner.Location = dragwin.Location.Offset(5, 5);
+                    (owner.GetBackend()as IWindowFrameBackend).Bounds = new Rectangle(dragwin.Location, (owner.GetBackend() as IWindowFrameBackend).Bounds.Size);
                     owner.Visible = true;
                 }
                 dragwin.Dispose();
@@ -424,7 +424,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (dragwin.result)
                 {
-                    pane.DockPanel.FloatPane(pane, documents, dragwin.Location.Offset(5, 5), pane.WidgetSize);
+                    pane.DockPanel.FloatPane(pane, documents, dragwin.Location, pane.WidgetSize);
                 }
                 dragwin.Dispose();
             });
