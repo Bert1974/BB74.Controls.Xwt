@@ -1146,10 +1146,8 @@ namespace BaseLib.DockIt_Xwt
         public IDockLayout DockFloatform(IDockFloatForm window, IDockPane panedst, DockPosition dockat)
         {
             IDockLayout result = null;
-            BeginLayout();
-
-            Debug.Assert(this.AllLayouts.Contains(panedst));
-
+            panedst.DockPanel.BeginLayout();
+            
             //move docnum (-1=all) in pansrc to panedst at dockat (panesrc is assumed to be child in this._content)
 
             // check if not moving to same floatform
@@ -1196,7 +1194,7 @@ namespace BaseLib.DockIt_Xwt
                     }
                 }
             }
-            EndLayout(true);
+            panedst.DockPanel.EndLayout(true);
 
             return result;
         }

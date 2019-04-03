@@ -7,10 +7,10 @@ using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
-    static class DragDrop
+    static class DockItDragDrop
     {
         #region abstract class DragWindow
-        protected abstract class DragWindow : Window
+        internal abstract class DragWindow : Window
         {
             #region MyCancas
             protected class MyCanvas : Xwt.Canvas
@@ -30,9 +30,9 @@ namespace BaseLib.DockIt_Xwt
                     this.CanGetFocus = true;
                     this.BackgroundColor = Colors.LightYellow;
 
-                /*    this.ButtonPressed += (s, e) => { };
-                    this.ButtonReleased += (s, e) => { };
-                    this.MouseMoved += (s, e) => { };*/
+                    /*    this.ButtonPressed += (s, e) => { };
+                        this.ButtonReleased += (s, e) => { };
+                        this.MouseMoved += (s, e) => { };*/
                 }
                 protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
                 {
@@ -94,15 +94,14 @@ namespace BaseLib.DockIt_Xwt
             }
 
             protected readonly IXwt xwt;
-            protected readonly Widget widget;
             internal bool result, doexit;
             internal DockPosition? drophit;
             internal IDockPane droppane;
+            private readonly Size floatsize;
 
-            protected DragWindow(IXwt wxt, /*Canvas widget, */Point position, bool checkmouse)
+            protected DragWindow(IXwt wxt, Point position, Size size, bool checkmouse)
             {
                 this.xwt = wxt;
-               // this.widget = widget;
 
                 this.result = this.doexit = false;
 
@@ -114,6 +113,8 @@ namespace BaseLib.DockIt_Xwt
                 this.Opacity = 0.8;
                 this.Padding = 0;
                 this.Title = "dragform";
+
+                this.floatsize = size;
 
                 this.Content = new MyCanvas(this, checkmouse);
             }
@@ -133,16 +134,22 @@ namespace BaseLib.DockIt_Xwt
             }
             protected void CheckMove(Point point, bool setpos)
             {
-                XwtImpl.CheckMove(this, point, setpos, ref this.droppane, ref this.drophit);
+                DockItDragDrop.CheckMove(this, point, setpos, this.floatsize, ref this.droppane, ref this.drophit);
+            }
+
+            internal virtual void SetPosition(Rectangle rectangle)
+            {
+                (this.GetBackend() as IWindowFrameBackend).Bounds = rectangle;
             }
         }
+
         #endregion
 
         #region class DragWindowWpf
         class DragWindowWpf : DragWindow
         {
-            public DragWindowWpf(IXwt xwt, Point position)
-                : base(xwt, position, false)
+            public DragWindowWpf(IXwt xwt, Point position, Size size)
+                : base(xwt, position, size, false)
             {
                 var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
                 wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
@@ -166,7 +173,9 @@ namespace BaseLib.DockIt_Xwt
                 {
                     var pt = new Win32.POINT();
                     Win32.GetCursorPos(ref pt);
+
                     this.CheckMove(pt, true);
+
                     this.xwt.DoEvents();
                 }
                 this.xwt.ReleaseCapture(this.Content);
@@ -177,14 +186,20 @@ namespace BaseLib.DockIt_Xwt
 
                 base.SetResult(out dockpane, out dockat);
             }
+            internal override void SetPosition(Rectangle rectangle)
+            {
+                var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", rectangle.Width);
+                base.SetPosition(rectangle);
+            }
         }
         #endregion
 
         #region class DragWindowXamMac
         class DragWindowXamMac : DragWindow
         {
-            public DragWindowXamMac(IXwt wxt,Point position)
-                : base(wxt, position, false)
+            public DragWindowXamMac(IXwt wxt, Point position, Size size)
+                : base(wxt, position, size, false)
             {
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
@@ -233,8 +248,8 @@ namespace BaseLib.DockIt_Xwt
         #region class DragWindowGTK2
         class DragWindowGTK2 : DragWindow
         {
-            public DragWindowGTK2(IXwt xwt,  Point position)
-                : base(xwt, position, false)
+            public DragWindowGTK2(IXwt xwt, Point position, Size size)
+                : base(xwt, position, size, false)
             {
             }
             public override void Show(out IDockPane dockpane, out DockPosition? dockat)
@@ -290,8 +305,8 @@ namespace BaseLib.DockIt_Xwt
         #region class DragWindowGTK3
         class DragWindowGTK3 : DragWindow
         {
-            public DragWindowGTK3(IXwt xwt,Point position)
-                : base(xwt, position, false)
+            public DragWindowGTK3(IXwt xwt, Point position, Size size)
+                : base(xwt, position, size, false)
             {
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
@@ -374,27 +389,29 @@ namespace BaseLib.DockIt_Xwt
 
         #endregion
 
+        internal static void StartDrag(FloatWindow owner, Point position)
+        {
+            DragWindow dragwin = CreateDragWin(owner.DockPanel.xwt, position, owner.DockPanel.Current.WidgetSize);
+
+            Application.InvokeAsync(() =>
+            {
+                dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
+
+                if (dragwin.result && droppane != null && drophit.HasValue)
+                {
+                    owner.DockPanel.DockFloatform(owner, droppane, drophit.Value);
+                }
+                else if (dragwin.result)
+                {
+                    // still floating? move or so?
+                }
+                dragwin.Dispose();
+            });
+        }
         public static void StartDrag(IDockPane pane, IDockContent[] documents, Point position)
         {
-            DragWindow dragwin;
+            DragWindow dragwin = CreateDragWin(pane.DockPanel.xwt, position, pane.WidgetSize);
 
-            switch (Toolkit.CurrentEngine.Type)
-            {
-                case ToolkitType.Wpf:
-                    dragwin = new DragWindowWpf(pane.DockPanel.xwt,  position);
-                    break;
-                case ToolkitType.XamMac:
-                    dragwin = new DragWindowXamMac(pane.DockPanel.xwt,  position);
-                    break;
-                case ToolkitType.Gtk:
-                    dragwin = new DragWindowGTK2(pane.DockPanel.xwt,  position);
-                    break;
-                case ToolkitType.Gtk3:
-                    dragwin = new DragWindowGTK3(pane.DockPanel.xwt,  position);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
             Application.InvokeAsync(() =>
             {
                 dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
@@ -409,6 +426,70 @@ namespace BaseLib.DockIt_Xwt
                 }
                 dragwin.Dispose();
             });
+        }
+
+        private static DragWindow CreateDragWin(IXwt xwt, Point position, Size size)
+        {
+            switch (Toolkit.CurrentEngine.Type)
+            {
+                case ToolkitType.Wpf: return new DragWindowWpf(xwt, position, size);
+                case ToolkitType.XamMac: return new DragWindowXamMac(xwt, position, size);
+                case ToolkitType.Gtk: return new DragWindowGTK2(xwt, position, size);
+                case ToolkitType.Gtk3: return new DragWindowGTK3(xwt, position, size);
+                default: throw new NotImplementedException();
+            }
+        }
+        internal static void CheckMove(DragWindow window, Point pt, bool setpos, Size floatsize, ref IDockPane droppane, ref DockPosition? drophit)
+        {
+            try
+            {
+                var hits = BaseLib.XwtPlatForm.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
+
+                foreach (var w in hits)
+                {
+                    if (object.ReferenceEquals((window.GetBackend() as IWindowBackend).Window, w.Item2))
+                    {
+                        continue;// hit through dragwindow
+                    }
+                    var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
+
+                    if (hit != null)
+                    {
+                        var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
+
+                        DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out droppane, out drophit);
+                        return;
+                    }
+                    if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
+                    {
+                        if (w.Item2.GetType().FullName != "Microsoft.VisualStudio.DesignTools.WpfTap.WpfVisualTreeService.Adorners.AdornerLayerWindow")
+                        {
+                            break; // window in front
+                        }
+                    }
+                    else
+                    {
+                        break;// window in front
+                    }
+                }
+                droppane = null; drophit = null;
+                DockPanel.ClrHightlight();
+            }
+            catch { throw; }
+            finally
+            {
+                if (setpos)
+                {
+                    if (droppane == null || !drophit.HasValue)
+                    {
+                        window.SetPosition(new Rectangle(pt.Offset(-5, -5), floatsize));
+                    }
+                    else
+                    {
+                        window.SetPosition(new Rectangle(pt.Offset(-5, -5), new Size(32, 32)));
+                    }
+                }
+            }
         }
     }
 }

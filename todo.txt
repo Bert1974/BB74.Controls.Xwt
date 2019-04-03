@@ -2,6 +2,7 @@ focusmac
 mdi pane
 titlebar pane dock
 floatwindow & dragwindow groote en size
+mouse ove splitter during drop
 better layout:
 -keep same on dock
 example-app:

@@ -139,7 +139,7 @@ namespace BaseLib.DockIt_Xwt
 
                             // start drag
 
-                            BaseLib.DockIt_Xwt.DragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, this.ConvertToScreenCoordinates(args.Position));
+                            DockItDragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, this.ConvertToScreenCoordinates(args.Position));
                             return;
                         }
                     }

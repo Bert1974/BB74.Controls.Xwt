@@ -27,44 +27,6 @@ namespace BaseLib.DockIt_Xwt
             }
             return null;
         }
-        public static void CheckMove(Window window, Point pt, bool setpos, ref IDockPane droppane, ref DockPosition? drophit)
-        {
-            if (setpos)
-            {
-                (window.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt.Offset(-5, -5), new Size(32, 32));
-            }
-            var hits = BaseLib.XwtPlatForm.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
-
-            foreach (var w in hits)
-            {
-                if (object.ReferenceEquals((window.GetBackend() as IWindowBackend).Window, w.Item2))
-                {
-                    continue;// hit through dragwindow
-                }
-                var hit = DockPanel.CheckHit(w.Item2, pt.X, pt.Y);
-
-                if (hit != null)
-                {
-                    var b = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
-
-                    DockPanel.SetHighLight(hit, new Point(pt.X - b.X, pt.Y - b.Y), out droppane, out drophit);
-                    return;
-                }
-                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
-                {
-                    if (w.Item2.GetType().FullName != "Microsoft.VisualStudio.DesignTools.WpfTap.WpfVisualTreeService.Adorners.AdornerLayerWindow")
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            droppane = null; drophit = null;
-            DockPanel.ClrHightlight();
-        }
         protected XwtImpl()
         {
         }
