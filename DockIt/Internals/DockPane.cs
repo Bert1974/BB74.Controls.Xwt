@@ -153,7 +153,7 @@ namespace BaseLib.DockIt_Xwt
                 if (this.bottombar.Visible)
                 {
                     this.SetChildBounds(this.bottombar, new Rectangle(0, this.WidgetSize.Height - 22, this.WidgetSize.Width, 22));
-                    this.topbar.CheckBounds();
+                    this.bottombar.CheckBounds();
                 }
                 //  base.Bounds = new Rectangle(pos, size);
                 if (_activedoc != null)

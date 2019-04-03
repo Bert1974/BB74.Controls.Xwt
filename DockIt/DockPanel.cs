@@ -583,7 +583,7 @@ namespace BaseLib.DockIt_Xwt
 
         internal void SetActive(IDockContent value)
         {
-            if (!object.ReferenceEquals(value, this.ActiveDocument))
+          //  if (!object.ReferenceEquals(value, this.ActiveDocument))
             {
                 if (value is IDockDocument)
                 {
