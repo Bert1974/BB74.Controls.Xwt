@@ -75,8 +75,8 @@ namespace BaseLib.DockIt_Xwt
             { 
                 //base.OnBoundsChanged()
                 this.SetChildBounds(owner.DockPanel, new Rectangle(
-                            dragsize, dragsize + (this.owner.titlebarvisible ? TitleBar.TitleBarHeight : 0),
-                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? TitleBar.TitleBarHeight : 0)));
+                            dragsize, dragsize + (this.owner.titlebarvisible ? TitleBar.TitleBarHeight+dragsize : 0),
+                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? TitleBar.TitleBarHeight+dragsize : 0)));
             }
             protected override void OnDraw(Context ctx, Rectangle dirtyRect)
             {
@@ -84,7 +84,7 @@ namespace BaseLib.DockIt_Xwt
 
                 if (this.owner.titlebarvisible)
                 {
-                    var r = new Rectangle(0, 0, this.Bounds.Width, TitleBar.TitleBarHeight);
+                    var r = new Rectangle(dragsize, dragsize, this.Bounds.Width - dragsize * 2, TitleBar.TitleBarHeight);
 
                     ctx.SetColor(DockPanel.TitlebarColor);
                     ctx.Rectangle(r);
@@ -93,7 +93,7 @@ namespace BaseLib.DockIt_Xwt
                     var tl = new TextLayout(this) { Text = this.owner.Title };
 
                     ctx.SetColor(Colors.Black);
-                    ctx.DrawTextLayout(tl, new Point(2, 2));
+                    ctx.DrawTextLayout(tl, new Point(dragsize+4, dragsize + 2));
                 }
                 ctx.SetColor(Colors.Black);
                 ctx.Rectangle(this.Bounds);
@@ -105,13 +105,13 @@ namespace BaseLib.DockIt_Xwt
                 {
                     var hit = HitTest(args.Position);
 
-                    if (hit == DragModes.Move) // hit titlebar
+               /*     if (hit == DragModes.Move) // hit titlebar
                     {
                         // todo check small move first
                         DockItDragDrop.StartDrag(this.owner, this.ConvertToScreenCoordinates(args.Position));
                         return;
                     }
-                    else if (hit != DragModes.None)
+                    else */ if (hit != DragModes.None)
                     {
                         this.captured = hit;
                         this.drophit = null;this.droppane = null;
@@ -128,23 +128,26 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (captured != DragModes.None)
                 {
-                    Rectangle r = GetDragPos(args.Position);
-                    if (r.Width >= 0 && r.Height >= 0)
+                    if (captured != DragModes.Move)
                     {
-                      /*  if (this.captured == DragModes.Move)
+                        Rectangle r = GetDragPos(args.Position);
+                        if (r.Width >= 0 && r.Height >= 0)
                         {
-                            if (this.drophit.HasValue)
-                            {
-                                Debug.Assert(this.captured==DragModes.Move);
+                            /*  if (this.captured == DragModes.Move)
+                              {
+                                  if (this.drophit.HasValue)
+                                  {
+                                      Debug.Assert(this.captured==DragModes.Move);
 
-                                ClrCapture();
+                                      ClrCapture();
 
-                                this.droppane.DockPanel.DockFloatform(this.owner, this.droppane, this.drophit.Value);
+                                      this.droppane.DockPanel.DockFloatform(this.owner, this.droppane, this.drophit.Value);
 
-                                return;
-                            }
-                        }*/
-                        SetNewPos(r);
+                                      return;
+                                  }
+                              }*/
+                            SetNewPos(r);
+                        }
                     }
                     ClrCapture();
                     return;
@@ -162,18 +165,28 @@ namespace BaseLib.DockIt_Xwt
 
             protected override void OnMouseMoved(MouseMovedEventArgs args)
             {
-                if (captured != DragModes.None)
+                if (captured == DragModes.Move)
+                {
+                    var scrpt = ConvertToScreenCoordinates(args.Position);
+                    if (!DockPanel.DragRectangle.Contains(scrpt.X - this.orgpt.X, scrpt.Y - this.orgpt.Y))
+                    {
+                        ClrCapture();
+
+                        DockItDragDrop.StartDrag(this.owner, scrpt);
+                    }
+                }
+                else if (captured != DragModes.None)
                 {
                     Rectangle r = GetDragPos(args.Position);
                     if (r.Width >= 0 && r.Height >= 0)
                     {
                         SetNewPos(r);
                     }
-                  var pt = base.ConvertToScreenCoordinates(args.Position);
-                /*      if (this.captured == DragModes.Move)
-                    {
-                        DockItDragDrop.CheckMove(this.owner, pt, false, Size.Zero, ref this.droppane, ref this.drophit);
-                    }*/
+                    var pt = base.ConvertToScreenCoordinates(args.Position);
+                    /*      if (this.captured == DragModes.Move)
+                        {
+                            DockItDragDrop.CheckMove(this.owner, pt, false, Size.Zero, ref this.droppane, ref this.drophit);
+                        }*/
                     base.Cursor = GetCursor(captured, pt);
                     //        base.Capture = true;
                     return;
@@ -335,6 +348,7 @@ namespace BaseLib.DockIt_Xwt
         {
             while (dock.FloatForm != null) { dock = (dock.FloatForm as FloatWindow).maindock; }
 
+            this.BackgroundColor = Colors.White;
             this.maindock = dock;
             this.Location = formpos.Location;
             this.Size = formpos.Size;
@@ -349,7 +363,7 @@ namespace BaseLib.DockIt_Xwt
             this.DockPanel.Dock(docs, DockPosition.Center);
 
             this.DockPanel.DocumentsChanged += DockPanel_DocumentsChanged;
-            SetTitleBarVisble();
+            this.SetTitleBarVisble();
 
     /*       if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
             {
@@ -359,7 +373,7 @@ namespace BaseLib.DockIt_Xwt
         }
         private void DockPanel_DocumentsChanged(object sender, EventArgs e)
         {
-            SetTitleBarVisble();
+            this.SetTitleBarVisble();
         }
         private void SetTitleBarVisble()
         {

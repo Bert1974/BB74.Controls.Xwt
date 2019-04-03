@@ -26,6 +26,8 @@ namespace BaseLib.DockIt_Xwt
         public static Color MDIColor { get; set; } = Colors.DarkGray;
         public static Color ColorSplitter { get; set; } = Colors.Black;
 
+        public static Rectangle DragRectangle { get; set; } = new Rectangle(-4, -4, 8, 8);
+
         public static int SplitSize { get; set; } = 4;
         public static int TitleBarHeight { get => TitleBar.TitleBarHeight; set => TitleBar.TitleBarHeight = value; }
 

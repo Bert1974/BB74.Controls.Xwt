@@ -128,9 +128,8 @@ namespace BaseLib.DockIt_Xwt
                 {
                     if (captured)
                     {
-                        int dd = 3;
-                        if (args.X < this.dragpt.X - dd || args.X >= this.dragpt.X + dd || args.Y < this.dragpt.Y - dd || args.Y >= this.dragpt.Y + dd)
-                        {
+                        if (!DockPanel.DragRectangle.Contains(args.X - this.dragpt.X, args.Y - this.dragpt.Y))
+                        { 
                             this.captured = false;
 
                             this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
@@ -234,17 +233,11 @@ namespace BaseLib.DockIt_Xwt
         {
             return new TitleBar(dockPane, true);
         }
-
         public static TitleBar CreateTabs(DockPane dockPane)
         {
             return new TitleBar(dockPane, false);
         }
 
-
-   /*     internal void Update()
-        {
-            this.buttons.Update();
-        }*/
         private IEnumerable<IDockContent> docsvis
         {
             get
