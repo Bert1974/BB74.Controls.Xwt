@@ -8,6 +8,7 @@ namespace BaseLib.DockIt_Xwt
 {
     internal class DockPane : Canvas, IDockPane, IDockNotify
     {
+        #region DropTarget
         class DropTarget : Xwt.Canvas
         {
             private DockPane dockPane;
@@ -44,6 +45,8 @@ namespace BaseLib.DockIt_Xwt
                 ctx.Stroke();
             }
         }
+        #endregion
+        
         private List<IDockContent> _docs = new List<IDockContent>();
         private IDockContent _activedoc;
 
@@ -118,6 +121,7 @@ namespace BaseLib.DockIt_Xwt
             this.MinWidth = this.MinHeight = 0;
             this.Margin = 0;
             this.DockPanel = dockPanel;
+            this.BackgroundColor = DockPanel.MDIColor;
             this.DockPanel.ActiveContentChanged += DockPanel_ActiveContentChanged;
             //   base.BackgroundColor = Colors.Yellow;
 

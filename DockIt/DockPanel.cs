@@ -23,6 +23,8 @@ namespace BaseLib.DockIt_Xwt
         public static Color DocumentInactiveColor { get; set; } = Colors.LightGray;
         public static Color DropTargetColor { get; set; } = Colors.LightYellow;
         public static Color DropTargetColorSelected { get; set; } = Colors.OrangeRed;
+        public static Color MDIColor { get; set; } = Colors.DarkGray;
+        public static Color ColorSplitter { get; set; } = Colors.Black;
 
         public static int SplitSize { get; set; } = 4;
         public static int TitleBarHeight { get => TitleBar.TitleBarHeight; set => TitleBar.TitleBarHeight = value; }
@@ -237,6 +239,7 @@ namespace BaseLib.DockIt_Xwt
             this.busy++;
             this.Margin = 0;
             this.MinWidth = this.MinHeight = 0;
+            base.BackgroundColor = DockPanel.ColorSplitter;
             base.ExpandHorizontal = base.ExpandVertical = true;
             base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
 
