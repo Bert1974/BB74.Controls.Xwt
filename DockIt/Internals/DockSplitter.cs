@@ -25,7 +25,7 @@ namespace BaseLib.DockIt_Xwt
             : this(dockPanel, orientation)
         {
             this._dock.AddRange(dockContent.Cast<IDockLayout>());
-            GetSize(true);
+       //     GetSize(true);
         }
 
         public IEnumerable<IDockLayout> Layouts => this._dock;
@@ -37,7 +37,9 @@ namespace BaseLib.DockIt_Xwt
 
         public Size WidgetSize { get; private set; }
 
-        public DockPanel DockPanel { get; private set; }
+        public DockPanel DockPanel { get; internal set; }
+
+        public IDockLayout Get(int ind) => this._dock[ind];
 
         public void Insert(int ind, IDockLayout dockLayout)
         {
@@ -47,7 +49,7 @@ namespace BaseLib.DockIt_Xwt
         {
             if (removewidget)
             {
-                (destination as IDockPane)?.RemoveWidget();
+                destination?.RemoveWidget();
             }
             this._dock.Remove(destination);
         }
@@ -196,34 +198,41 @@ namespace BaseLib.DockIt_Xwt
             }
 
             double miw = 0, mih = 0;
+            int dw = 0, dh = 0, e=4;
 
             switch (this.Orientation)
             {
                 case Orientation.Horizontal:
                     miw = this._dock.Select(_p => _p.MinimumSize.Width).Sum();
                     mih = this._dock.Select(_p => _p.MinimumSize.Height).Max();
+                    dw = (this._dock.Count - 1) * e;
                     break;
                 case Orientation.Vertical:
                     miw = this._dock.Select(_p => _p.MinimumSize.Width).Max();
                     mih = this._dock.Select(_p => _p.MinimumSize.Height).Sum();
+                    dh = (this._dock.Count - 1) * e;
                     break;
                 default:
                     throw new NotImplementedException();
             }
-            this.MinimumSize = new Size(miw, mih);
+            this.MinimumSize = new Size(miw + dw, mih + dh);
 
             if (setsize)
             {
                 this.WidgetSize = this.MinimumSize;
-         /*       switch (this.Orientation)
-                {
-                    case Orientation.Horizontal:
-                        this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Sum(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Max());
-                        break;
-                    case Orientation.Vertical:
-                        this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Max(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Sum());
-                        break;
-                }*/
+                /*       switch (this.Orientation)
+                       {
+                           case Orientation.Horizontal:
+                               this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Sum(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Max());
+                               break;
+                           case Orientation.Vertical:
+                               this.WidgetSize = new Size(this._dock.Select(_ctl => _ctl.WidgetSize.Width).Max(), this._dock.Select(_ctl => _ctl.WidgetSize.Height).Sum());
+                               break;
+                       }*/
+            }
+            else
+            {
+                this.WidgetSize = new Size(Math.Max(this.WidgetSize.Width, this.MinimumSize.Width), Math.Max(this.WidgetSize.Height, this.MinimumSize.Height));
             }
         }
         public bool HitTest(Point position, out IDockSplitter splitter, out int ind)
@@ -279,6 +288,39 @@ namespace BaseLib.DockIt_Xwt
             splitter = null;
             ind = -1;
             return false;
+        }
+
+        public void AddWidget()
+        {
+            foreach (var l in this._dock)
+            {
+                l.AddWidget();
+            }
+        }
+
+        public void RemoveWidget()
+        {
+            foreach (var l in this._dock)
+            {
+                l.RemoveWidget();
+            }
+        }
+
+        public void OnHidden()
+        {
+            foreach (var l in this._dock)
+            {
+                l.OnHidden();
+            }
+        }
+
+        public void NewDockPanel(DockPanel dockpanel)
+        {
+            this.DockPanel = dockpanel;
+            foreach (var l in this._dock)
+            {
+                l.NewDockPanel(dockpanel);
+            }
         }
     }
 }

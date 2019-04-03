@@ -113,7 +113,7 @@ namespace BaseLib.DockIt_Xwt
                 return r;
             }
         }
-        internal DockPane(DockPanel dockPanel, IDockContent[] testdoc)
+        internal DockPane(DockPanel dockPanel, IDockContent[] docs)
         {
             this.MinWidth = this.MinHeight = 0;
             this.Margin = 0;
@@ -126,21 +126,18 @@ namespace BaseLib.DockIt_Xwt
             this.bottombar = TitleBar.CreateTabs(this);
             this.AddChild(this.bottombar);
 
-          //  this._docs.AddRange(testdoc);
+            //  this._docs.AddRange(testdoc);
 
 
-//            this.Document = this._docs.FirstOrDefault();
-  //          this.DockPanel.SetActive(this.Document ?? this.DockPanel.ActiveDocument ?? this.DockPanel.DefaultDocument);
+            //            this.Document = this._docs.FirstOrDefault();
+            //          this.DockPanel.SetActive(this.Document ?? this.DockPanel.ActiveDocument ?? this.DockPanel.DefaultDocument);
             //  this.ActiveDocChanged(); 
 
-            this.DockPanel.AddChild(this);
+            //    this.DockPanel.AddChild(this);
 
-            Add(testdoc);
-            GetSize(true);
-
-            MoveWindows();
+            this._docs.AddRange(docs);
+           // GetSize(true);
         }
-
         internal void MoveWindows()
         {
             if (this.WidgetSize.Width>=0&&this.WidgetSize.Height>=0)
@@ -228,8 +225,28 @@ namespace BaseLib.DockIt_Xwt
             return new Size(widthConstraint.AvailableSize, heightConstraint.AvailableSize);
         }
 
+        public void AddWidget()
+        {
+            this.DockPanel.AddChild(this);
+            if (this.Document == null)
+            {
+                this.Document = _docs.FirstOrDefault();
+            }
+            else
+            {
+                this.AddChild(this.Document.Widget);
+            }
+            this.DockPanel.SetActive(this.DockPanel.ActiveDocument ?? this.Document ?? this.DockPanel.DefaultDocument);
+            this.topbar.SetDocuments(this._docs);
+            this.bottombar.SetDocuments(this._docs);
+            MoveWindows();
+        }
         public void RemoveWidget()
         {
+            if (this.Document != null)
+            {
+                this.RemoveChild(this.Document.Widget);
+            }
             this.DockPanel.RemoveChild(this);
         }
 
@@ -262,6 +279,10 @@ namespace BaseLib.DockIt_Xwt
             if (setsize)
             {
                 this.WidgetSize = this.MinimumSize;
+            }
+            else
+            {
+                this.WidgetSize = new Size(Math.Max(this.WidgetSize.Width, this.MinimumSize.Width), Math.Max(this.WidgetSize.Height, this.MinimumSize.Height));
             }
         }
 
@@ -349,6 +370,13 @@ namespace BaseLib.DockIt_Xwt
             {
                 ctl2.SetHighLight(hit.HasValue&&ctl2.pos == hit.Value);
             }
+        }
+
+        public void NewDockPanel(DockPanel dockpanel)
+        {
+            this.DockPanel.ActiveContentChanged -= DockPanel_ActiveContentChanged;
+            this.DockPanel = dockpanel;
+            this.DockPanel.ActiveContentChanged += DockPanel_ActiveContentChanged;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Xwt;
 using Xwt.Drawing;
 
@@ -107,22 +108,31 @@ namespace BaseLib.DockIt_Xwt
                         {
                             if (this.drophit.HasValue)
                             {
-                                owner.DockPanel.xwt.ReleaseCapture(this);
-                                this.captured = DragModes.None;
+                                Debug.Assert(this.captured==DragModes.Move);
 
-                                owner.DockPanel.MovePane(this.owner, this.droppane, this.drophit.Value);
+                                ClrCapture();
+
+                                this.droppane.DockPanel.DockFloatform(this.owner, this.droppane, this.drophit.Value);
 
                                 return;
                             }
                         }
                         SetNewPos(r);
                     }
-                    owner.DockPanel.xwt.ReleaseCapture(this);
-                    this.captured = DragModes.None;
+                    ClrCapture();
                     return;
                 }
                 base.OnButtonReleased(args);
             }
+
+            private void ClrCapture()
+            {
+                DockPanel.ClrHightlight();
+
+                owner.DockPanel.xwt.ReleaseCapture(this);
+                this.captured = DragModes.None;
+            }
+
             protected override void OnMouseMoved(MouseMovedEventArgs args)
             {
                 if (captured != DragModes.None)

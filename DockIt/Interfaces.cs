@@ -54,14 +54,12 @@ namespace BaseLib.DockIt_Xwt
 
         void Add(IDockContent[] docs);
         bool Remove(IDockContent[] docs); // return true if pane now empty
-        void RemoveWidget();
 
         Canvas Widget { get; }
         void SetDrop(DockPosition? hit);
         void ClearDrop();
         DockPosition? HitTest(Point position);
         void Update(DockPosition? sel);
-        void OnHidden();
     }
     public interface IDockSplitter : IDockLayout
     {
@@ -70,6 +68,7 @@ namespace BaseLib.DockIt_Xwt
 
         void Insert(int ind, IDockLayout dockLayout);
         void Remove(IDockLayout destination, bool removewidget);
+        IDockLayout Get(int ind);
     }
     public interface IDockLayout
     {
@@ -82,10 +81,14 @@ namespace BaseLib.DockIt_Xwt
         DockPanel DockPanel { get; }
 
         bool HitTest(Point position, out IDockSplitter splitter, out int ind);
+        void AddWidget();
+        void RemoveWidget();
+        void NewDockPanel(DockPanel dockpanel);
+        void OnHidden();
     }
     public enum DockPosition
     {
-        Document,
+ //       Document,
         Left,
         Right,
         Top,
