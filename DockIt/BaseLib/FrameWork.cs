@@ -113,7 +113,7 @@ namespace BaseLib.XwtPlatForm
         {
             switch (OSPlatform)
             {
-                case PlatformID.Win32Windows: return new Win32();
+                case PlatformID.Win32Windows: return new PlatFormWin32();
                 case PlatformID.MacOSX: return new XamMac();
                 case PlatformID.Unix:
                     {
@@ -239,7 +239,7 @@ namespace BaseLib.XwtPlatForm
         }
     }
 
-    internal class Win32 : PlatForm
+    internal class PlatFormWin32 : PlatForm
     {
         delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 

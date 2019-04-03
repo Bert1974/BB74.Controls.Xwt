@@ -12,62 +12,6 @@ namespace BaseLib.DockIt_Xwt
     {
         class WPF : IXwtImpl
         {
-            [DllImport("user32.dll", SetLastError = true)]
-            static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
-
-            [DllImport("user32.dll", SetLastError = true)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            static extern bool GetCursorPos(ref POINT lpPoint);
-
-            struct POINT
-            {
-                public int x, y;
-                public static implicit operator Point(POINT pt)
-                {
-                    return new Point(pt.x, pt.y);
-                }
-            }
-
-            class DragWindow : XwtImpl.DragWindow
-            {
-                public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget, position, false)
-                {
-                    var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                    wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
-
-                    var t = PlatForm.GetType("System.Windows.ResizeMode");
-                    wpfwin.GetType().SetPropertyValue(wpfwin, "ResizeMode", Enum.Parse(t, "NoResize"));
-                    wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
-
-                    base.Size = new Size(32, 32);
-                }
-                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
-                {
-                    this.doexit = false;
-
-                    this.Show();
-                    this.Content.SetFocus();
-
-                    this.xwt.SetCapture(this.Content);
-
-                    while (!this.doexit)
-                    {
-                        POINT pt = new POINT();
-                        GetCursorPos(ref pt);
-                        this.CheckMove(pt, true);
-                        this.xwt.DoEvents();
-                    }
-                    this.xwt.ReleaseCapture(this.Content);
-
-                    DockPanel.ClrHightlight();
-
-                    base.Close();
-
-                    base.SetResult(out dockpane, out dockat);
-                }
-            }
-
             [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
             public void DoEvents()
             {
@@ -117,10 +61,6 @@ namespace BaseLib.DockIt_Xwt
                     var w = backend.GetType().GetPropertyValue(backend, "Widget");
                     w.GetType().Invoke(w, "CaptureMouse");
                 }
-            }
-            public XwtImpl.DragWindow Create(Canvas widget, Point position)
-            {
-                return new DragWindow(this, widget, position);
             }
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {

@@ -10,54 +10,6 @@ namespace BaseLib.DockIt_Xwt
     {
         class XamMac : IXwtImpl
         {
-            class DragWindow : XwtImpl.DragWindow
-            {
-                public DragWindow(IXwt wxt, Canvas widget, Point position)
-                    : base(wxt,widget, position, false)
-                {
-                    var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
-                    (backend as IWindowFrameBackend).ShowInTaskbar = false;
-                }
-                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
-                {
-                    this.doexit = false;
-                    this.result = true;
-
-                    (this as Window).Show();
-
-                    this.Content.SetFocus();
-                 //  this.xwt.SetCapture(this.Content);
-
-                    while (!this.doexit)
-                    {
-                        Type t = PlatForm.GetType("AppKit.NSEvent");
-                        var pt=t.GetPropertyValueStatic("CurrentMouseLocation");
-                        var mask = t.GetPropertyValueStatic("CurrentPressedMouseButtons");
-
-                        var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
-                       var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
-
-                        this.doexit = (Convert.ToUInt32(mask) & 1/*button1mask*/) == 0;
-                        
-                        var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
-                        var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
-
-                        var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
-                        var pt2 = (Xwt.Point)xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
-
-                        this.CheckMove(pt2, true);
-
-                        this.xwt.DoEvents();
-                    }
-
-              //      this.xwt.ReleaseCapture(this.Content);
-                    DockPanel.ClrHightlight();
-                    this.Close();
-
-                    base.SetResult(out dockpane, out dockat);
-                }
-            }
-
  /*           class eventhandlerinfo
             {
                 public EventInfo ei;
@@ -199,10 +151,10 @@ namespace BaseLib.DockIt_Xwt
             {
             }
             */
-            XwtImpl.DragWindow IXwtImpl.Create(Canvas widget, Point position)
+           /* XwtImpl.DragWindow IXwtImpl.Create(Canvas widget, Point position)
             {
                 return new DragWindow(this, widget, position);
-            }
+            }*/
 
             public void DoEvents()
             {

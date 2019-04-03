@@ -10,60 +10,6 @@ namespace BaseLib.DockIt_Xwt
     {
         class GTK : IXwtImpl
         {
-            class DragWindow : XwtImpl.DragWindow
-            {
-                public DragWindow(IXwt xwt, Canvas widget, Point position)
-                    : base(xwt, widget, position, false)
-                {
-                }
-                public override void Show(out IDockPane dockpane, out DockPosition? dockat)
-                {
-                    try
-                    {
-                        this.doexit = false;
-                        this.result = true;
-
-                        (this as Window).Show();
-                        this.Content.SetFocus();
-
-                        while (!this.doexit)
-                        {
-                            var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                            var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                            var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
-
-                            Type t = PlatForm.GetType("Gdk.ModifierType");
-
-                            var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                            var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
-                            mi.Invoke(display, parms);
-                            //                        display.GetType().Invoke(display, "GetPointer", parms);
-                            //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
-                            int x = (int)parms[0];
-                            int y = (int)parms[1];
-                            int mask = (int)parms[2];
-
-                            this.doexit = (mask & 0x100) == 0;
-
-                            this.Location = new Point(x, y).Offset(-5, -5);
-
-                            this.CheckMove(new Point(x, y), true);
-
-                            this.xwt.DoEvents();
-                        }
-
-                        this.xwt.ReleaseCapture(this.Content);
-                        DockPanel.ClrHightlight();
-                        this.Close();
-
-                        base.SetResult(out dockpane, out dockat);
-                    }
-                    catch (Exception e)
-                    {
-                        throw;
-                    }
-                }
-            }
             /*       [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "/*")]
                    private static extern int x11_gdk_device_grab(IntPtr device, IntPtr gdkwindow, int ownerevents, bool owner_events, int mask, IntPtr cursor, int time);
                    [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_device_ungrab")]
@@ -134,11 +80,6 @@ namespace BaseLib.DockIt_Xwt
                 var r = x11_gdk_pointer_grab(h, false, (1 << 2) | (1 << 4) | (1 << 8) | (1 << 9), IntPtr.Zero, IntPtr.Zero, 0);
                 Console.WriteLine($"grab={r}");
 #endif
-            }
-
-            public XwtImpl.DragWindow Create(Canvas widget, Point position)
-            {
-                return new DragWindow(this, widget, position);
             }
             public void DoEvents()
             {
