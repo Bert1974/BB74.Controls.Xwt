@@ -3,3 +3,8 @@
 ################################################################################
 
 /packages
+/.vs/DockPanel/v15
+/DockExample/bin
+/DockIt/obj
+/DockIt/bin
+/DockExample/obj
