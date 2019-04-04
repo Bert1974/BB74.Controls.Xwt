@@ -175,7 +175,7 @@ namespace BaseLib.DockIt_Xwt
 
                 while (!this.doexit)
                 {
-                    var pt = new Win32.POINT();
+                    var pt = new POINT();
                     Win32.GetCursorPos(ref pt);
 
                     this.CheckMove(pt, true);

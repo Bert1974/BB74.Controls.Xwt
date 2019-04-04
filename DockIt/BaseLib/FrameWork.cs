@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.DockIt_Xwt.Interop;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -241,26 +242,6 @@ namespace BaseLib.XwtPlatForm
 
     internal class PlatFormWin32 : PlatForm
     {
-        delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
-
-        [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        static extern int GetWindowLongPtr(IntPtr hWnd, int nIndex);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;        // x position of upper-left corner
-            public int Top;         // y position of upper-left corner
-            public int Right;       // x position of lower-right corner
-            public int Bottom;      // y position of lower-right corner
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
-
         protected override Rectangle GetWindowRect(IntPtr display, object form)
         {
             IntPtr hwnd;
@@ -274,8 +255,8 @@ namespace BaseLib.XwtPlatForm
                 var wih = Activator.CreateInstance(t, new object[] { form });
                 hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
             }
-            RECT r = new RECT();
-            GetWindowRect(hwnd, out r);
+            var r = new RECT();
+            Win32.GetWindowRect(hwnd, out r);
             return new Rectangle(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);
         }
         public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window)
@@ -283,13 +264,13 @@ namespace BaseLib.XwtPlatForm
             var found = new List<IntPtr>();
             EnumWindowsProc func = (hwnd, lparam) =>
             {
-                if ((GetWindowLongPtr(hwnd, -16) & 0x10000000L) != 0) // WS_STYLE&WS_VISIBLE
+                if ((Win32.GetWindowLongPtr(hwnd, -16) & 0x10000000L) != 0) // WS_STYLE&WS_VISIBLE
                 {
                     found.Add(hwnd);
                 }
                 return true;
             };
-            EnumWindows(func, IntPtr.Zero);
+            Win32.EnumWindows(func, IntPtr.Zero);
 
             if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
             {

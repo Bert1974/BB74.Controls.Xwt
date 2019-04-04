@@ -10,76 +10,18 @@ namespace BaseLib.DockIt_Xwt
     {
         class GTK : IXwtImpl
         {
-            /*       [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "/*")]
-                   private static extern int x11_gdk_device_grab(IntPtr device, IntPtr gdkwindow, int ownerevents, bool owner_events, int mask, IntPtr cursor, int time);
-                   [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_device_ungrab")]
-                   private static extern int x11_gdk_device_ungrab(IntPtr device, int time);*/
-
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
-            private static extern int x11_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, long time);
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab", CallingConvention = CallingConvention.Cdecl)]
-            private static extern int win_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, long time);
-
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab")]
-            private static extern void x11_gdk_pointer_ungrab(int time);
-            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab", CallingConvention = CallingConvention.Cdecl)]
-            private static extern void win_gdk_pointer_ungrab(int time);
-         
-            [DllImport("libgdk-win32-2.0-0.dll")]
-            internal extern static IntPtr gdk_x11_drawable_get_xid(IntPtr window);
-
-            [DllImport("libgdk-win32-2.0-0.dll")]
-            public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
-            
             public void ReleaseCapture(Widget widget)
             {
-            /*    var gtkwin = (widget.GetBackend() as IWidgetBackend).NativeWidget;
-                var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
-                var gdkdisp = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                var gdkdisplay = (IntPtr)gdkdisp.GetType().GetPropertyValue(gdkdisp, "Handle");
-                var xdisplay = gdk_x11_display_get_xdisplay(gdkdisplay);
-                //  XUngrabPointer(xdisplay, 0); ;*/
-                x11_gdk_pointer_ungrab(0);
+                var gtkwin = (widget.GetBackend() as IWidgetBackend).NativeWidget;
+                Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
+                type_gtk_grab.InvokeStatic("Remove", gtkwin);
             }
-
             public void SetCapture(Widget widget)
             {
                 var gtkwin = (widget.GetBackend() as IWidgetBackend).NativeWidget;
                 var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
-           /*     var gdkdisp = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                //      var gdkscr = gtkwin.GetType().GetPropertyValue(gtkwin, "Screen");
-                //        var rw = gdkscr.GetType().GetPropertyValue(gdkscr, "RootWindow");
-                var gdkdisplay = (IntPtr)gdkdisp.GetType().GetPropertyValue(gdkdisp, "Handle");
-                var xdisplay = gdk_x11_display_get_xdisplay(gdkdisplay);
-
-                //      var root = gdk_x11_drawable_get_xid((IntPtr)rw.GetType().GetPropertyValue(rw, "Handle"));// DefaultRootWindow(display);
-                //       var test = XRootWindow(xdisplay, 0);
-                //      var test2 = XRootWindow(gdkdisplay, 0);
-                //         var test = DefaultRootWindow(gdkdisplay);
-                */
-                var r = x11_gdk_pointer_grab((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"), true, (1 << 2) | (1 << 4) | (1 << 5) | (1 << 8) | (1 << 9), IntPtr.Zero, IntPtr.Zero, 0);
-                
-            //    var window = gdk_x11_drawable_get_xid((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"));// DefaultRootWindow(display);
-
-                //   var r = XGrabPointer(xdisplay, window, false, (XEventMask)((1 << 2) | (1 << 4) | (1<<5) | (1 << 8) | (1 << 9)), XGrabMode.GrabModeSync, XGrabMode.GrabModeSync, IntPtr.Zero, IntPtr.Zero, 0);
-             
-#if (false)
-                 var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
-                var w = backend.GetType().GetPropertyValue(backend, "Widget");
-                var gdk = w.GetType().GetPropertyValue(w, "GdkWindow");
-                var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
-                /*  var gdk = w.GetType().GetPropertyValue(w, "GdkWindow");
-                  var disp = gdk.GetType().GetPropertyValue(gdk, "Display");
-                  var scr= gdk.GetType().GetPropertyValue(gdk, "Screen");
-                  var devs = disp.GetType().GetPropertyValue(disp, "DeviceManager");
-                  var dev = devs.GetType().GetPropertyValue(devs, "ClientPointer");
-                  var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
-
-                int r= x11_gdk_device_grab((IntPtr)dev.GetType().GetPropertyValue(dev, "Handle"), h, 2, true, (1 << 5), IntPtr.Zero, 0);*/
-
-                var r = x11_gdk_pointer_grab(h, false, (1 << 2) | (1 << 4) | (1 << 8) | (1 << 9), IntPtr.Zero, IntPtr.Zero, 0);
-                Console.WriteLine($"grab={r}");
-#endif
+                Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
+                type_gtk_grab.InvokeStatic("Add", gtkwin);
             }
             public void DoEvents()
             {
@@ -99,15 +41,10 @@ namespace BaseLib.DockIt_Xwt
             }
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
-                try
-                {
-                    var gtkwin = (r.GetBackend() as IWindowFrameBackend).Window;
-                    var gtkwinparent = (parentWindow.GetBackend() as IWindowFrameBackend).Window;
-                    gtkwin.GetType().SetPropertyValue(gtkwin, "TransientFor", gtkwinparent);
-                }
-                catch { }
+                var gtkwin = (r.GetBackend() as IWindowFrameBackend).Window;
+                var gtkwinparent = (parentWindow.GetBackend() as IWindowFrameBackend).Window;
+                gtkwin.GetType().SetPropertyValue(gtkwin, "TransientFor", gtkwinparent);
             }
-
             public void QueueOnUI(Action method)
             {
                 throw new NotImplementedException();

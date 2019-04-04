@@ -121,7 +121,6 @@ namespace BaseLib.DockIt_Xwt
                             this.captured = true;
                             this.dragpt = args.Position;
                             this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
-                            Console.WriteLine($"setcapturedoen - button {captured}");
                         }
                         return;
                     }
@@ -138,7 +137,6 @@ namespace BaseLib.DockIt_Xwt
                     {
                         if (!DockPanel.DragRectangle.Contains(args.X - this.dragpt.X, args.Y - this.dragpt.Y))
                         {
-                            Console.WriteLine($"onmousemove - outside - button {captured}");
                             ClrCapture();
 
                             // start drag

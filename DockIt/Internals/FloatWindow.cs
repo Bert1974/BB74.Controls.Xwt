@@ -57,8 +57,6 @@ namespace BaseLib.DockIt_Xwt
             private DragModes captured = DragModes.None;
             private Point orgpt;
             private Rectangle orgpos;
-            private IDockPane droppane;
-            private DockPosition? drophit;
 
             public ResizeAndTitleBaranvas(FloatWindow owner)
             {
@@ -112,14 +110,16 @@ namespace BaseLib.DockIt_Xwt
                         DockItDragDrop.StartDrag(this.owner, this.ConvertToScreenCoordinates(args.Position));
                         return;
                     }
-                    else */ if (hit != DragModes.None)
+                    else */ 
+
+                    if (hit != DragModes.None)
                     {
                         this.captured = hit;
-                        this.drophit = null;this.droppane = null;
+                        owner.DockPanel.xwt.SetCapture(this);
+                        
                         this.orgpt = base.ConvertToScreenCoordinates(args.Position);
                         this.orgpos = new Rectangle(this.owner.Location, base.Size);
 
-                        owner.DockPanel.xwt.SetCapture(this);
                         return;
                     }
                 }
@@ -167,15 +167,18 @@ namespace BaseLib.DockIt_Xwt
 
             protected override void OnMouseMoved(MouseMovedEventArgs args)
             {
+                args.Handled = true;
+                var scrpt = ConvertToScreenCoordinates(args.Position);
                 if (captured == DragModes.Move)
                 {
-                    var scrpt = ConvertToScreenCoordinates(args.Position);
                     if (!DockPanel.DragRectangle.Contains(scrpt.X - this.orgpt.X, scrpt.Y - this.orgpt.Y))
                     {
                         ClrCapture();
                         
                         DockItDragDrop.StartDrag(this.owner, scrpt);
                     }
+                    base.Cursor = GetCursor(captured, scrpt);
+                    return;
                 }
                 else if (captured != DragModes.None)
                 {
@@ -184,13 +187,7 @@ namespace BaseLib.DockIt_Xwt
                     {
                         SetNewPos(r);
                     }
-                    var pt = base.ConvertToScreenCoordinates(args.Position);
-                    /*      if (this.captured == DragModes.Move)
-                        {
-                            DockItDragDrop.CheckMove(this.owner, pt, false, Size.Zero, ref this.droppane, ref this.drophit);
-                        }*/
-                    base.Cursor = GetCursor(captured, pt);
-                    //        base.Capture = true;
+                    base.Cursor = GetCursor(captured, scrpt);
                     return;
                 }
                 else
