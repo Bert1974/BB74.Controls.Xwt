@@ -1,4 +1,5 @@
-﻿using BaseLib.XwtPlatForm;
+﻿using BaseLib.DockIt_Xwt.Interop;
+using BaseLib.XwtPlatForm;
 using System;
 using System.Runtime.InteropServices;
 using Xwt;
@@ -8,36 +9,31 @@ namespace BaseLib.DockIt_Xwt
 {
     partial class XwtImpl
     {
-        class GTK3 : RealXwt
+        class GTK3Xwt : RealXwt
         {
             public override void ReleaseCapture(Widget widget)
             {
                 var gtkwin = widget.GetBackend().NativeWidget;
-                Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
-                type_gtk_grab.InvokeStatic("Remove", gtkwin);
+                Gtk.gtk_grab.InvokeStatic("Remove", gtkwin);
             }
 
             public override void SetCapture(XwtImpl xwt, Widget widget)
             {
                 var gtkwin = widget.GetBackend().NativeWidget;
-                Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
-                type_gtk_grab.InvokeStatic("Add", gtkwin);
+                Gtk.gtk_grab.InvokeStatic("Add", gtkwin);
             }
             public override void DoEvents()
             {
-                Type tctx = PlatForm.GetType("Gtk.Application");
-                var t2 = PlatForm.GetType("Gdk.Threads");
+                var mi_iteration = Gtk.gtk_application.GetMethod("RunIteration", new Type[] { typeof(bool) });
 
-                var mi_iteration = tctx.GetMethod("RunIteration", new Type[] { typeof(bool) });
-
-                t2.InvokeStatic("Enter");
+                Gdk.gdk_threads.InvokeStatic("Enter");
                 int n = 500;
 
-                while ((bool)tctx.InvokeStatic("EventsPending") && --n > 0)
+                while ((bool)Gtk.gtk_application.InvokeStatic("EventsPending") && --n > 0)
                 {
                     mi_iteration.Invoke(null, new object[] { false });
                 }
-                t2.InvokeStatic("Leave");
+                Gdk.gdk_threads.InvokeStatic("Leave");
             }
             public override void  SetParent(WindowFrame r, WindowFrame parentWindow)
             {

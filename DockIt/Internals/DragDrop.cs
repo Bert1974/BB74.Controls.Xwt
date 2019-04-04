@@ -187,8 +187,6 @@ namespace BaseLib.DockIt_Xwt
             private void SetMaxWidth(int width)
             {
                 var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                //  var t = PlatForm.GetType("System.Windows.ResizeMode");
-               // wpfwin.GetType().SetPropertyValue(wpfwin, "ResizeMode", Enum.Parse(t, "NoResize"));
                   wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", width);
             }
         }
@@ -211,7 +209,6 @@ namespace BaseLib.DockIt_Xwt
                 (this as Window).Show();
 
                 this.Content.SetFocus();
-                //  this.xwt.SetCapture(this.Content);
 
                 this.xwt.SetCapture(this.Content);
 
@@ -220,85 +217,11 @@ namespace BaseLib.DockIt_Xwt
                     xwt.DoEvents();
                 }
 
-                //      object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-                //        o.GetType().Invoke(o, "RunModalForWindow", (this.GetBackend() as IWindowFrameBackend).Window);
-#if (false)
-                 while (!this.doexit)
-                {
-               // this.xwt.DoEvents(this.Content);
-                    object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-
-
-
-                    object e;
-                    object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)18446744073709551615L/*0x44*/);
-                     object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("DistantFuture");
-                    object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-                    //     object[] args = { mask, 0, mode, true };
-                    //     var mi = o.GetType().GetMethod("NextEvent", args.Select(_a => _a.GetType()).ToArray());
-                    do
-                    {
-                    //    var mask = Activator.CreateInstance(PlatForm.GetType("System.nuint"), new object[] { (ulong)0x44 }); // leftup,leftdrag
-
-                        try
-                        {
-                            e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
-                           //    e = XamMac.mi_nswindow_nextevent.Invoke((this.GetBackend() as IWindowFrameBackend).Window, new object[] { mask/*, now, mode.ToString(), true*/ });
-                          //  var et = GetType().GetPropertyValue(e, "Type");
-                            //      e = mi.Invoke(o, args);
-                        }
-                        catch (Exception ee)
-                        {
-                            throw;
-                        }
-                    }
-                    while (e != null);
-                    /*    var pt = XamMac.appkit_nsevent.GetPropertyValueStatic("CurrentMouseLocation");
-                        var mask = XamMac.appkit_nsevent.GetPropertyValueStatic("CurrentPressedMouseButtons");
-
-                        var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
-                        var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
-
-                        this.doexit = (Convert.ToUInt32(mask) & 1) == 0;
-
-                        var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
-
-                        var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
-                        var pt2 = (Xwt.Point)XamMac.xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
-
-                        this.CheckMove(pt2, true);*/
-
-                    /*    object sharednsapp = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-                         object e;
-                         object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
-                         //  object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("Now");
-                         object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-                         //     object[] args = { mask, 0, mode, true };
-                         //     var mi = o.GetType().GetMethod("NextEvent", args.Select(_a => _a.GetType()).ToArray());
-                        // do
-                         {
-                             e = XamMac.mi_nswindow_nextevent.Invoke(this, new object[] { mask, 0, mode, true });
-
-                         //    var et = XamMac.appkit_nsevent.GetPropertyValue(e, "Type");
-                             if(
-                             //      e = mi.Invoke(o, args);
-                         }
-                         while (e != null);*/
-
-                 //   this.xwt.DoEvents(this.Content);
-                }
-#endif
-                //      this.xwt.ReleaseCapture(this.Content);
+                this.xwt.ReleaseCapture(this.Content);
                 DockPanel.ClrHightlight();
                 this.Close();
 
                 base.SetResult(resultfunction);
-            }
-            protected override void doclose(bool apply)
-            {
-                base.doclose(apply);
-
-                this.xwt.ReleaseCapture(this.Content);
             }
         }
         #endregion
@@ -324,27 +247,6 @@ namespace BaseLib.DockIt_Xwt
 
                     while (!this.doexit)
                     {
-                   /*     var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                        var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                        var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
-
-                        Type t = PlatForm.GetType("Gdk.ModifierType");
-
-                        var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                        var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
-                        mi.Invoke(display, parms);
-                        //                        display.GetType().Invoke(display, "GetPointer", parms);
-                        //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
-                        int x = (int)parms[0];
-                        int y = (int)parms[1];
-                        int mask = (int)parms[2];
-
-                        this.doexit = (mask & 0x100) == 0;
-
-                        this.Location = new Point(x, y).Offset(-5, -5);
-
-                        this.CheckMove(new Point(x, y), true);*/
-
                         this.xwt.DoEvents();
                     }
 
@@ -383,28 +285,6 @@ namespace BaseLib.DockIt_Xwt
 
                 while (!this.doexit)
                 {
-                    /*      var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                          var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                          var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
-
-                          Type t = PlatForm.GetType("Gdk.ModifierType");
-
-                          var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                          var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
-                          mi.Invoke(display, parms);
-                          //                        display.GetType().Invoke(display, "GetPointer", parms);
-                          //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
-                          int x = (int)parms[0];
-                          int y = (int)parms[1];
-                          int mask = (int)parms[2];
-
-
-                          this.doexit = (mask & 0x100) == 0;
-
-                          this.Location = new Point(x, y).Offset(-5, -5);
-                          this.Content.SetFocus();
-
-                          CheckMove(new Point(x, y), true);*/
                     this.xwt.DoEvents();
                 }
                 this.xwt.ReleaseCapture(this.Content);

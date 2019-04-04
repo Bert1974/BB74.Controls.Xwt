@@ -3,6 +3,7 @@ using BaseLib.XwtPlatForm;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Xwt;
 using Xwt.Backends;
 
@@ -12,12 +13,13 @@ namespace BaseLib.DockIt_Xwt
     {
         class XamMacXwt : RealXwt
         {
-            private int captured = 0;
+            internal int captured = 0, captureitemeventdoeventcnt = 0;
             private Widget captureitem = null;
 
             public override void ReleaseCapture(Widget widget)
             {
                 Debug.Assert(object.ReferenceEquals(this.captured, widget));
+                Debug.Assert(this.captured == 1);
 
                 if (--this.captured == 0)
                 {
@@ -27,16 +29,26 @@ namespace BaseLib.DockIt_Xwt
             public override void SetCapture(XwtImpl xwt, Widget widget)
             {
                 Debug.Assert(this.captured == 0 ? this.captureitem == null : object.ReferenceEquals(this.captured, widget));
+                Debug.Assert(this.captured == 0);
 
-                this.captured++;
-                this.captureitem = widget;
-
-                xwt.QueueOnUI(() =>   {
-                    while (captured > 0)
-                    {
-                        DoEvents();
-                    }
-                });
+                if (this.captured++ == 0)
+                {
+                    this.captureitem = widget;
+                }
+                if (this.captureitemeventdoeventcnt == 0)
+                {
+                    xwt.QueueOnUI(() =>
+                  {
+                      if (this.captureitemeventdoeventcnt != 0)
+                      {
+                          return;
+                      }
+                      while (captured > 0)
+                      {
+                          DoEvents();
+                      }
+                  });
+                }
             }
 
             private Xwt.Point MousePositionForWidget(Widget widget)
@@ -55,12 +67,13 @@ namespace BaseLib.DockIt_Xwt
                     object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
                     object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
                     //object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)0x44);
-                    object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("DistantFuture");
+                    object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
 
                     var nswin = this.captureitem.ParentWindow.GetBackend().Window;
 
-                 //   do
+                    this.captureitemeventdoeventcnt++;
+               //     do
                     {
                         e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask });
 
@@ -84,7 +97,8 @@ namespace BaseLib.DockIt_Xwt
                             }
                         }
                     }
-                 //   while (/*e != null &&*/ this.captured > 0 /*&& --cnt >= 0*/);
+               //     while (e != null && this.captured > 0 && --cnt >= 0);
+                    this.captureitemeventdoeventcnt--;
                 }
                 else
                 {
@@ -92,12 +106,11 @@ namespace BaseLib.DockIt_Xwt
                     object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
                     object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-             //       do
+                 //   do
                     {
                         e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
-                        //      e = mi.Invoke(o, args);
                     }
-                  //  while (e != null && --cnt >= 0);
+                 //    while (e != null && --cnt >= 0);
                 }
             }
             public override void SetParent(WindowFrame r, WindowFrame parentWindow)

@@ -55,6 +55,7 @@
     <Compile Include="BaseLib\FrameWork.cs" />
     <Compile Include="Internals\SaveData.cs" />
     <Compile Include="Internals\TitleBar.cs" />
+    <Compile Include="Interop\Gtk.cs" />
     <Compile Include="Interop\Win32.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internals\DockPane.cs" />

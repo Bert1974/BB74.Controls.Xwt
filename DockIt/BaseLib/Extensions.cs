@@ -1,4 +1,5 @@
-﻿using BaseLib.XwtPlatForm;
+﻿using BaseLib.DockIt_Xwt.Interop;
+using BaseLib.XwtPlatForm;
 using System;
 using System.Reflection;
 using Xwt;
@@ -17,7 +18,7 @@ namespace BaseLib
         {
             var nativectl = backend.NativeWidget;
 
-            Type t = PlatForm.GetType("System.Windows.Controls.Panel");
+            Type t = Win32.swc_panel;
 
             if (nativectl.GetType().IsDerived(t))
             {

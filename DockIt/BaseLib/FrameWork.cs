@@ -168,17 +168,12 @@ namespace BaseLib.XwtPlatForm
             var wi = CGWindowListCopyWindowInfo(0x1, 0);
 
             var count = CFArrayGetCount(wi);
-
-            var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
-            var cgrecttype = PlatForm.GetType("CoreGraphics.CGRect");
-
-            var typensapp = PlatForm.GetType("AppKit.NSApplication");
-            var app = typensapp.GetPropertyValueStatic("SharedApplication");
+            
+            var app = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
             var winarray = (Array)app.GetType().GetPropertyValue(app, "Windows");
 
-            var typensrunapp = PlatForm.GetType("AppKit.NSRunningApplication");
-            var curapp = typensrunapp.GetPropertyValueStatic("CurrentApplication");
-            var appid = (int)typensrunapp.GetPropertyValue(curapp, "ProcessIdentifier");
+            var curapp = XamMac.appkit_nsrunningapp.GetPropertyValueStatic("CurrentApplication");
+            var appid = (int)XamMac.appkit_nsrunningapp.GetPropertyValue(curapp, "ProcessIdentifier");
 
             var kCGWindowIsOnscreen = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowIsOnscreen");
             var name_window = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName");
@@ -213,8 +208,8 @@ namespace BaseLib.XwtPlatForm
                         if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
                         {
                             var name = OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict, name_window));
-                            object r2 = Activator.CreateInstance(cgrecttype, new object[] { rr.x, rr.y, rr.w, rr.h });
-                            var r3 = (Xwt.Rectangle)xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
+                            object r2 = Activator.CreateInstance(XamMac.cg_cgrect, new object[] { rr.x, rr.y, rr.w, rr.h });
+                            var r3 = (Xwt.Rectangle)XamMac.xwtmacbackend.InvokeStatic("ToDesktopRect", r2);
                             
                             if (name != "Dock") // todo check with screenbounds
                             {
@@ -251,8 +246,7 @@ namespace BaseLib.XwtPlatForm
             }
             else
             {
-                var t = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
-                var wih = Activator.CreateInstance(t, new object[] { form });
+                var wih = Activator.CreateInstance(Win32.swi_wininterophelper, new object[] { form });
                 hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
             }
             Win32.GetWindowRect(hwnd, out Win32.RECT r);
@@ -273,11 +267,9 @@ namespace BaseLib.XwtPlatForm
 
             if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
             {
-                var t = PlatForm.GetType("System.Windows.Interop.HwndSource");
-
                 return found.Select(_h =>
                {
-                   var obj = t.InvokeStatic("FromHwnd", _h);
+                   var obj = Win32.swi_hwndsource.InvokeStatic("FromHwnd", _h);
                    obj = obj?.GetType().GetPropertyValue(obj, "RootVisual");
                    return new Tuple<IntPtr, object>(_h, obj ?? _h);
                });
@@ -402,7 +394,7 @@ namespace BaseLib.XwtPlatForm
             {
                 var d = new Dictionary<IntPtr, object>();
 
-                foreach (var _gtkwin in ((Array)PlatForm.GetType("Gtk.Window").InvokeStatic("ListToplevels")).Cast<object>())
+                foreach (var _gtkwin in ((Array)Gtk.gtk_window.InvokeStatic("ListToplevels")).Cast<object>())
                 {
                     var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
                     if (gdkwin != null)

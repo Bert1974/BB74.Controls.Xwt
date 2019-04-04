@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.XwtPlatForm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -43,6 +44,11 @@ namespace BaseLib.DockIt_Xwt.Interop
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+
+        public static Type swc_panel = PlatForm.GetType("System.Windows.Controls.Panel");
+        public static Type swi_wininterophelper = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
+        public static Type swi_hwndsource = PlatForm.GetType("System.Windows.Interop.HwndSource");
 
     }
 }

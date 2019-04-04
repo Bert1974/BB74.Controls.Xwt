@@ -1,4 +1,5 @@
-﻿using BaseLib.XwtPlatForm;
+﻿using BaseLib.DockIt_Xwt.Interop;
+using BaseLib.XwtPlatForm;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -70,8 +71,7 @@ namespace BaseLib.DockIt_Xwt
 
             private IntPtr GetHwnd(WindowFrame r)
             {
-                Type t = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
-                var wh = Activator.CreateInstance(t, new object[] { r.GetBackend().Window });
+                var wh = Activator.CreateInstance(Win32.swi_wininterophelper, new object[] { r.GetBackend().Window });
                 return (IntPtr)wh.GetType().GetPropertyValue(wh, "Handle");
             }
         }

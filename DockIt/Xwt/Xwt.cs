@@ -37,7 +37,7 @@ namespace BaseLib.DockIt_Xwt
             public abstract void SetParent(WindowFrame r, WindowFrame parentWindow);
         }
 
-        private IXwtImpl impl;
+        private IXwtImpl Implementation;
 
         internal static Type GetType(string typeName)
         {
@@ -60,30 +60,30 @@ namespace BaseLib.DockIt_Xwt
         }
         private IXwtImpl CheckImpl()
         {
-            if (impl == null)
+            if (Implementation == null)
             {
                 if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                 {
-                    this.impl = new WPF();
+                    this.Implementation = new WPF();
                 }
                 else if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk)
                 {
-                    this.impl = new GTK();
+                    this.Implementation = new GTKXwt();
                 }
                 else if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
                 {
-                    this.impl = new GTK3();
+                    this.Implementation = new GTK3Xwt();
                 }
                 else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                 {
-                    this.impl = new XamMacXwt();
+                    this.Implementation = new XamMacXwt();
                 }
                 else
                 {
                     throw new NotImplementedException();
                 }
             }
-            return impl;
+            return Implementation;
         }
         public void /*IXwt.*/SetCapture(Widget widget)
         {
