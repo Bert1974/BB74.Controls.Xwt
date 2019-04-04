@@ -80,10 +80,24 @@ namespace BaseLib.DockIt_Xwt
             #endregion
 
             public delegate void DragResultFunction(bool result, IDockPane pane, DockPosition? pos, Point floatpos);
-            public abstract void Show(DragResultFunction resultfunction);
-
-            internal void SetResult(DragResultFunction resultfunction)
+            public void Show(DragResultFunction resultfunction)
             {
+                this.doexit = false;
+                this.result = true;
+
+                (this as Window).Show();
+
+                this.Content.SetFocus();
+                this.xwt.SetCapture(this.Content);
+
+                while (!this.doexit)
+                {
+                    this.xwt.DoEvents();
+                }
+                this.xwt.ReleaseCapture(this.Content);
+                DockPanel.ClrHightlight();
+                this.Close();
+
                 resultfunction?.Invoke(this.result, this.droppane, this.drophit, this.Location);
             }
 
@@ -111,6 +125,8 @@ namespace BaseLib.DockIt_Xwt
                 this.floatsize = size;
 
                 this.Content = new MyCanvas(this, checkmouse);
+
+                this.GetBackend().ShowInTaskbar = false;
             }
             protected virtual void doclose(bool apply)
             {
@@ -149,35 +165,6 @@ namespace BaseLib.DockIt_Xwt
                 wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
 
                 SetMaxWidth(32);
-
-                base.Size = new Size(32, 32);
-            }
-
-            public override void Show(DragResultFunction resultfunction)
-            {
-                this.doexit = false;
-
-                this.Show();
-                this.Content.SetFocus();
-
-                this.xwt.SetCapture(this.Content);
-
-                while (!this.doexit)
-                {
-                 /*   var pt = new Win32.POINT();
-                    Win32.GetCursorPos(ref pt);
-
-                    this.CheckMove(pt, true);*/
-
-                    this.xwt.DoEvents();
-                }
-                this.xwt.ReleaseCapture(this.Content);
-
-                DockPanel.ClrHightlight();
-
-                base.Close();
-
-                base.SetResult(resultfunction);
             }
             internal override void SetPosition(Rectangle rectangle)
             {
@@ -198,30 +185,6 @@ namespace BaseLib.DockIt_Xwt
             public DragWindowXamMac(IXwt wxt, Point position, Size size)
                 : base(wxt, position, size, true)
             {
-                var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
-                (backend as IWindowFrameBackend).ShowInTaskbar = false;
-            }
-            public override void Show(DragResultFunction resultfunction)
-            {
-                this.doexit = false;
-                this.result = true;
-
-                (this as Window).Show();
-
-                this.Content.SetFocus();
-
-                this.xwt.SetCapture(this.Content);
-
-                while (!doexit)
-                {
-                    xwt.DoEvents();
-                }
-
-                this.xwt.ReleaseCapture(this.Content);
-                DockPanel.ClrHightlight();
-                this.Close();
-
-                base.SetResult(resultfunction);
             }
         }
         #endregion
@@ -233,34 +196,6 @@ namespace BaseLib.DockIt_Xwt
                 : base(xwt, position, size, true)
             {
             }
-            public override void Show(DragResultFunction resultfunction)
-            {
-                try
-                {
-                    this.doexit = false;
-                    this.result = true;
-
-                    (this as Window).Show();
-                    this.Content.SetFocus();
-
-                    this.xwt.SetCapture(this.Content);
-
-                    while (!this.doexit)
-                    {
-                        this.xwt.DoEvents();
-                    }
-
-                    this.xwt.ReleaseCapture(this.Content);
-                    DockPanel.ClrHightlight();
-                    this.Close();
-
-                    base.SetResult(resultfunction);
-                }
-                catch (Exception e)
-                {
-                    throw;
-                }
-            }
         }
         #endregion
 
@@ -270,28 +205,6 @@ namespace BaseLib.DockIt_Xwt
             public DragWindowGTK3(IXwt xwt, Point position, Size size)
                 : base(xwt, position, size, true)
             {
-                var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
-                (backend as IWindowFrameBackend).ShowInTaskbar = false;
-            }
-            public override void Show(DragResultFunction resultfunction)
-            {
-                this.doexit = false;
-                this.result = true;
-
-                (this as Window).Show();
-
-                this.Content.SetFocus();
-                this.xwt.SetCapture(this.Content);
-
-                while (!this.doexit)
-                {
-                    this.xwt.DoEvents();
-                }
-                this.xwt.ReleaseCapture(this.Content);
-                DockPanel.ClrHightlight();
-                this.Close();
-
-                base.SetResult(resultfunction);
             }
         }
 
