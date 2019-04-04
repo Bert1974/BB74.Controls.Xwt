@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Xwt;
 
 namespace BaseLib.DockIt_Xwt
@@ -9,6 +10,7 @@ namespace BaseLib.DockIt_Xwt
         void ReleaseCapture(Widget widget);
         void DoEvents();
         void SetParent(WindowFrame r, WindowFrame parentWindow);
+        void QueueOnUI(Action method);
     }
     public interface IDockToolbar : IDockContent // use this for your docking toolbar widget
     {
@@ -38,7 +40,7 @@ namespace BaseLib.DockIt_Xwt
     }
     public interface IDockFloatForm //: IDockPane//, IDockNotify
     {
-        Xwt.Window Form { get; }
+        Xwt.Window Window { get; }
         DockPanel DockPanel { get; }
         //  DockPanel MainDockPanel { get; }
 

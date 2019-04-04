@@ -107,6 +107,11 @@ namespace BaseLib.DockIt_Xwt
                 }
                 catch { }
             }
+
+            public void QueueOnUI(Action method)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

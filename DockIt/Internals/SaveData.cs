@@ -64,8 +64,8 @@ namespace BaseLib.DockIt_Xwt
         {
             return new FloatWindowSave()
             {
-                Position = p.Form.Location,
-                Size = p.Form.Size,
+                Position = p.Window.Location,
+                Size = p.Window.Size,
                 Content = DockState.Save(p.DockPanel.Current)
             };
         }

@@ -32,7 +32,7 @@ namespace BaseLib.DockIt_Xwt
         internal DockPanel maindock;
         private bool titlebarvisible;
 
-        Window IDockFloatForm.Form => this;
+        Window IDockFloatForm.Window => this;
 
         enum DragModes
         {
@@ -101,6 +101,7 @@ namespace BaseLib.DockIt_Xwt
             }
             protected override void OnButtonPressed(ButtonEventArgs args)
             {
+                args.Handled = true;
                 if (args.Button == PointerButton.Left)
                 {
                     var hit = HitTest(args.Position);
@@ -122,10 +123,11 @@ namespace BaseLib.DockIt_Xwt
                         return;
                     }
                 }
-                base.OnButtonPressed(args);
+            //   base.OnButtonPressed(args);
             }
             protected override void OnButtonReleased(ButtonEventArgs args)
             {
+                args.Handled = true;
                 if (captured != DragModes.None)
                 {
                     if (captured != DragModes.Move)
@@ -152,7 +154,7 @@ namespace BaseLib.DockIt_Xwt
                     ClrCapture();
                     return;
                 }
-                base.OnButtonReleased(args);
+         //       base.OnButtonReleased(args);
             }
 
             private void ClrCapture()
@@ -171,7 +173,7 @@ namespace BaseLib.DockIt_Xwt
                     if (!DockPanel.DragRectangle.Contains(scrpt.X - this.orgpt.X, scrpt.Y - this.orgpt.Y))
                     {
                         ClrCapture();
-
+                        
                         DockItDragDrop.StartDrag(this.owner, scrpt);
                     }
                 }

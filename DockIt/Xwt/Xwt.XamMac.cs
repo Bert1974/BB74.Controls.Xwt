@@ -180,6 +180,11 @@ namespace BaseLib.DockIt_Xwt
                 var w = (r.GetBackend() as IWindowFrameBackend).Window;
                 w.GetType().SetPropertyValue(w, "Level", level);
             }
+
+            public void QueueOnUI(Action method)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

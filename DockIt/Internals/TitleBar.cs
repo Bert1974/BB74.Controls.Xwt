@@ -26,6 +26,7 @@ namespace BaseLib.DockIt_Xwt
                 base.AddChild(menu);
                 var size = menu.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                 base.SetChildBounds(menu, new Rectangle(Point.Zero, size));
+                this.ClipToBounds();
             }
             public void SetDocuments(IDockContent[] docs)
             {
@@ -57,7 +58,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 private Buttons buttons;
                 internal IDockContent doc;
-                private bool captured;
+                private bool captured = false;
                 private Point dragpt;
 
                 public bool Active
@@ -108,6 +109,7 @@ namespace BaseLib.DockIt_Xwt
 
                 protected override void OnButtonPressed(ButtonEventArgs args)
                 {
+                    args.Handled = true;
                     if (args.Button == PointerButton.Left)
                     {
                         var opos = this.buttons.GetChildBounds(this);
@@ -119,40 +121,56 @@ namespace BaseLib.DockIt_Xwt
                             this.captured = true;
                             this.dragpt = args.Position;
                             this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                            Console.WriteLine($"setcapturedoen - button {captured}");
                         }
                         return;
                     }
-                    base.OnButtonPressed(args);
+                    else if (captured)
+                    {
+                        ClrCapture();
+                    }
+//                    base.OnButtonPressed(args);
                 }
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
+                    args.Handled = true;
                     if (captured)
                     {
                         if (!DockPanel.DragRectangle.Contains(args.X - this.dragpt.X, args.Y - this.dragpt.Y))
-                        { 
-                            this.captured = false;
-
-                            this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
+                        {
+                            Console.WriteLine($"onmousemove - outside - button {captured}");
+                            ClrCapture();
 
                             // start drag
 
-                            DockItDragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, this.ConvertToScreenCoordinates(args.Position));
+                            var pt = this.ConvertToScreenCoordinates(args.Position);
+
+                            DockItDragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, pt);
                             return;
                         }
                     }
-                    base.OnMouseMoved(args);
+               //    base.OnMouseMoved(args);
                 }
+
                 protected override void OnButtonReleased(ButtonEventArgs args)
                 {
+                    args.Handled = true;
                     if (captured)
                     {
-                        this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
-                        captured = false;
+                        ClrCapture();
                     }
-                    base.OnButtonReleased(args);
+                    //     base.OnButtonReleased(args);
                 }
+                private void ClrCapture()
+                {
+                    captured = false;
+                    this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
+                }
+
             }
             double scrollpos = 0;
+            private bool captured = false;
+            private Point orgpt;
             private readonly TitleBar titlebar;
 
             public Buttons(TitleBar titlebar)
@@ -161,14 +179,7 @@ namespace BaseLib.DockIt_Xwt
                 this.Margin = 0;
                 this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
 
-                var nativectl= this.GetBackend().NativeWidget;
-
-                Type t = PlatForm.GetType("System.Windows.Controls.Panel");
-
-                if (nativectl.GetType().IsDerived(t))
-                {
-                    nativectl.GetType().SetPropertyValue(nativectl, "ClipToBounds", true);
-                }
+                this.ClipToBounds();
             }
             public void SetDocuments(IDockContent[] docs)
             {
@@ -208,25 +219,72 @@ namespace BaseLib.DockIt_Xwt
             }
             public double Width => this.Children.OfType<DockButton>().Select(_b => _b.Size.Width).Sum() + (this.Children.Count() - 1) * TitleBarButtonSpacing;
 
-           /* public IDockContent Active
-            {
-                get => this.titlebar.pane.Document;
-                set => this.titlebar.pane.SetActive(value);
-            }
-            */
-        /*    internal void Update()
-            {
-                double x = 0;
-                foreach (var b in this.Children.OfType<Buttons.DockButton>())
+            /* public IDockContent Active
+             {
+                 get => this.titlebar.pane.Document;
+                 set => this.titlebar.pane.SetActive(value);
+             }
+             */
+            /*    internal void Update()
                 {
-                    b.Update();
-                    var size = b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-                    var w = Math.Max(size.Width, 10);
-                    this.SetChildBounds(b, new Rectangle(scrollpos + x, 2, w, 18));
-                    x += w + TitleBarButtonSpacing;
+                    double x = 0;
+                    foreach (var b in this.Children.OfType<Buttons.DockButton>())
+                    {
+                        b.Update();
+                        var size = b.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                        var w = Math.Max(size.Width, 10);
+                        this.SetChildBounds(b, new Rectangle(scrollpos + x, 2, w, 18));
+                        x += w + TitleBarButtonSpacing;
+                    }
+                    this.QueueDraw();
+                }*/
+
+            protected override void OnButtonPressed(ButtonEventArgs args)
+            {
+                args.Handled = true;
+                if (!this.titlebar.IsInfo && this.titlebar.IsHeader)
+                {
+                    if (args.Button == PointerButton.Left)
+                    {
+                        this.captured = true;
+                        this.orgpt = args.Position;
+                        this.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                    }
                 }
-                this.QueueDraw();
-            }*/
+            //    base.OnButtonPressed(args); 
+            }
+            protected override void OnButtonReleased(ButtonEventArgs args)
+            {
+                args.Handled = true;
+                if (captured)
+                {
+                    ClrCapture();
+                }
+            //    base.OnButtonReleased(args);
+            }
+            protected override void OnMouseMoved(MouseMovedEventArgs args)
+            {
+                args.Handled = true;
+                if (captured)
+                {
+                    if (!DockPanel.DragRectangle.Contains(args.X - this.orgpt.X, args.Y - orgpt.Y))
+                    {
+                        ClrCapture();
+
+                        var docs = this.titlebar.pane.Documents.ToArray();
+
+                        DockItDragDrop.StartDrag(this.titlebar.pane, docs, ConvertToScreenCoordinates(args.Position));
+                        return;
+                    }
+                }
+             //   base.OnMouseMoved(args);
+            }
+
+            private void ClrCapture()
+            { 
+                this.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
+                this.captured = false;
+            }
         }
  
         public static TitleBar CreateHeader(DockPane dockPane)

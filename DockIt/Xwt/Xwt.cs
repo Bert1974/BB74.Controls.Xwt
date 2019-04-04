@@ -1,6 +1,8 @@
 ﻿using BaseLib.XwtPlatForm;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
@@ -80,6 +82,12 @@ namespace BaseLib.DockIt_Xwt
         public void SetParent(WindowFrame r, WindowFrame parentWindow)
         {
             CheckImpl().SetParent(r, parentWindow);
+        }
+
+        public void QueueOnUI(Action function)
+        {
+           var worker2cancel = new CancellationTokenSource();
+            Task.Factory.StartNew(function, worker2cancel.Token, TaskCreationOptions.None, Application.UITaskScheduler);
         }
     }
 }

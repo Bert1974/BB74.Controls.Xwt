@@ -81,6 +81,11 @@ namespace BaseLib.DockIt_Xwt
                 var wh = Activator.CreateInstance(t, new object[] { (r.GetBackend() as IWindowFrameBackend).Window });
                 return (IntPtr)wh.GetType().GetPropertyValue(wh, "Handle");
             }
+
+            public void QueueOnUI(Action method)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

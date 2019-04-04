@@ -90,6 +90,11 @@ namespace BaseLib.DockIt_Xwt
             void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
             {
             }
+
+            public void QueueOnUI(Action method)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

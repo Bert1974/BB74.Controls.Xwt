@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.XwtPlatForm;
+using System;
 using System.Reflection;
 using Xwt;
 using Xwt.Backends;
@@ -7,10 +8,27 @@ namespace BaseLib
 {
     internal static class Extension
     {
+
+        public static void ClipToBounds(this Canvas widget)
+        {
+            ClipToBounds(widget.GetBackend());
+        }
+        public static void ClipToBounds(this IWidgetBackend backend)
+        {
+            var nativectl = backend.NativeWidget;
+
+            Type t = PlatForm.GetType("System.Windows.Controls.Panel");
+
+            if (nativectl.GetType().IsDerived(t))
+            {
+                nativectl.GetType().SetPropertyValue(nativectl, "ClipToBounds", true);
+            }
+        }
         public static IWidgetBackend GetBackend(this Widget o)
         {
             return (IWidgetBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
         }
+
         public static object InvokeStatic(this Type type, string method, params object[] arguments)
         {
             return type.GetMethod(method, BindingFlags.Public | BindingFlags.Static).Invoke(null, arguments);

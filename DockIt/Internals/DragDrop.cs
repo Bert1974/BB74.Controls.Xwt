@@ -1,6 +1,7 @@
 ﻿using BaseLib.DockIt_Xwt.Interop;
 using BaseLib.XwtPlatForm;
 using System;
+using System.Threading.Tasks;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
@@ -58,16 +59,19 @@ namespace BaseLib.DockIt_Xwt
                 }
                 protected override void OnButtonPressed(ButtonEventArgs args)
                 {
+                    args.Handled = true;
                     owner.doclose(false);
                     //    base.OnButtonPressed(args);
                 }
                 protected override void OnButtonReleased(ButtonEventArgs args)
                 {
+                    args.Handled = true;
                     owner.doclose(true);
                     //     base.OnButtonReleased(args);
                 }
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
+                    args.Handled = true;
                     if (this.checkmouse)
                     {
                         var pt = this.ConvertToScreenCoordinates(args.Position);
@@ -389,23 +393,23 @@ namespace BaseLib.DockIt_Xwt
 
         #endregion
 
-        internal static void StartDrag(FloatWindow owner, Point position)
+        internal static void StartDrag(FloatWindow floatform, Point position)
         {
-            owner.Visible = false;
-            DragWindow dragwin = CreateDragWin(owner.DockPanel.xwt, position, owner.DockPanel.Current.WidgetSize);
+            floatform.Visible = false;
+            DragWindow dragwin = CreateDragWin(floatform.DockPanel.xwt, position, floatform.DockPanel.Current.WidgetSize);
 
-            Application.InvokeAsync(() =>
+            floatform.DockPanel.xwt.QueueOnUI(() =>
             {
                 dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
 
                 if (dragwin.result && droppane != null && drophit.HasValue)
                 {
-                    owner.DockPanel.DockFloatform(owner, droppane, drophit.Value);
+                    floatform.DockPanel.DockFloatform(floatform, droppane, drophit.Value);
                 }
                 else if (dragwin.result)
                 {
-                    (owner.GetBackend()as IWindowFrameBackend).Bounds = new Rectangle(dragwin.Location, (owner.GetBackend() as IWindowFrameBackend).Bounds.Size);
-                    owner.Visible = true;
+                    (floatform.GetBackend()as IWindowFrameBackend).Bounds = new Rectangle(dragwin.Location, (floatform.GetBackend() as IWindowFrameBackend).Bounds.Size);
+                    floatform.Visible = true;
                 }
                 dragwin.Dispose();
             });
@@ -414,7 +418,7 @@ namespace BaseLib.DockIt_Xwt
         {
             DragWindow dragwin = CreateDragWin(pane.DockPanel.xwt, position, pane.WidgetSize);
 
-            Application.InvokeAsync(() =>
+            pane.DockPanel.xwt.QueueOnUI(() =>
             {
                 dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
 

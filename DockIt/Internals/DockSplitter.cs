@@ -103,8 +103,6 @@ namespace BaseLib.DockIt_Xwt
                     fam += mi[nit];
                     facs[nit] -= mi[nit];
                     factot += facs[nit];
-
-                    facs[nit] = Math.Max(facs[nit], 0);
                 }
 
                 double ev = 0;
