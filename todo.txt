@@ -1,7 +1,6 @@
-focusmac
 mdi pane
 titlebar pane dock
-mouse ove splitter during drop
+better dropdownbutton
 better layout:
 -keep same on dock
 example-app:
