@@ -291,10 +291,12 @@ namespace BaseLib.XwtPlatForm
     }
     internal class X11_GTK2 : X11
     {
-        [DllImport("libgdk-win32-2.0-0.dll")]
+        const string libGtk = "libgdk-win32-2.0-0.dll";
+
+        [DllImport(libGtk)]
         internal extern static IntPtr gdk_x11_drawable_get_xid(IntPtr window);
 
-        [DllImport("libgdk-win32-2.0-0.dll")]
+        [DllImport(libGtk)]
         public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
 
         protected override IntPtr getxdisplay(IntPtr display)
@@ -309,10 +311,12 @@ namespace BaseLib.XwtPlatForm
     }
     internal class X11_GTK3 : X11
     {
-        [DllImport("libgdk-3-0.dll")]
+        const string libGtk = "libgdk-3-0.dll";
+
+        [DllImport(libGtk)]
         internal extern static IntPtr gdk_x11_window_get_xid(IntPtr window);
 
-        [DllImport("libgdk-3-0.dll")]
+        [DllImport(libGtk)]
         public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
 
         protected override IntPtr getxdisplay(IntPtr display)

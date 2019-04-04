@@ -62,6 +62,8 @@ namespace BaseLib.DockIt_Xwt
             {
                 this.owner = owner;
                 this.Margin = 0;
+                this.HorizontalPlacement = WidgetPlacement.Fill;
+                this.VerticalPlacement = WidgetPlacement.Fill;
                 this.ExpandHorizontal = this.ExpandVertical = true;
                 this.AddChild(owner.DockPanel);
             }
@@ -350,7 +352,8 @@ namespace BaseLib.DockIt_Xwt
             this.BackgroundColor = Colors.White;
             this.maindock = dock;
             this.Location = formpos.Location;
-            this.Size = formpos.Size;
+            this.Width = formpos.Size.Width;
+            this.Height = formpos.Size.Height;
             this.Decorated = false;
             //      this.Resizable = false;
             this.Padding = 0;

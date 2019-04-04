@@ -389,6 +389,8 @@ namespace BaseLib.DockIt_Xwt
             Debug.Assert(destination != null);
             Debug.Assert(this.AllLayouts.Contains(destination));
 
+            destination.DockPanel.BeginLayout();
+
             if (pos == DockPosition.Center)
             {
                 destination.Add(testdoc);
@@ -401,6 +403,7 @@ namespace BaseLib.DockIt_Xwt
                 result = (IDockPane)new DockPane(this, testdoc);
                 destination.DockPanel._DoDock(result, destination, pos);
             }
+            destination.DockPanel.EndLayout(false);
             EndLayout(true);
 
             return result;
