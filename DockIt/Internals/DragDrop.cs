@@ -1,7 +1,4 @@
-﻿using BaseLib.DockIt_Xwt.Interop;
-using BaseLib.XwtPlatForm;
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
@@ -30,6 +27,7 @@ namespace BaseLib.DockIt_Xwt
                     this.ExpandVertical = true;
                     this.CanGetFocus = true;
                     this.BackgroundColor = DockPanel.DropTargetColor;
+                    this.GetBackend().CanGetFocus = true;
 
                     /*    this.ButtonPressed += (s, e) => { };
                         this.ButtonReleased += (s, e) => { };
@@ -81,20 +79,12 @@ namespace BaseLib.DockIt_Xwt
             }
             #endregion
 
-            public abstract void Show(out IDockPane dockpane, out DockPosition? dockat);
+            public delegate void DragResultFunction(bool result, IDockPane pane, DockPosition? pos, Point floatpos);
+            public abstract void Show(DragResultFunction resultfunction);
 
-            internal void SetResult(out IDockPane dockpane, out DockPosition? dockat)
+            internal void SetResult(DragResultFunction resultfunction)
             {
-                if (this.result)
-                {
-                    dockpane = this.droppane;
-                    dockat = this.drophit;
-                }
-                else
-                {
-                    dockpane = null;
-                    dockat = null;
-                }
+                resultfunction?.Invoke(this.result, this.droppane, this.drophit, this.Location);
             }
 
             protected readonly IXwt xwt;
@@ -153,18 +143,17 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowWpf : DragWindow
         {
             public DragWindowWpf(IXwt xwt, Point position, Size size)
-                : base(xwt, position, size, false)
+                : base(xwt, position, size, true)
             {
                 var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
                 wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
 
-                var t = PlatForm.GetType("System.Windows.ResizeMode");
-                wpfwin.GetType().SetPropertyValue(wpfwin, "ResizeMode", Enum.Parse(t, "NoResize"));
-                wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", 32);
+                SetMaxWidth(32);
 
                 base.Size = new Size(32, 32);
             }
-            public override void Show(out IDockPane dockpane, out DockPosition? dockat)
+
+            public override void Show(DragResultFunction resultfunction)
             {
                 this.doexit = false;
 
@@ -175,10 +164,10 @@ namespace BaseLib.DockIt_Xwt
 
                 while (!this.doexit)
                 {
-                    var pt = new POINT();
+                 /*   var pt = new Win32.POINT();
                     Win32.GetCursorPos(ref pt);
 
-                    this.CheckMove(pt, true);
+                    this.CheckMove(pt, true);*/
 
                     this.xwt.DoEvents();
                 }
@@ -188,13 +177,19 @@ namespace BaseLib.DockIt_Xwt
 
                 base.Close();
 
-                base.SetResult(out dockpane, out dockat);
+                base.SetResult(resultfunction);
             }
             internal override void SetPosition(Rectangle rectangle)
             {
-                var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", rectangle.Width);
+                SetMaxWidth(Convert.ToInt32(rectangle.Width));
                 base.SetPosition(rectangle);
+            }
+            private void SetMaxWidth(int width)
+            {
+                var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                //  var t = PlatForm.GetType("System.Windows.ResizeMode");
+               // wpfwin.GetType().SetPropertyValue(wpfwin, "ResizeMode", Enum.Parse(t, "NoResize"));
+                  wpfwin.GetType().SetPropertyValue(wpfwin, "MaxWidth", width);
             }
         }
         #endregion
@@ -203,12 +198,12 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowXamMac : DragWindow
         {
             public DragWindowXamMac(IXwt wxt, Point position, Size size)
-                : base(wxt, position, size, false)
+                : base(wxt, position, size, true)
             {
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
             }
-            public override void Show(out IDockPane dockpane, out DockPosition? dockat)
+            public override void Show(DragResultFunction resultfunction)
             {
                 this.doexit = false;
                 this.result = true;
@@ -218,33 +213,92 @@ namespace BaseLib.DockIt_Xwt
                 this.Content.SetFocus();
                 //  this.xwt.SetCapture(this.Content);
 
-                while (!this.doexit)
+                this.xwt.SetCapture(this.Content);
+
+                while (!doexit)
                 {
-                    Type t = PlatForm.GetType("AppKit.NSEvent");
-                    var pt = t.GetPropertyValueStatic("CurrentMouseLocation");
-                    var mask = t.GetPropertyValueStatic("CurrentPressedMouseButtons");
-
-                    var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
-                    var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
-
-                    this.doexit = (Convert.ToUInt32(mask) & 1/*button1mask*/) == 0;
-
-                    var xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
-                    var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
-
-                    var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
-                    var pt2 = (Xwt.Point)xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
-
-                    this.CheckMove(pt2, true);
-
-                    this.xwt.DoEvents();
+                    xwt.DoEvents();
                 }
 
+                //      object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
+                //        o.GetType().Invoke(o, "RunModalForWindow", (this.GetBackend() as IWindowFrameBackend).Window);
+#if (false)
+                 while (!this.doexit)
+                {
+               // this.xwt.DoEvents(this.Content);
+                    object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
+
+
+
+                    object e;
+                    object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)18446744073709551615L/*0x44*/);
+                     object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("DistantFuture");
+                    object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
+                    //     object[] args = { mask, 0, mode, true };
+                    //     var mi = o.GetType().GetMethod("NextEvent", args.Select(_a => _a.GetType()).ToArray());
+                    do
+                    {
+                    //    var mask = Activator.CreateInstance(PlatForm.GetType("System.nuint"), new object[] { (ulong)0x44 }); // leftup,leftdrag
+
+                        try
+                        {
+                            e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
+                           //    e = XamMac.mi_nswindow_nextevent.Invoke((this.GetBackend() as IWindowFrameBackend).Window, new object[] { mask/*, now, mode.ToString(), true*/ });
+                          //  var et = GetType().GetPropertyValue(e, "Type");
+                            //      e = mi.Invoke(o, args);
+                        }
+                        catch (Exception ee)
+                        {
+                            throw;
+                        }
+                    }
+                    while (e != null);
+                    /*    var pt = XamMac.appkit_nsevent.GetPropertyValueStatic("CurrentMouseLocation");
+                        var mask = XamMac.appkit_nsevent.GetPropertyValueStatic("CurrentPressedMouseButtons");
+
+                        var x = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "X"));
+                        var y = (int)Convert.ToDouble(pt.GetType().GetPropertyValue(pt, "Y"));
+
+                        this.doexit = (Convert.ToUInt32(mask) & 1) == 0;
+
+                        var cgsizetype = PlatForm.GetType("CoreGraphics.CGPoint");
+
+                        var cgpt = Activator.CreateInstance(cgsizetype, new object[] { (double)x, (double)y });
+                        var pt2 = (Xwt.Point)XamMac.xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpt);
+
+                        this.CheckMove(pt2, true);*/
+
+                    /*    object sharednsapp = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
+                         object e;
+                         object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
+                         //  object now = PlatForm.GetType("Foundation.NSDate").GetPropertyValueStatic("Now");
+                         object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
+                         //     object[] args = { mask, 0, mode, true };
+                         //     var mi = o.GetType().GetMethod("NextEvent", args.Select(_a => _a.GetType()).ToArray());
+                        // do
+                         {
+                             e = XamMac.mi_nswindow_nextevent.Invoke(this, new object[] { mask, 0, mode, true });
+
+                         //    var et = XamMac.appkit_nsevent.GetPropertyValue(e, "Type");
+                             if(
+                             //      e = mi.Invoke(o, args);
+                         }
+                         while (e != null);*/
+
+                 //   this.xwt.DoEvents(this.Content);
+                }
+#endif
                 //      this.xwt.ReleaseCapture(this.Content);
                 DockPanel.ClrHightlight();
                 this.Close();
 
-                base.SetResult(out dockpane, out dockat);
+                base.SetResult(resultfunction);
+            }
+            protected override void doclose(bool apply)
+            {
+                base.doclose(apply);
+
+                this.xwt.ReleaseCapture(this.Content);
             }
         }
         #endregion
@@ -253,10 +307,10 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowGTK2 : DragWindow
         {
             public DragWindowGTK2(IXwt xwt, Point position, Size size)
-                : base(xwt, position, size, false)
+                : base(xwt, position, size, true)
             {
             }
-            public override void Show(out IDockPane dockpane, out DockPosition? dockat)
+            public override void Show(DragResultFunction resultfunction)
             {
                 try
                 {
@@ -266,9 +320,11 @@ namespace BaseLib.DockIt_Xwt
                     (this as Window).Show();
                     this.Content.SetFocus();
 
+                    this.xwt.SetCapture(this.Content);
+
                     while (!this.doexit)
                     {
-                        var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                   /*     var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
                         var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
                         var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
@@ -287,7 +343,7 @@ namespace BaseLib.DockIt_Xwt
 
                         this.Location = new Point(x, y).Offset(-5, -5);
 
-                        this.CheckMove(new Point(x, y), true);
+                        this.CheckMove(new Point(x, y), true);*/
 
                         this.xwt.DoEvents();
                     }
@@ -296,7 +352,7 @@ namespace BaseLib.DockIt_Xwt
                     DockPanel.ClrHightlight();
                     this.Close();
 
-                    base.SetResult(out dockpane, out dockat);
+                    base.SetResult(resultfunction);
                 }
                 catch (Exception e)
                 {
@@ -310,12 +366,12 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowGTK3 : DragWindow
         {
             public DragWindowGTK3(IXwt xwt, Point position, Size size)
-                : base(xwt, position, size, false)
+                : base(xwt, position, size, true)
             {
                 var backend = Toolkit.CurrentEngine.GetSafeBackend(this);
                 (backend as IWindowFrameBackend).ShowInTaskbar = false;
             }
-            public override void Show(out IDockPane dockpane, out DockPosition? dockat)
+            public override void Show(DragResultFunction resultfunction)
             {
                 this.doexit = false;
                 this.result = true;
@@ -327,67 +383,35 @@ namespace BaseLib.DockIt_Xwt
 
                 while (!this.doexit)
                 {
-                    var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                    var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
-                    var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
+                    /*      var gtkwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                          var display = gtkwin.GetType().GetPropertyValue(gtkwin, "Display");
+                          var screen = display.GetType().GetPropertyValue(display, "DefaultScreen");
 
-                    Type t = PlatForm.GetType("Gdk.ModifierType");
+                          Type t = PlatForm.GetType("Gdk.ModifierType");
 
-                    var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                    var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
-                    mi.Invoke(display, parms);
-                    //                        display.GetType().Invoke(display, "GetPointer", parms);
-                    //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
-                    int x = (int)parms[0];
-                    int y = (int)parms[1];
-                    int mask = (int)parms[2];
+                          var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
+                          var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), PlatForm.GetType("Gdk.ModifierType&") });
+                          mi.Invoke(display, parms);
+                          //                        display.GetType().Invoke(display, "GetPointer", parms);
+                          //   display.GetPointer(out int x, out int y, out Gdk.ModifierType mask);
+                          int x = (int)parms[0];
+                          int y = (int)parms[1];
+                          int mask = (int)parms[2];
 
 
-                    this.doexit = (mask & 0x100) == 0;
+                          this.doexit = (mask & 0x100) == 0;
 
-                    this.Location = new Point(x, y).Offset(-5, -5);
-                    this.Content.SetFocus();
+                          this.Location = new Point(x, y).Offset(-5, -5);
+                          this.Content.SetFocus();
 
-                    CheckMove(new Point(x, y), true);
+                          CheckMove(new Point(x, y), true);*/
                     this.xwt.DoEvents();
-
-
-                    /*    var dp = DockPanel.GetHits(x, y);
-
-                        if (dp.Any())
-                        {
-                            var rootwin = screen.GetType().GetPropertyValue(screen, "RootWindow");
-
-                            var wins = (Array)rootwin.GetType().GetPropertyValue(rootwin, "Children");
-
-                            var allwin = wins.OfType<object>().Where(_gdkwin => DockPanel.AllDockPanels.Any(_dp =>
-                            {
-                                var w = (_dp.ParentWindow?.GetBackend() as IWindowFrameBackend)?.Window;
-                                return object.ReferenceEquals(w.GetType().GetPropertyValue(w, "GdkWindow"), _dp);
-                            })).ToList();
-
-                            var hit = dp.OrderBy(_dp =>
-                            {
-                                var w = (_dp.ParentWindow?.GetBackend() as IWindowFrameBackend)?.Window;
-                                var w2 = w.GetType().GetPropertyValue(w, "GdkWindow");
-                                return allwin.IndexOf(w2);
-                            }).First();
-
-                            var wp = hit.ConvertToScreenCoordinates(hit.Bounds.Location);
-
-                            DockPanel.SetHighLight(hit, new Point(x - wp.X, y - wp.Y), out this.droppane, out this.drophit);
-                        }
-                        else
-                        {
-                            DockPanel.ClrHightlight();
-                        }*/
                 }
-
                 this.xwt.ReleaseCapture(this.Content);
                 DockPanel.ClrHightlight();
                 this.Close();
 
-                base.SetResult(out dockpane, out dockat);
+                base.SetResult(resultfunction);
             }
         }
 
@@ -398,41 +422,43 @@ namespace BaseLib.DockIt_Xwt
             floatform.Visible = false;
             DragWindow dragwin = CreateDragWin(floatform.DockPanel.xwt, position, floatform.DockPanel.Current.WidgetSize);
 
-            floatform.DockPanel.xwt.QueueOnUI(() =>
+            //  floatform.DockPanel.xwt.QueueOnUI(() => {
+            dragwin.Show((result, droppane, drophit, pt) =>
             {
-                dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
-
-                if (dragwin.result && droppane != null && drophit.HasValue)
+                if (result && droppane != null && drophit.HasValue)
                 {
                     floatform.DockPanel.DockFloatform(floatform, droppane, drophit.Value);
                 }
-                else if (dragwin.result)
+                else if (result)
                 {
-                    (floatform.GetBackend()as IWindowFrameBackend).Bounds = new Rectangle(dragwin.Location, (floatform.GetBackend() as IWindowFrameBackend).Bounds.Size);
+                    (floatform.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt, (floatform.GetBackend() as IWindowFrameBackend).Bounds.Size);
                     floatform.Visible = true;
                 }
                 dragwin.Dispose();
             });
+        //    });
         }
         public static void StartDrag(IDockPane pane, IDockContent[] documents, Point position)
         {
             DragWindow dragwin = CreateDragWin(pane.DockPanel.xwt, position, pane.WidgetSize);
 
-            pane.DockPanel.xwt.QueueOnUI(() =>
-            {
-                dragwin.Show(out IDockPane droppane, out DockPosition? drophit);
+            //  pane.DockPanel.xwt.QueueOnUI(() => {
 
-                if (dragwin.result && droppane != null && drophit.HasValue)
+            dragwin.Show((result, droppane, drophit, pt) =>
+            {
+                if (result && droppane != null && drophit.HasValue)
                 {
                     pane.DockPanel.MovePane(pane, documents, droppane, drophit.Value);
                 }
-                else if (dragwin.result)
+                else if (result)
                 {
-                    pane.DockPanel.FloatPane(pane, documents, dragwin.Location, pane.WidgetSize);
+                    pane.DockPanel.FloatPane(pane, documents, pt, pane.WidgetSize);
                 }
                 dragwin.Dispose();
             });
+       //     });
         }
+
 
         private static DragWindow CreateDragWin(IXwt xwt, Point position, Size size)
         {

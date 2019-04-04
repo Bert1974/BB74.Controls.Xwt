@@ -72,11 +72,12 @@ namespace BaseLib.DockIt_Xwt
                 MoveWindows();
             }
             internal void MoveWindows()
-            { 
+            {
                 //base.OnBoundsChanged()
+                var size = this.Size;
                 this.SetChildBounds(owner.DockPanel, new Rectangle(
                             dragsize, dragsize + (this.owner.titlebarvisible ? TitleBar.TitleBarHeight+dragsize : 0),
-                            this.Bounds.Width - dragsize * 2, this.Bounds.Height - dragsize * 2 - (this.owner.titlebarvisible ? TitleBar.TitleBarHeight+dragsize : 0)));
+                            size.Width - dragsize * 2, size.Height - dragsize * 2 - (this.owner.titlebarvisible ? TitleBar.TitleBarHeight+dragsize : 0)));
             }
             protected override void OnDraw(Context ctx, Rectangle dirtyRect)
             {
@@ -393,8 +394,8 @@ namespace BaseLib.DockIt_Xwt
                 if (!this.titlebarvisible)
                 {
                     this.titlebarvisible = true;
-                    this.Canvas.MoveWindows();
-                    this.Canvas.QueueDraw();
+            //     this.Canvas.MoveWindows();
+         //      this.Canvas.QueueDraw();
                 }
             }
         }
