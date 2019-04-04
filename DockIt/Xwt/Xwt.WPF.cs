@@ -10,10 +10,10 @@ namespace BaseLib.DockIt_Xwt
 {
     partial class XwtImpl
     {
-        class WPF : IXwtImpl
+        class WPF : RealXwt
         {
             [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-            public void DoEvents()
+            public override void DoEvents()
             {
                 var t1 = PlatForm.GetType("System.Windows.Threading.DispatcherFrame");
                 var frame = Activator.CreateInstance(t1);
@@ -44,7 +44,7 @@ namespace BaseLib.DockIt_Xwt
                 //  ((DispatcherFrame)f).Continue = false;
                 return null;
             }
-            void IXwt.ReleaseCapture(Widget widget)
+            public override void ReleaseCapture(Widget widget)
             {
                 if (widget != null)
                 {
@@ -53,7 +53,7 @@ namespace BaseLib.DockIt_Xwt
                     w.GetType().Invoke(w, "ReleaseMouseCapture");
                 }
             }
-            void IXwt.SetCapture(Widget widget)
+            public override void SetCapture(XwtImpl xwt, Widget widget)
             {
                 if (widget != null)
                 {
@@ -62,29 +62,17 @@ namespace BaseLib.DockIt_Xwt
                     w.GetType().Invoke(w, "CaptureMouse");
                 }
             }
-            void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
+            public override void SetParent(WindowFrame r, WindowFrame parentWindow)
             {
-                //     IntPtr hwnd = GetHwnd(r);
-                //      IntPtr hwndmain = GetHwnd(parentWindow);
-
-                var w = (r.GetBackend() as IWindowFrameBackend).Window;
-           //     var te = PlatForm.GetType("System.Windows.WindowStyle");
-
+                var w = r.GetBackend().Window;
                 w.GetType().SetPropertyValue(w, "Owner", (parentWindow.GetBackend() as IWindowFrameBackend).Window);
-
-                //      SetParent(hwnd, hwndmain);
             }
 
             private IntPtr GetHwnd(WindowFrame r)
             {
                 Type t = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
-                var wh = Activator.CreateInstance(t, new object[] { (r.GetBackend() as IWindowFrameBackend).Window });
+                var wh = Activator.CreateInstance(t, new object[] { r.GetBackend().Window });
                 return (IntPtr)wh.GetType().GetPropertyValue(wh, "Handle");
-            }
-
-            public void QueueOnUI(Action method)
-            {
-                throw new NotImplementedException();
             }
         }
     }

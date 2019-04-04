@@ -28,6 +28,10 @@ namespace BaseLib
         {
             return (IWidgetBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
         }
+        public static IWindowFrameBackend GetBackend(this WindowFrame o)
+        {
+            return (IWindowFrameBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
+        }
 
         public static object InvokeStatic(this Type type, string method, params object[] arguments)
         {
@@ -40,6 +44,10 @@ namespace BaseLib
         public static object Invoke(this Type type, object instance, string method, params object[] arguments)
         {
             return type.GetMethod(method, BindingFlags.Public | BindingFlags.Instance).Invoke(instance, arguments);
+        }
+        public static object InvokePrivate(this Type type, object instance, string method, params object[] arguments)
+        {
+            return type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Instance).Invoke(instance, arguments);
         }
         public static object GetPropertyValue(this Type type, object instance, string propertyname)
         {

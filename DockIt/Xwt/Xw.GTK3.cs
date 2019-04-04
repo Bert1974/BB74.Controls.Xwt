@@ -8,22 +8,22 @@ namespace BaseLib.DockIt_Xwt
 {
     partial class XwtImpl
     {
-        class GTK3 : IXwtImpl
+        class GTK3 : RealXwt
         {
-            public void ReleaseCapture(Widget widget)
+            public override void ReleaseCapture(Widget widget)
             {
-                var gtkwin = (widget.GetBackend() as IWidgetBackend).NativeWidget;
+                var gtkwin = widget.GetBackend().NativeWidget;
                 Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
                 type_gtk_grab.InvokeStatic("Remove", gtkwin);
             }
 
-            public void SetCapture(Widget widget)
+            public override void SetCapture(XwtImpl xwt, Widget widget)
             {
-                var gtkwin = (widget.GetBackend() as IWidgetBackend).NativeWidget;
+                var gtkwin = widget.GetBackend().NativeWidget;
                 Type type_gtk_grab = PlatForm.GetType("Gtk.Grab");
                 type_gtk_grab.InvokeStatic("Add", gtkwin);
             }
-            public void DoEvents()
+            public override void DoEvents()
             {
                 Type tctx = PlatForm.GetType("Gtk.Application");
                 var t2 = PlatForm.GetType("Gdk.Threads");
@@ -39,16 +39,11 @@ namespace BaseLib.DockIt_Xwt
                 }
                 t2.InvokeStatic("Leave");
             }
-            void IXwt.SetParent(WindowFrame r, WindowFrame parentWindow)
+            public override void  SetParent(WindowFrame r, WindowFrame parentWindow)
             {
-                var gtkwin = (r.GetBackend() as IWindowFrameBackend).Window;
-                var gtkwinparent = (parentWindow.GetBackend() as IWindowFrameBackend).Window;
+                var gtkwin = r.GetBackend().Window;
+                var gtkwinparent = parentWindow.GetBackend().Window;
                 gtkwin.GetType().SetPropertyValue(gtkwin, "TransientFor", gtkwinparent);
-            }
-
-            public void QueueOnUI(Action method)
-            {
-                throw new NotImplementedException();
             }
         }
     }

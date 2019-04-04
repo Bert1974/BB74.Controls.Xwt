@@ -7,27 +7,27 @@ using Xwt;
 
 namespace BaseLib.DockIt_Xwt.Interop
 {
-    public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RECT
-    {
-        public int Left;        // x position of upper-left corner
-        public int Top;         // y position of upper-left corner
-        public int Right;       // x position of lower-right corner
-        public int Bottom;      // y position of lower-right corner
-    }
-
-    public struct POINT
-    {
-        public int x, y;
-        public static implicit operator Point(POINT pt)
-        {
-            return new Point(pt.x, pt.y);
-        }
-    }
     static class Win32
     {
+        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;        // x position of upper-left corner
+            public int Top;         // y position of upper-left corner
+            public int Right;       // x position of lower-right corner
+            public int Bottom;      // y position of lower-right corner
+        }
+
+        public struct POINT
+        {
+            public int x, y;
+            public static implicit operator Point(POINT pt)
+            {
+                return new Point(pt.x, pt.y);
+            }
+        }
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
 

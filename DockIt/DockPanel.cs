@@ -260,22 +260,18 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.mainwindow.Shown += showfunc;
                 }
+                else
+                {
+                    this.onloadedfired = true;
+                    OnLoaded();
+                }
             }
         }
         private void showfunc(object sender, EventArgs e)
         {
             this.mainwindow.Shown -= showfunc;
-
-            var t = PlatForm.GetType("GLib.Idle");
-            var t2 = PlatForm.GetType("GLib.IdleHandler");
-            var mi = t.GetMethod("Add", new Type[] { t2 });
-            mi.Invoke(null, new object[] { Delegate.CreateDelegate(t2, this, "dolayoutnow") });
-        }
-        private bool dolayoutnow()
-        {
-            this._size = this.Bounds.Size;
-            _DoLayout();
-            return false;
+            this.onloadedfired = true;
+            OnLoaded();
         }
         protected override void Dispose(bool disposing)
         {
@@ -389,8 +385,6 @@ namespace BaseLib.DockIt_Xwt
             Debug.Assert(destination != null);
             Debug.Assert(this.AllLayouts.Contains(destination));
 
-            destination.DockPanel.BeginLayout();
-
             if (pos == DockPosition.Center)
             {
                 destination.Add(testdoc);
@@ -403,7 +397,6 @@ namespace BaseLib.DockIt_Xwt
                 result = (IDockPane)new DockPane(this, testdoc);
                 destination.DockPanel._DoDock(result, destination, pos);
             }
-            destination.DockPanel.EndLayout(false);
             EndLayout(true);
 
             return result;
@@ -897,6 +890,8 @@ namespace BaseLib.DockIt_Xwt
             if (this.busy == 0)
             {
                 CheckOnloaded();
+
+                _size = this.Size;
                 if (!Size.Zero.Equals(_size) && this.Current != null)
                 {
                     this.Current.GetSize(false);

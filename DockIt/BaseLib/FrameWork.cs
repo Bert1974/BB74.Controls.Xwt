@@ -1,10 +1,10 @@
-﻿using BaseLib.DockIt_Xwt.Interop;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using BaseLib.DockIt_Xwt.Interop;
 using Xwt;
 using Xwt.Backends;
 
@@ -78,12 +78,12 @@ namespace BaseLib.XwtPlatForm
         public IEnumerable<Tuple<IntPtr, object>> Search(WindowFrame window, Point pt)
         {
             var disp = GetDisplay(window);
-            return AllForms(disp, window.GetBackend() as IWindowFrameBackend).Where(_t => GetWindowRect(disp, _t.Item2).Contains(pt));
+            return AllForms(disp, window.GetBackend()).Where(_t => GetWindowRect(disp, _t.Item2).Contains(pt));
         }
         public IEnumerable<Tuple<IntPtr, object>> AllForms(WindowFrame windowfordisplay)
         {
             var disp = GetDisplay(windowfordisplay);
-            return AllForms(disp, windowfordisplay.GetBackend() as IWindowFrameBackend);
+            return AllForms(disp, windowfordisplay.GetBackend());
         }
         public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
 
@@ -115,7 +115,7 @@ namespace BaseLib.XwtPlatForm
             switch (OSPlatform)
             {
                 case PlatformID.Win32Windows: return new PlatFormWin32();
-                case PlatformID.MacOSX: return new XamMac();
+                case PlatformID.MacOSX: return new PlatformXamMac();
                 case PlatformID.Unix:
                     {
                         if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
@@ -132,7 +132,7 @@ namespace BaseLib.XwtPlatForm
         }
     }
 
-    internal class XamMac : PlatForm
+    internal class PlatformXamMac : PlatForm
     {
         //   const string qlib = "/System/Library/Frameworks/QuartzCore.framework/QuartzCore";
         const string qlib = @"/System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/CoreGraphics";
@@ -255,14 +255,13 @@ namespace BaseLib.XwtPlatForm
                 var wih = Activator.CreateInstance(t, new object[] { form });
                 hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
             }
-            var r = new RECT();
-            Win32.GetWindowRect(hwnd, out r);
+            Win32.GetWindowRect(hwnd, out Win32.RECT r);
             return new Rectangle(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);
         }
         public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window)
         {
             var found = new List<IntPtr>();
-            EnumWindowsProc func = (hwnd, lparam) =>
+            Win32.EnumWindowsProc func = (hwnd, lparam) =>
             {
                 if ((Win32.GetWindowLongPtr(hwnd, -16) & 0x10000000L) != 0) // WS_STYLE&WS_VISIBLE
                 {
@@ -386,7 +385,7 @@ namespace BaseLib.XwtPlatForm
 
         protected override IntPtr GetDisplay(WindowFrame window)
         {
-            var gtkkwin = (window.GetBackend() as IWindowFrameBackend).Window;
+            var gtkkwin = window.GetBackend().Window;
             var gdkdisp = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Display");
             var display = (IntPtr)gdkdisp.GetType().GetPropertyValue(gdkdisp, "Handle");
             var xdisp = getxdisplay(display);

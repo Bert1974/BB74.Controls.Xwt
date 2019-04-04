@@ -13,8 +13,30 @@ namespace BaseLib.DockIt_Xwt
     {
         protected interface IXwtImpl : IXwt
         {
+            void SetCapture(XwtImpl xwt, Widget widget);
         //    DragWindow Create(Canvas widget, Point position);
         }
+        abstract class RealXwt : IXwtImpl
+        {
+            public abstract void DoEvents();
+
+            public void QueueOnUI(Action method)
+            {
+                throw new NotImplementedException();
+            }
+
+            public abstract void ReleaseCapture(Widget widget);
+
+            public abstract void SetCapture(XwtImpl xwt, Widget widget);
+
+            public void SetCapture(Widget widget)
+            {
+                throw new NotImplementedException();
+            }
+
+            public abstract void SetParent(WindowFrame r, WindowFrame parentWindow);
+        }
+
         private IXwtImpl impl;
 
         internal static Type GetType(string typeName)
@@ -54,7 +76,7 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                 {
-                    this.impl = new XamMac();
+                    this.impl = new XamMacXwt();
                 }
                 else
                 {
@@ -65,7 +87,7 @@ namespace BaseLib.DockIt_Xwt
         }
         public void /*IXwt.*/SetCapture(Widget widget)
         {
-            CheckImpl().SetCapture(widget);
+            CheckImpl().SetCapture(this, widget);
         }
         public void /*IXwt.*/ReleaseCapture(Widget widget)
         {
@@ -77,16 +99,16 @@ namespace BaseLib.DockIt_Xwt
         }
         public void SetPos(WindowFrame window, Rectangle pos)
         {
-            (window.GetBackend() as IWindowFrameBackend).Bounds = pos;
+            window.GetBackend().Bounds = pos;
         }
         public void SetParent(WindowFrame r, WindowFrame parentWindow)
         {
             CheckImpl().SetParent(r, parentWindow);
         }
 
+        CancellationTokenSource worker2cancel = new CancellationTokenSource();
         public void QueueOnUI(Action function)
         {
-           var worker2cancel = new CancellationTokenSource();
             Task.Factory.StartNew(function, worker2cancel.Token, TaskCreationOptions.None, Application.UITaskScheduler);
         }
     }
