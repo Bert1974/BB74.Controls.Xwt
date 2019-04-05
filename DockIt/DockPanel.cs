@@ -31,7 +31,19 @@ namespace BaseLib.DockIt_Xwt
         public static int SplitSize { get; set; } = 4;
         public static int TitleBarHeight { get => TitleBar.TitleBarHeight; set => TitleBar.TitleBarHeight = value; }
 
-        public event EventHandler DocumentsChanged, ActiveDocumentChanged, ActiveContentChanged;
+        private EventHandler docschanged, activedocchanged;
+
+        public event EventHandler DocumentsChanged
+        {
+            add => (this.FloatForm?.MainDockPanel ?? this).docschanged += value;
+            remove => (this.FloatForm?.MainDockPanel ?? this).docschanged -= value;
+        }
+        public event EventHandler ActiveDocumentChanged
+        {
+            add => (this.FloatForm?.MainDockPanel ?? this).activedocchanged += value;
+            remove => (this.FloatForm?.MainDockPanel ?? this).activedocchanged -= value;
+        }
+        public event EventHandler ActiveContentChanged;
 
         private IDockLayout _content;
         internal int busy;
@@ -43,13 +55,13 @@ namespace BaseLib.DockIt_Xwt
         public IXwt xwt { get; }
 
         private Window mainwindow;
-        internal IDockFloatForm FloatForm = null;
+        public IDockFloatWindow FloatForm { get; private set; } = null;
 
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
         private static IDockPane droptarget = null;
         private bool firedocschanged;
 
-        private readonly List<IDockFloatForm> floating = new List<IDockFloatForm>();
+        internal readonly List<IDockFloatWindow> floating = new List<IDockFloatWindow>();
 
         private bool onloadedfired = false;
 
@@ -216,6 +228,11 @@ namespace BaseLib.DockIt_Xwt
                 if (data != null)
                 {
                     pane = data.Restore(this, deserializeDockContent) as IDockLayout;
+
+                    foreach (var fl in data.floating)
+                    {
+                        fl.Restore(this, deserializeDockContent);
+                    }
                 }
             }
             catch { }
@@ -565,7 +582,9 @@ namespace BaseLib.DockIt_Xwt
                     {
                         var panesrc = todock as IDockPane;
 
-                        Debug.Assert(false);
+                        panesrc.NewDockPanel(this);
+                        panesrc.AddWidget();
+                        this.Current = panesrc;
                     }
                 }
                 else // pos != center&float, single pane -> new splitter or use todock if splitter if possible
@@ -838,12 +857,12 @@ namespace BaseLib.DockIt_Xwt
                 return;
             }
         }
-        internal void RemoveFloat(IDockFloatForm window)
+        internal void RemoveFloat(IDockFloatWindow window)
         {
             this.floating.Remove(window);
         }
 
-        internal void AddFloat(IDockFloatForm window)
+        internal void AddFloat(IDockFloatWindow window)
         {
             this.floating.Add(window);
         }
@@ -870,9 +889,13 @@ namespace BaseLib.DockIt_Xwt
             }
         }
 
+        private void OnActiveDocumentChanged()
+        {
+            (this.FloatForm?.MainDockPanel ?? this).activedocchanged?.Invoke(this, EventArgs.Empty);
+        }
         private void OnDocumentChanged()
         {
-            this.DocumentsChanged?.Invoke(this, EventArgs.Empty);
+            (this.FloatForm?.MainDockPanel ?? this).docschanged?.Invoke(this, EventArgs.Empty);
         }
 
         internal void SetActive(IDockContent value)
@@ -883,7 +906,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     this.ActiveDocument = value as IDockDocument;
 
-                    this.ActiveDocumentChanged?.Invoke(this, EventArgs.Empty);
+                    this.OnActiveDocumentChanged();
                 }
                 this.ActiveContentChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -1211,7 +1234,7 @@ namespace BaseLib.DockIt_Xwt
                 ////        OnDocumentsChange(EventArgs.Empty);
             }
         }
-        public IDockLayout DockFloatform(IDockFloatForm window, IDockPane panedst, DockPosition dockat)
+        public IDockLayout DockFloatform(IDockFloatWindow window, IDockPane panedst, DockPosition dockat)
         {
             IDockLayout result = null;
             panedst.DockPanel.BeginLayout();
@@ -1435,8 +1458,10 @@ namespace BaseLib.DockIt_Xwt
         {
             var b = new StringBuilder();
 
-            Dump(b, "", this.Current);
-
+            if (this.Current != null)
+            {
+                Dump(b, "", this.Current);
+            }
             return b.ToString();
         }
 

@@ -6,20 +6,19 @@ using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
-    class FloatWindow : Xwt.Window, IDockFloatForm
+    class FloatWindow : Xwt.Window, IDockFloatWindow
     {
-        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)
+        public static IDockFloatWindow Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)
         {
             return Create(dock, docs, new Rectangle(formpos, new Size(200, 200)), out panefloat);
         }
-        public static IDockFloatForm Create(DockPanel dock, IDockContent[] docs, Rectangle formpos, out IDockPane panefloat)
+        public static IDockFloatWindow Create(DockPanel dock, IDockContent[] docs, Rectangle formpos, out IDockPane panefloat)
         {
             var r = new FloatWindow(dock, docs, formpos);
 
             r.Show();
 
-            dock.xwt.SetParent(r, r.maindock.ParentWindow);
-
+            r.SetParent();
             panefloat = r.DockPanel.Current as IDockPane;
 
             r.maindock.AddFloat(r);
@@ -29,10 +28,11 @@ namespace BaseLib.DockIt_Xwt
 
         public DockPanel/*IDockFloatForm.*/ DockPanel { get; private set; }
         private readonly ResizeAndTitleBaranvas Canvas;
-        internal DockPanel maindock;
+        private DockPanel maindock;
         private bool titlebarvisible;
 
-        Window IDockFloatForm.Window => this;
+        Window IDockFloatWindow.Window => this;
+        DockPanel IDockFloatWindow.MainDockPanel => maindock;
 
         enum DragModes
         {
@@ -368,12 +368,30 @@ namespace BaseLib.DockIt_Xwt
             this.DockPanel.DocumentsChanged += DockPanel_DocumentsChanged;
             this.SetTitleBarVisble();
 
-    /*       if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
-            {
-                var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
-                wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
-            }*/
+            /*       if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
+                    {
+                        var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
+                        wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
+                    }*/
         }
+        private void SetParent()
+        {
+            if (this.maindock.ParentWindow.Visible)
+            {
+                this.DockPanel.xwt.SetParent(this, this.maindock.ParentWindow);
+            }
+            else
+            {
+                this.maindock.ParentWindow.Shown += ParentWindow_Shown;
+            }
+        }
+
+        private void ParentWindow_Shown(object sender, EventArgs e)
+        {
+            this.maindock.ParentWindow.Shown -= ParentWindow_Shown;
+            this.DockPanel.xwt.SetParent(this, this.maindock.ParentWindow);
+        }
+
         private void DockPanel_DocumentsChanged(object sender, EventArgs e)
         {
             this.SetTitleBarVisble();
@@ -404,16 +422,16 @@ namespace BaseLib.DockIt_Xwt
             this.maindock.RemoveFloat(this);
             base.OnClosed();
         }
-        void IDockFloatForm.Close()
+        void IDockFloatWindow.Close()
         {
             base.Close();
             this.Dispose();
         }
-        IDockPane IDockFloatForm.DockToolbar(IDockContent[] controls, DockPosition pos, IDockPane destination)
+        IDockPane IDockFloatWindow.DockToolbar(IDockContent[] controls, DockPosition pos, IDockPane destination)
         {
             return DockPanel.Dock(controls, pos, destination);
         }
-        void IDockFloatForm.Invalidate()
+        void IDockFloatWindow.Invalidate()
         {
         }
     }

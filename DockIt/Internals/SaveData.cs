@@ -14,12 +14,12 @@ namespace BaseLib.DockIt_Xwt
 
         internal static DockSave SaveState(DockPanel dockPanel)
         {
-            var forms = XwtPlatForm.PlatForm.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray();
+            var forms = XwtPlatForm.PlatForm.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
 
             return new DockSave()
             {
                 state = dockPanel.Current != null ? Save(dockPanel.Current) : new PaneEmpty(),
-             //   floating = dockPanel.floating.OrderByDescending(_f => Array.IndexOf(forms, _f)).Select(_f => _f.DockPanel.Content != null ? DockState.Save(_f) : new PaneEmpty()).ToArray()
+                floating = dockPanel.floating.OrderByDescending(_f => Array.IndexOf(forms, _f)).Select(_f => DockState.Save(_f)).ToArray()
             };
         }
         private static DockState Save(object p)
@@ -32,9 +32,9 @@ namespace BaseLib.DockIt_Xwt
             {
                 return Save(p as IDockSplitter);
             }
-            if (p is IDockFloatForm)
+            if (p is IDockFloatWindow)
             {
-                return Save(p as IDockFloatForm);
+                return Save(p as IDockFloatWindow);
             }
             throw new NotImplementedException();
         }
@@ -60,7 +60,7 @@ namespace BaseLib.DockIt_Xwt
             b.Append(":");
             return b.ToString();
         }
-        private static DockState Save(IDockFloatForm p)
+        private static DockState Save(IDockFloatWindow p)
         {
             return new FloatWindowSave()
             {

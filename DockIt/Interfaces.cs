@@ -39,10 +39,11 @@ namespace BaseLib.DockIt_Xwt
         Widget Widget { get; }
         string TabText { get; }
     }
-    public interface IDockFloatForm //: IDockPane//, IDockNotify
+    public interface IDockFloatWindow //: IDockPane//, IDockNotify
     {
         Xwt.Window Window { get; }
         DockPanel DockPanel { get; }
+        DockPanel MainDockPanel { get; }
         //  DockPanel MainDockPanel { get; }
 
         IDockPane DockToolbar(IDockContent[] controls, DockPosition pos, IDockPane destination);

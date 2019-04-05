@@ -80,12 +80,13 @@ namespace BaseLib.DockIt_Xwt
             #endregion
 
             public delegate void DragResultFunction(bool result, IDockPane pane, DockPosition? pos, Point floatpos);
-            public void Show(DragResultFunction resultfunction)
+            public void Show(DockPanel maindock, DragResultFunction resultfunction)
             {
                 this.doexit = false;
                 this.result = true;
 
                 (this as Window).Show();
+                this.xwt.SetParent(this, maindock.ParentWindow);
 
                 this.Content.SetFocus();
                 this.xwt.SetCapture(this.Content);
@@ -210,13 +211,13 @@ namespace BaseLib.DockIt_Xwt
 
         #endregion
 
-        internal static void StartDrag(FloatWindow floatform, Point position)
+        internal static void StartDrag(IDockFloatWindow floatform, Point position)
         {
-            floatform.Visible = false;
+            floatform.Window.Visible = false;
             DragWindow dragwin = CreateDragWin(floatform.DockPanel.xwt, position, floatform.DockPanel.Current.WidgetSize);
 
             //  floatform.DockPanel.xwt.QueueOnUI(() => {
-            dragwin.Show((result, droppane, drophit, pt) =>
+            dragwin.Show(floatform.MainDockPanel, (result, droppane, drophit, pt) =>
             {
                 if (result && droppane != null && drophit.HasValue)
                 {
@@ -224,8 +225,8 @@ namespace BaseLib.DockIt_Xwt
                 }
                 else if (result)
                 {
-                    (floatform.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt, (floatform.GetBackend() as IWindowFrameBackend).Bounds.Size);
-                    floatform.Visible = true;
+                    (floatform.Window.GetBackend() as IWindowFrameBackend).Bounds = new Rectangle(pt, (floatform.Window.GetBackend() as IWindowFrameBackend).Bounds.Size);
+                    floatform.Window.Visible = true;
                 }
                 dragwin.Dispose();
             });
@@ -237,7 +238,7 @@ namespace BaseLib.DockIt_Xwt
 
             //  pane.DockPanel.xwt.QueueOnUI(() => {
 
-            dragwin.Show((result, droppane, drophit, pt) =>
+            dragwin.Show(pane.DockPanel.FloatForm?.MainDockPanel??pane.DockPanel, (result, droppane, drophit, pt) =>
             {
                 if (result && droppane != null && drophit.HasValue)
                 {

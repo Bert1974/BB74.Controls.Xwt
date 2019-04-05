@@ -11,12 +11,7 @@ namespace BaseLib.DockIt_Xwt
 {
     public partial class XwtImpl : IXwt
     {
-        protected interface IXwtImpl : IXwt
-        {
-            void SetCapture(XwtImpl xwt, Widget widget);
-        //    DragWindow Create(Canvas widget, Point position);
-        }
-        abstract class RealXwt : IXwtImpl
+        protected abstract class RealXwt
         {
             public abstract void DoEvents();
 
@@ -37,7 +32,7 @@ namespace BaseLib.DockIt_Xwt
             public abstract void SetParent(WindowFrame r, WindowFrame parentWindow);
         }
 
-        private IXwtImpl Implementation;
+        private RealXwt Implementation;
 
         internal static Type GetType(string typeName)
         {
@@ -58,7 +53,7 @@ namespace BaseLib.DockIt_Xwt
         {
             return new XwtImpl();
         }
-        private IXwtImpl CheckImpl()
+        private RealXwt CheckImpl()
         {
             if (Implementation == null)
             {
