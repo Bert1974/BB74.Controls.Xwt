@@ -9,8 +9,9 @@ namespace BaseLib.DockIt_Xwt
         void SetCapture(Widget widget);
         void ReleaseCapture(Widget widget);
         void DoEvents();
-        void SetParent(WindowFrame r, WindowFrame parentWindow);
+        void SetParent(WindowFrame window, WindowFrame parentWindow);
         void QueueOnUI(Action method);
+        void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
     }
     public interface IDockToolbar : IDockContent // use this for your docking toolbar widget
     {

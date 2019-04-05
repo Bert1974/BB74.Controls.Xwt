@@ -30,6 +30,7 @@ namespace BaseLib.DockIt_Xwt
             }
 
             public abstract void SetParent(WindowFrame r, WindowFrame parentWindow);
+            public abstract void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
         }
 
         private RealXwt Implementation;
@@ -105,6 +106,11 @@ namespace BaseLib.DockIt_Xwt
         public void QueueOnUI(Action function)
         {
             Task.Factory.StartNew(function, worker2cancel.Token, TaskCreationOptions.None, Application.UITaskScheduler);
+        }
+
+        public void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
+        {
+            CheckImpl().GetMouseInfo(window, out mx, out my, out buttons);
         }
     }
 }

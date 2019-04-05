@@ -120,6 +120,11 @@ namespace BaseLib.DockIt_Xwt
                 var w = r.GetBackend().Window;
                 w.GetType().SetPropertyValue(w, "Level", level);
             }
+
+            public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

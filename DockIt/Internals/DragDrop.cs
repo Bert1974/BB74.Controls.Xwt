@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.XwtPlatForm;
+using System;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
@@ -10,16 +11,52 @@ namespace BaseLib.DockIt_Xwt
         #region abstract class DragWindow
         internal abstract class DragWindow : Window
         {
+            public delegate void DragResultFunction(bool result, IDockPane pane, DockPosition? pos, Point floatpos);
+
+            public virtual void Show(DockPanel maindock, DragResultFunction resultfunction)
+            {
+                this.doexit = false;
+                this.result = true;
+
+                (this as Window).Show();
+                this.xwt.SetParent(this, maindock.ParentWindow);
+
+                this.Content.SetFocus();
+                this.xwt.SetCapture(this.Content);
+
+                while (!this.doexit)
+                {
+                    this.xwt.DoEvents();
+
+                    if (this.checkmouse)
+                    {
+                        this.xwt.GetMouseInfo(this, out int mx, out int my, out uint buttons);
+
+                        if ((buttons & 1) == 0)
+                        {
+                            doexit = true;
+                        }
+                        else
+                        {
+                            this.CheckMove(new Point(mx, my), true);
+                        }
+                    }
+                }
+                this.xwt.ReleaseCapture(this.Content);
+                DockPanel.ClrHightlight();
+                this.Close();
+
+                resultfunction?.Invoke(this.result, this.droppane, this.drophit, this.Location);
+            }
+
             #region MyCancas
             protected class MyCanvas : Xwt.Canvas
             {
                 private readonly DragWindow owner;
-                private readonly bool checkmouse;
 
-                public MyCanvas(DragWindow dragWindow, bool checkmouse)
+                public MyCanvas(DragWindow dragWindow)
                 {
                     this.owner = dragWindow;
-                    this.checkmouse = checkmouse;
 
                     this.Margin = 0;
                     this.MinWidth = this.MinHeight = 10;
@@ -70,7 +107,7 @@ namespace BaseLib.DockIt_Xwt
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
                     args.Handled = true;
-                    if (this.checkmouse)
+                    if (!this.owner.checkmouse)
                     {
                         var pt = this.ConvertToScreenCoordinates(args.Position);
                         owner.CheckMove(pt, true);
@@ -79,38 +116,17 @@ namespace BaseLib.DockIt_Xwt
             }
             #endregion
 
-            public delegate void DragResultFunction(bool result, IDockPane pane, DockPosition? pos, Point floatpos);
-            public void Show(DockPanel maindock, DragResultFunction resultfunction)
-            {
-                this.doexit = false;
-                this.result = true;
-
-                (this as Window).Show();
-                this.xwt.SetParent(this, maindock.ParentWindow);
-
-                this.Content.SetFocus();
-                this.xwt.SetCapture(this.Content);
-
-                while (!this.doexit)
-                {
-                    this.xwt.DoEvents();
-                }
-                this.xwt.ReleaseCapture(this.Content);
-                DockPanel.ClrHightlight();
-                this.Close();
-
-                resultfunction?.Invoke(this.result, this.droppane, this.drophit, this.Location);
-            }
-
             protected readonly IXwt xwt;
-            internal bool result, doexit;
-            internal DockPosition? drophit;
-            internal IDockPane droppane;
+            private readonly bool checkmouse;
+            private bool result,  doexit;
+            private DockPosition? drophit;
+            private IDockPane droppane;
             private readonly Size floatsize;
 
             protected DragWindow(IXwt wxt, Point position, Size size, bool checkmouse)
             {
                 this.xwt = wxt;
+                this.checkmouse = checkmouse;
 
                 this.result = this.doexit = false;
 
@@ -125,7 +141,7 @@ namespace BaseLib.DockIt_Xwt
 
                 this.floatsize = size;
 
-                this.Content = new MyCanvas(this, checkmouse);
+                this.Content = new MyCanvas(this);
 
                 this.GetBackend().ShowInTaskbar = false;
             }
@@ -160,7 +176,7 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowWpf : DragWindow
         {
             public DragWindowWpf(IXwt xwt, Point position, Size size)
-                : base(xwt, position, size, true)
+                : base(xwt, position, size, false)
             {
                 var wpfwin = (this.GetBackend() as IWindowFrameBackend).Window;
                 wpfwin.GetType().SetPropertyValue(wpfwin, "AllowsTransparency", true);
@@ -184,7 +200,7 @@ namespace BaseLib.DockIt_Xwt
         class DragWindowXamMac : DragWindow
         {
             public DragWindowXamMac(IXwt wxt, Point position, Size size)
-                : base(wxt, position, size, true)
+                : base(wxt, position, size, false)
             {
             }
         }
@@ -197,6 +213,39 @@ namespace BaseLib.DockIt_Xwt
                 : base(xwt, position, size, true)
             {
             }
+      /*      public override void Show(DockPanel maindock, DragResultFunction resultfunction)
+            {
+                this.doexit = false;
+                this.result = true;
+
+                (this as Window).Show();
+                this.xwt.SetParent(this, maindock.ParentWindow);
+
+                this.Content.SetFocus();
+
+                Interop.Gtk.gtk_window.Invoke(this.GetBackend().Window, "Present");
+                Interop.Gtk.gtk_window.Invoke(this.GetBackend().Window, "ActivateFocus");
+
+                var iddle_type = PlatForm.GetType("GLib.Idle");
+                var iddlehandler_type = PlatForm.GetType("GLib.IdleHandler");
+                iddle_type.InvokeStatic("Add", Delegate.CreateDelegate(iddlehandler_type, this, "on_idle"));
+                
+                while (!this.doexit)
+                {
+                    this.xwt.DoEvents();
+                }
+                this.xwt.ReleaseCapture(this.Content);
+                DockPanel.ClrHightlight();
+                this.Close();
+
+                resultfunction?.Invoke(this.result, this.droppane, this.drophit, this.Location);
+            }
+            private bool on_idle()
+            {
+                this.xwt.SetCapture(this.Content);
+
+                return false;
+            }*/
         }
         #endregion
 

@@ -74,6 +74,11 @@ namespace BaseLib.DockIt_Xwt
                 var wh = Activator.CreateInstance(Win32.swi_wininterophelper, new object[] { r.GetBackend().Window });
                 return (IntPtr)wh.GetType().GetPropertyValue(wh, "Handle");
             }
+
+            public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
