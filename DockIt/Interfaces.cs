@@ -28,13 +28,14 @@ namespace BaseLib.DockIt_Xwt
         bool CanClose { get; }
         bool CanFloat { get; }
     }
-    public delegate IDockContent DeserializeDockContent(string persistString);
+    public delegate IDockContent DeserializeDockContent(DockPanel dock, Type type, string persistString);
     public interface IDockSerializable // optional for IDockContent
     {
         string Serialize();
     }
     public interface IDockContent
     {
+        DockPanel DockPanel { get; set; }
         Widget Widget { get; }
         string TabText { get; }
     }

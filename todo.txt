@@ -1,6 +1,7 @@
 mdi pane
 titlebar pane dock
 better dropdownbutton
+tool/doc close 
 better layout:
 -keep same on dock
 example-app:

@@ -140,7 +140,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     Type t = XwtPlatForm.PlatForm.GetType(_t.Substring(0, ind));
 
-                    if (ind + 2 <= _t.Length)
+                    if (ind + 2 >= _t.Length)
                     {
                         try
                         {
@@ -153,7 +153,7 @@ namespace BaseLib.DockIt_Xwt
                     else if (_t.Substring(ind + 1, 2) == "D:")
                     {
                         var data = _t.Substring(ind + 3, _t.Length - (ind + 4));
-                        return deserializeDockContent(data);
+                        return deserializeDockContent(dockPanel, t, data);
                     }
                 }
                 return null;

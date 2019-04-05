@@ -139,6 +139,8 @@ namespace BaseLib.DockIt_Xwt
 
             //    this.DockPanel.AddChild(this);
 
+            SetOwner(docs);
+
             this._docs.AddRange(docs);
            // GetSize(true);
         }
@@ -182,6 +184,7 @@ namespace BaseLib.DockIt_Xwt
 
         public void Add(IDockContent[] docs)
         {
+            SetOwner(docs);
             this._docs.AddRange(docs);
 
             if (this.Document == null)
@@ -203,6 +206,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 activedoc = null;
             }
+            ClrOwnwer(docs);
             foreach (var doc in docs)
             {
                 this._docs.Remove(doc);
@@ -217,6 +221,22 @@ namespace BaseLib.DockIt_Xwt
 
             return !this.Documents.Any();
         }
+
+        private void SetOwner(IEnumerable<IDockContent> docs)
+        {
+            foreach (var doc in docs)
+            {
+                doc.DockPanel = this.DockPanel;
+            }
+        }
+        private void ClrOwnwer(IEnumerable<IDockContent> docs)
+        {
+            foreach (var doc in docs)
+            {
+                doc.DockPanel = null;
+            }
+        }
+
         public void Layout(Point pt, Size size)
         {
             this.WidgetSize = size;
@@ -383,6 +403,7 @@ namespace BaseLib.DockIt_Xwt
         {
             this.DockPanel.ActiveContentChanged -= DockPanel_ActiveContentChanged;
             this.DockPanel = dockpanel;
+            this.SetOwner(this._docs);
             this.DockPanel.ActiveContentChanged += DockPanel_ActiveContentChanged;
         }
     }

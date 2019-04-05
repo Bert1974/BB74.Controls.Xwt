@@ -163,12 +163,30 @@ namespace BaseLib.DockIt_Xwt
         {
             this.FloatForm = floatwindow;
         }
-        
+
         public void LoadXml(string filename, DeserializeDockContent deserializeDockContent = null)
         {
-            using (var stream = File.OpenRead(filename))
+            LoadXml(filename, true, deserializeDockContent);
+        }
+        public void LoadXml(string filename, bool throwonerror = true, DeserializeDockContent deserializeDockContent = null)
+        {
+            try
+            {
+                using (var stream = File.OpenRead(filename))
             {
                 LoadXml(stream, deserializeDockContent);
+                }
+            }
+            catch (Exception e)
+            {
+                if (throwonerror)
+                {
+                    throw e;
+                }
+                else
+                {
+                    MessageDialog.ShowError($"Error loading {Path.GetFileName(filename)}", $"{e.Message}");
+                }
             }
         }
         public bool LoadXml(Stream stream, DeserializeDockContent deserializeDockContent = null)
@@ -208,11 +226,25 @@ namespace BaseLib.DockIt_Xwt
 
             return pane != null;
         }
-        public void SaveXml(string filename)
+        public void SaveXml(string filename, bool throwonerror = true)
         {
-            using (var stream = File.Create(filename))
+            try
             {
-                SaveXml(stream);
+                using (var stream = File.Create(filename))
+                {
+                    SaveXml(stream);
+                }
+            }
+            catch (Exception e)
+            {
+                if (throwonerror)
+                {
+                    throw e;
+                }
+                else
+                {
+                    MessageDialog.ShowError($"Error saving {Path.GetFileName(filename)}", $"{e.Message}"); 
+                }
             }
         }
         public void SaveXml(Stream stream)
@@ -1397,6 +1429,31 @@ namespace BaseLib.DockIt_Xwt
             EndLayout(true);
 
         //    OnDocumentsChange(EventArgs.Empty);
+        }
+
+        public string Dump()
+        {
+            var b = new StringBuilder();
+
+            Dump(b, "", this.Current);
+
+            return b.ToString();
+        }
+
+        private void Dump(StringBuilder b, string v, IDockLayout content)
+        {
+            if (content is IDockSplitter)
+            {
+                b.AppendLine($"{v}splitter-{(content as IDockSplitter).Layouts.Count()}");
+                foreach (var l in (content as IDockSplitter).Layouts)
+                {
+                    Dump(b, $"{v} ", l);
+                }
+            }
+            else
+            {
+                b.AppendLine($"{v}pane-{(content as IDockPane).Documents.Count()}-{((content as IDockPane).Document?.TabText ?? "---")}");
+            }
         }
     }
 }
