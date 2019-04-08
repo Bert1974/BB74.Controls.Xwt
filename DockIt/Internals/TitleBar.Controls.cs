@@ -11,31 +11,53 @@ namespace BaseLib.DockIt_Xwt
     {
         class ScrollButtons : Canvas // dropdown for multiple documents
         {
+            int dx = 3;
             private TitleBar titleBar;
-            private MenuButton menu;
+            private Label buttonpopup;
+            private Menu documentslistwindow;
 
+            public static MenuItem NewMenuItem(string text, EventHandler click)
+            {
+                var r = new MenuItem(text);
+                r.Clicked += click;
+                return r;
+            }
+            public static Button NewButton(string text, EventHandler click)
+            {
+                var r = new Button(text);
+                r.Clicked += click;
+                return r;
+            }
             public ScrollButtons(TitleBar titleBar)
             {
                 this.Margin = 0;
                 this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
                 this.titleBar = titleBar;
-                this.menu = new MenuButton(".");
-                base.AddChild(menu);
-                var size = menu.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-                base.SetChildBounds(menu, new Rectangle(Point.Zero, size));
+                this.buttonpopup = new Label() { Text = "V", BackgroundColor = DockPanel.ToolbarInactiveColor };
+                this.buttonpopup.ButtonPressed += showmenuclick;
+                base.AddChild(buttonpopup);
+                var size = buttonpopup.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                base.SetChildBounds(buttonpopup, new Rectangle(new Point(dx, 0), size));
                 this.ClipToBounds();
+
+                this.documentslistwindow = new Menu();
+            }
+            private void showmenuclick(object sender, ButtonEventArgs a)
+            {
+                if (a.Button == PointerButton.Left)
+                {
+                    this.documentslistwindow.Popup(this, 0, 0);
+                }
             }
             public void SetDocuments(IDockContent[] docs)
             {
-                var m = new Menu();
-
-                foreach(var doc in docs)
+                this.documentslistwindow.Items.Clear();
+                foreach (var doc in docs)
                 {
                     var mi = new CheckBoxMenuItem(doc.TabText) { Checked = object.ReferenceEquals(this.titleBar.pane.Document, doc), Tag = doc };
                     mi.Clicked += Mi_Clicked;
-                    m.Items.Add(mi);
+                    this.documentslistwindow.Items.Add(mi);
                 }
-                this.menu.Menu = m;
             }
 
             private void Mi_Clicked(object sender, EventArgs e)
@@ -45,9 +67,17 @@ namespace BaseLib.DockIt_Xwt
 
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                return menu.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                var r = this.buttonpopup.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                r = new Size(r.Width + dx * 2, r.Height);
+                return r;
             }
-            public double Width => this.Children.Select(_b => _b.Size.Width).Sum();
+            public new Size Size
+            {
+                get
+                {
+                    return OnGetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                }
+            }
         }
         class Buttons : Canvas // document buttons
         {
@@ -264,7 +294,7 @@ namespace BaseLib.DockIt_Xwt
                     var ox = x;
                     var size = o.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                     var w = Math.Max(size.Width, 10);
-                    this.SetChildBounds(o, new Rectangle(scrollpos + x, 2, w, 18));
+                    this.SetChildBounds(o, new Rectangle(scrollpos + x, (this.Bounds.Height-size.Height)/2, w, size.Height));
                     x += w + TitleBarButtonSpacing;
                 }
                 var tr = current.Where(_b => !docs.Any(_d => object.ReferenceEquals(_b.doc, _d))).ToArray();

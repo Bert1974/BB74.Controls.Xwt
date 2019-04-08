@@ -74,13 +74,13 @@ namespace BaseLib.DockIt_Xwt
         internal void CheckBounds()
         { 
             var buttonsize = this.buttons.Width;// GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-            var scrollsize = this.scrollwindow.Width;
+            var scrollsize = this.scrollwindow.Size;//.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained,SizeConstraint.Unconstrained);
 
-            bool overflow = buttonsize > this.Bounds.Width;
+            bool overflow = buttonsize + scrollsize.Width > this.Bounds.Width && this.docs.Count() > 1;
 
             if (overflow)
             {
-                double x = this.Bounds.Width - scrollsize;
+                double x = this.Bounds.Width - scrollsize.Width;
 
                 if (x < 0) // only dropdown menu
                 {
@@ -91,7 +91,7 @@ namespace BaseLib.DockIt_Xwt
                 else // buttons and menu
                 {
                     this.SetChildBounds(this.buttons, new Rectangle(Point.Zero, new Size(x, TitleBar.TitleBarHeight)));
-                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, 0), new Size(scrollsize, TitleBar.TitleBarHeight)));
+                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, (this.Bounds.Height-scrollsize.Height)/2), scrollsize));
                     this.buttons.Visible = true;
                     this.scrollwindow.Visible = true;
                 }
