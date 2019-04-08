@@ -15,8 +15,9 @@ namespace BaseLib.DockIt_Xwt
     public class DockPanel : Canvas
     {
         public static bool DefaultFloat { get; set; } = true;
+        public static bool CustomTitleBar { get; set; } = false;
 
-        public static Color TitlebarColor { get; set; } = Colors.Gray;
+        public static Color TitlebarColor { get; set; } = new Color(0.160784, 0.223529, 0.333333);
         public static Color DocumentActiveColor { get; set; } = Colors.LightBlue;
         public static Color ToolbarActiveColor { get; set; } = Colors.LightBlue;
         public static Color ToolbarInactiveColor { get; set; } = Colors.LightGray;
@@ -55,6 +56,7 @@ namespace BaseLib.DockIt_Xwt
         public IXwt xwt { get; }
 
         private Window mainwindow;
+        public DockPanel MainDockPanel => this.FloatForm?.DockPanel ?? this;
         public IDockFloatWindow FloatForm { get; private set; } = null;
 
         internal static readonly List<DockPanel> AllDockPanels = new List<DockPanel>();
@@ -63,7 +65,7 @@ namespace BaseLib.DockIt_Xwt
 
         internal readonly List<IDockFloatWindow> floating = new List<IDockFloatWindow>();
 
-        private bool onloadedfired = false;
+        internal bool onloadedfired = false;
 
         internal static void SetHighLight(DockPanel dockPanel, Point pt, out IDockPane target, out DockPosition? hit)
         {
@@ -303,17 +305,14 @@ namespace BaseLib.DockIt_Xwt
 
             DockPanel.AllDockPanels.Add(this);
 
-            if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
+            if (!mainwindow.Visible)
             {
-                if (!mainwindow.Visible)
-                {
-                    this.mainwindow.Shown += showfunc;
-                }
-                else
-                {
-                    this.onloadedfired = true;
-                    OnLoaded();
-                }
+                this.mainwindow.Shown += showfunc;
+            }
+            else
+            {
+                this.onloadedfired = true;
+                OnLoaded();
             }
         }
         private void showfunc(object sender, EventArgs e)

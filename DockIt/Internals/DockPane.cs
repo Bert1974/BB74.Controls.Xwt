@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using Xwt;
 using Xwt.Drawing;
 
@@ -60,6 +61,7 @@ namespace BaseLib.DockIt_Xwt
                 {
                     if (this._activedoc != null)
                     {
+                        Debug.Assert(this.DockPanel.MainDockPanel.onloadedfired);
                         (this as IDockNotify).OnUnloading();
                         this.RemoveChild(this._activedoc.Widget);
                     }
@@ -68,7 +70,7 @@ namespace BaseLib.DockIt_Xwt
                         this.AddChild(this._activedoc.Widget);
                         this.SetChildBounds(this._activedoc.Widget, DocumentRectangle);
 
-                        if (this.ParentWindow?.Visible ?? false)
+                        if ((this.ParentWindow?.Visible ?? false)  && this.DockPanel.MainDockPanel.onloadedfired)
                         {
                             (this as IDockNotify).OnLoaded(this);
                         }
@@ -348,8 +350,10 @@ namespace BaseLib.DockIt_Xwt
                 this.Bounds.Width,
                 this.Bounds.Height - (this.topbar.Visible ?TitleBar.TitleBarHeight : 0) - (this.bottombar.Visible ? TitleBar.TitleBarHeight : 0));
 
-            this.Document?.Widget.Hide();
-
+            if ((this.Document as IDockCustomize)?.HideWhenDocking ?? false)
+            {
+                this.Document?.Widget.Hide();
+            }
             AddDrop((r.Width - wh) / 2, r.Top, DockPosition.Top);
             AddDrop((r.Width - wh) / 2, r.Top + r.Height - wh, DockPosition.Bottom);
             AddDrop(0, r.Top + (r.Height - wh) / 2, DockPosition.Left);

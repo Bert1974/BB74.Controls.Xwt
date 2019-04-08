@@ -144,10 +144,10 @@ namespace BaseLib.DockIt_Xwt
                             var pt = this.ConvertToScreenCoordinates(args.Position);
 
                             DockItDragDrop.StartDrag(this.buttons.titlebar.pane, new IDockContent[] { this.doc }, pt);
-                            return;
                         }
+                        return;
                     }
-               //    base.OnMouseMoved(args);
+                   base.OnMouseMoved(args);
                 }
 
                 protected override void OnButtonReleased(ButtonEventArgs args)

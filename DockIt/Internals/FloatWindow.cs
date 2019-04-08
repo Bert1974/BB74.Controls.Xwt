@@ -51,7 +51,7 @@ namespace BaseLib.DockIt_Xwt
         #region ResizeCanvas
         class ResizeAndTitleBaranvas : Xwt.Canvas
         {
-            const int dragsize = 4;
+            public int dragsize = 4;
 
             private readonly FloatWindow owner;
             private DragModes captured = DragModes.None;
@@ -355,7 +355,6 @@ namespace BaseLib.DockIt_Xwt
             this.Location = formpos.Location;
             this.Width = formpos.Size.Width;
             this.Height = formpos.Size.Height;
-            this.Decorated = false;
             //      this.Resizable = false;
             this.Padding = 0;
             this.Title = "Properties";
@@ -363,10 +362,24 @@ namespace BaseLib.DockIt_Xwt
             this.DockPanel = new DockPanel(this, this.maindock.xwt);
             this.Content = this.Canvas = new ResizeAndTitleBaranvas(this);
 
+            if (!DockPanel.CustomTitleBar)
+            {
+                this.Canvas.dragsize = 0;
+                this.Resizable = true;
+                this.titlebarvisible = false;
+                this.Decorated = true;
+            }
+            else
+            {
+                this.Canvas.dragsize = 4;
+                this.Resizable = false;
+                this.titlebarvisible = true;
+                this.Decorated = false;
+            }
             this.DockPanel.Dock(docs, DockPosition.Center);
 
             this.DockPanel.DocumentsChanged += DockPanel_DocumentsChanged;
-            this.SetTitleBarVisble();
+          //  this.SetTitleBarVisble();
 
             /*       if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                     {
@@ -394,9 +407,9 @@ namespace BaseLib.DockIt_Xwt
 
         private void DockPanel_DocumentsChanged(object sender, EventArgs e)
         {
-            this.SetTitleBarVisble();
+       //     this.SetTitleBarVisble();
         }
-        private void SetTitleBarVisble()
+   /*     private void SetTitleBarVisble()
         {
          /*   if (this.DockPanel.Current is IDockPane) // not splitted?
             {
@@ -407,7 +420,7 @@ namespace BaseLib.DockIt_Xwt
                     this.Canvas.QueueDraw();
                 }
             }
-            else*/
+            else
             {
                 if (!this.titlebarvisible)
                 {
@@ -416,7 +429,7 @@ namespace BaseLib.DockIt_Xwt
          //      this.Canvas.QueueDraw();
                 }
             }
-        }
+        }*/
         protected override void OnClosed()
         {
             this.maindock.RemoveFloat(this);
