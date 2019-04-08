@@ -54,6 +54,7 @@
     <Compile Include="Internals\FloatWindow.cs" />
     <Compile Include="BaseLib\FrameWork.cs" />
     <Compile Include="Internals\SaveData.cs" />
+    <Compile Include="Internals\TitleBar.Controls.cs" />
     <Compile Include="Internals\TitleBar.cs" />
     <Compile Include="Interop\Gtk.cs" />
     <Compile Include="Interop\Win32.cs" />

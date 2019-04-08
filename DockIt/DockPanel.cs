@@ -245,6 +245,17 @@ namespace BaseLib.DockIt_Xwt
 
             return pane != null;
         }
+
+        public void CloseDocument(IDockPane pane, IDockContent doc)
+        {
+            if (pane.Remove(new IDockContent[] { doc }))
+            {
+                BeginLayout();
+                _CheckRemovePane(pane, null);
+                EndLayout(true);
+            }
+        }
+
         public void SaveXml(string filename, bool throwonerror = true)
         {
             try

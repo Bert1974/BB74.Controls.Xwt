@@ -224,18 +224,23 @@ namespace BaseLib.DockIt_Xwt
             return !this.Documents.Any();
         }
 
+        internal void CloseDocument(IDockContent doc)
+        {
+            this.DockPanel.CloseDocument(this, doc);
+        }
+
         private void SetOwner(IEnumerable<IDockContent> docs)
         {
             foreach (var doc in docs)
             {
-                doc.DockPanel = this.DockPanel;
+                doc.DockPane = this;
             }
         }
         private void ClrOwnwer(IEnumerable<IDockContent> docs)
         {
             foreach (var doc in docs)
             {
-                doc.DockPanel = null;
+                doc.DockPane = null;
             }
         }
 
