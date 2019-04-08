@@ -173,6 +173,7 @@ namespace BaseLib.DockIt_Xwt
         }
         protected override void Dispose(bool disposing)
         {
+          //  this.Document?.Dispose();
             //   this.Document = null;
 
             base.Dispose(disposing);
@@ -274,13 +275,15 @@ namespace BaseLib.DockIt_Xwt
         }
         public void RemoveWidget()
         {
-            if (this.Document != null)
+            if (this.Parent != null)
             {
-                this.RemoveChild(this.Document.Widget);
+                if (this.Document?.Widget.Parent != null)
+                {
+                    this.RemoveChild(this.Document.Widget);
+                }
+                this.DockPanel.RemoveChild(this);
             }
-            this.DockPanel.RemoveChild(this);
         }
-
         void IDockNotify.OnLoaded(IDockPane pane)
         {
             (this._activedoc as IDockNotify)?.OnLoaded(this);
@@ -293,7 +296,7 @@ namespace BaseLib.DockIt_Xwt
 
         public void GetSize(bool setsize)
         {
-            double miw = 64, mih = 0;
+            double miw = 32, mih = 0;
 
             if (_docs.Any())
             {

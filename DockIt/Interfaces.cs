@@ -76,7 +76,7 @@ namespace BaseLib.DockIt_Xwt
         void Remove(IDockLayout destination, bool removewidget);
         IDockLayout Get(int ind);
     }
-    public interface IDockLayout
+    public interface IDockLayout : IDisposable
     {
         void Layout(Point zero, Size size);
         void GetSize(bool setsize);

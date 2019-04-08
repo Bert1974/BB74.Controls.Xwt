@@ -9,7 +9,6 @@ namespace BaseLib
 {
     internal static class Extension
     {
-
         public static void ClipToBounds(this Canvas widget)
         {
             ClipToBounds(widget.GetBackend());
@@ -32,6 +31,10 @@ namespace BaseLib
         public static IWindowFrameBackend GetBackend(this WindowFrame o)
         {
             return (IWindowFrameBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
+        }
+        public static IWindowBackend GetBackend(this Window o)
+        {
+            return (IWindowBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
         }
 
         public static object InvokeStatic(this Type type, string method, params object[] arguments)

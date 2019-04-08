@@ -178,6 +178,16 @@ namespace BaseLib.DockIt_Xwt
             this.FloatForm = floatwindow;
         }
 
+        public void Reset()
+        {
+            BeginLayout();
+            this.Current.RemoveWidget();
+            this.Current.Dispose();
+            this.Current = null;
+            this.floating.ToList().ForEach(_f => _f.Close());
+            EndLayout(false);
+        }
+
         public void LoadXml(string filename, DeserializeDockContent deserializeDockContent = null)
         {
             LoadXml(filename, true, deserializeDockContent);
@@ -217,12 +227,7 @@ namespace BaseLib.DockIt_Xwt
             var data = (DockSave)serializer.Deserialize(xmlReader);
             
             BeginLayout();
-
-            this.Current.RemoveWidget();
-            
-            this.Current = null;
-
-            this.floating.ToList().ForEach(_f => _f.Close());
+            Reset();
 
             IDockLayout pane = null;
             try
@@ -248,12 +253,12 @@ namespace BaseLib.DockIt_Xwt
 
         public void CloseDocument(IDockPane pane, IDockContent doc)
         {
+            BeginLayout();
             if (pane.Remove(new IDockContent[] { doc }))
             {
-                BeginLayout();
                 _CheckRemovePane(pane, null);
-                EndLayout(true);
             }
+            EndLayout(true);
         }
 
         public void SaveXml(string filename, bool throwonerror = true)
@@ -359,10 +364,7 @@ namespace BaseLib.DockIt_Xwt
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
-            Size r = new Size(widthConstraint.AvailableSize, heightConstraint.AvailableSize);//??base.OnGetPreferredSize(widthConstraint, heightConstraint);
-
-            this._size = r;
-            return r;
+            return /*this.Current?.MinimumSize ??*/ new Size(0, 0);
         }
 
         internal static DockPanel[] GetHits(int x, int y)
@@ -954,10 +956,7 @@ namespace BaseLib.DockIt_Xwt
         {
             if (this.busy == 0)
             {
-                CheckOnloaded();
-
-                _size = this.Size;
-                if (!Size.Zero.Equals(_size) && this.Current != null)
+                if (this.Size.Width > 1 && this.Size.Height > 1 && this.Current != null)
                 {
                     this.Current.GetSize(false);
                     this.Current.Layout(this.Bounds.Location, this.Bounds.Size);

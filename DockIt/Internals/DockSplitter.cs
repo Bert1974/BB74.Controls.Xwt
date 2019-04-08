@@ -320,5 +320,14 @@ namespace BaseLib.DockIt_Xwt
                 l.NewDockPanel(dockpanel);
             }
         }
+
+        public void Dispose()
+        {
+            foreach (var l in this._dock)
+            {
+                l.Dispose();
+            }
+            this._dock.Clear();
+        }
     }
 }
