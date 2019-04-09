@@ -18,7 +18,7 @@ namespace BaseLib.DockIt_Xwt
 
             public override void ReleaseCapture(Widget widget)
             {
-                Debug.Assert(object.ReferenceEquals(this.captured, widget));
+                Debug.Assert(object.ReferenceEquals(this.captureitem, widget));
                 Debug.Assert(this.captured == 1);
 
                 if (--this.captured == 0)
@@ -28,7 +28,7 @@ namespace BaseLib.DockIt_Xwt
             }
             public override void SetCapture(XwtImpl xwt, Widget widget)
             {
-                Debug.Assert(this.captured == 0 ? this.captureitem == null : object.ReferenceEquals(this.captured, widget));
+                Debug.Assert(this.captured == 0 ? this.captureitem == null : object.ReferenceEquals(this.captureitem, widget));
                 Debug.Assert(this.captured == 0);
 
                 if (this.captured++ == 0)

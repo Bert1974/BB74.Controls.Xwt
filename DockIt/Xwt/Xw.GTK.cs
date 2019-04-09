@@ -33,7 +33,7 @@ namespace BaseLib.DockIt_Xwt
             /*    var gdk = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
                 var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
 
-                int r = x11_gdk_pointer_grab(h, true, (1 << 5)/*|(1<<9)|(1<10)*//*0x3ffffe*/, IntPtr.Zero, IntPtr.Zero, 0);
+                int r = x11_gdk_pointer_grab(h, true, (1 << 5)//|(1<<9)|(1<10////0x3ffffe, IntPtr.Zero, IntPtr.Zero, 0);
                 
                 Console.WriteLine($"gdk_grab={r}");*/
             }

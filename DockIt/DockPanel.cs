@@ -42,7 +42,10 @@ namespace BaseLib.DockIt_Xwt
         public event EventHandler ActiveDocumentChanged
         {
             add => (this.FloatForm?.MainDockPanel ?? this).activedocchanged += value;
-            remove => (this.FloatForm?.MainDockPanel ?? this).activedocchanged -= value;
+            remove
+            {
+                (this.FloatForm?.MainDockPanel ?? this).activedocchanged -= value;
+            }
         }
         public event EventHandler ActiveContentChanged;
 
@@ -364,9 +367,9 @@ namespace BaseLib.DockIt_Xwt
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
-            return /*this.Current?.MinimumSize ??*/ new Size(0, 0);
+            return /*this.Current?.MinimumSize ??*/ new Size(1, 1);
         }
-
+         
         internal static DockPanel[] GetHits(int x, int y)
         {
             return DockPanel.AllDockPanels.Where(_dock =>
