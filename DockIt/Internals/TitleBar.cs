@@ -91,7 +91,7 @@ namespace BaseLib.DockIt_Xwt
                 else // buttons and menu
                 {
                     this.SetChildBounds(this.buttons, new Rectangle(Point.Zero, new Size(x, TitleBar.TitleBarHeight)));
-                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, (this.Bounds.Height-scrollsize.Height)/2), scrollsize));
+                    this.SetChildBounds(this.scrollwindow, new Rectangle(new Point(x, (TitleBar.TitleBarHeight - scrollsize.Height)/2), scrollsize));
                     this.buttons.Visible = true;
                     this.scrollwindow.Visible = true;
                 }

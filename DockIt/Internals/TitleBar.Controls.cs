@@ -36,7 +36,7 @@ namespace BaseLib.DockIt_Xwt
                 this.buttonpopup = new Label() { Text = "V", BackgroundColor = DockPanel.ToolbarInactiveColor };
                 this.buttonpopup.ButtonPressed += showmenuclick;
                 base.AddChild(buttonpopup);
-                var size = buttonpopup.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                var size = OnGetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
                 base.SetChildBounds(buttonpopup, new Rectangle(new Point(dx, 0), size));
                 this.ClipToBounds();
 
@@ -233,16 +233,17 @@ namespace BaseLib.DockIt_Xwt
                 protected override void OnButtonReleased(ButtonEventArgs args)
                 {
                     args.Handled = true;
-                    if (captured)
-                    {
                         ClrCapture();
-                    }
+
                     //     base.OnButtonReleased(args);
                 }
                 private void ClrCapture()
                 {
-                    captured = false;
-                    this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
+                    if (captured)
+                    {
+                        captured = false;
+                        this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
+                    }
                 }
                 private Size closesize => new Size(14, 14);
                 private Rectangle CloseRectangle
@@ -258,6 +259,7 @@ namespace BaseLib.DockIt_Xwt
             double scrollpos = 0;
             private bool captured = false;
             private Point orgpt;
+            private IDockContent[] docs;
             private readonly TitleBar titlebar;
 
             public Buttons(TitleBar titlebar)
@@ -270,8 +272,19 @@ namespace BaseLib.DockIt_Xwt
 
                 this.ClipToBounds();
             }
+            protected override void OnBoundsChanged()
+            {
+                base.OnBoundsChanged();
+
+                if (this.docs != null)
+                {
+                    this.SetDocuments(this.docs);
+                }
+            }
             public void SetDocuments(IDockContent[] docs)
             {
+                this.docs = docs;
+
                 var current = this.Children.OfType<DockButton>().ToArray();
 
                 //   var tl = new TextLayout(this);
