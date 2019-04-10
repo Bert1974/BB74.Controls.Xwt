@@ -1,7 +1,5 @@
 mdi pane
-titlebar pane dock
-better dropdownbutton
-tool/doc close 
+test widget ipv gadget
 better layout:
 -keep same on dock
 example-app:

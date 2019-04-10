@@ -27,28 +27,11 @@ namespace DockExample
             return null;
         }
 
-        class testdockitem : Canvas, IDockDocument
+        class testdockitem : Canvas, IDockDocument, IDockNotify
         {
             Widget IDockContent.Widget => this;
             string IDockContent.TabText => "testdoc";
-            DockPanel IDockContent.DockPanel
-            {
-                get => this.dock;
-                set
-                {
-                    if (this.dock != null)
-                    {
-                        this.dock.DocumentsChanged -= queuedraw;
-                        this.dock.ActiveContentChanged -= queuedraw;
-                    }
-                    if ((this.dock = value) != null)
-                    {
-                        this.dock.DocumentsChanged += queuedraw;
-                        this.dock.ActiveContentChanged += queuedraw;
-                    }
-                }
-            }
-            DockPanel dock;
+            IDockPane IDockContent.DockPane { get; set; }
 
             public testdockitem()
             {
@@ -67,17 +50,27 @@ namespace DockExample
                 ctx.Rectangle(this.Bounds);
                 ctx.Fill();
 
-                var tl = new TextLayout(this) { Text=(this as IDockContent).DockPanel.Dump() };
+                var tl = new TextLayout(this) { Text= (this as IDockContent).DockPane.DockPanel.Dump() };
 
                 ctx.SetColor(Colors.Black);
                 ctx.DrawTextLayout(tl, new Point(0, 0));
+            }
+
+            void IDockNotify.OnLoaded(IDockPane pane)
+            {
+                Console.WriteLine($"{base.GetHashCode()} doc onloaded");
+            }
+
+            void IDockNotify.OnUnloading()
+            {
+                Console.WriteLine($"{base.GetHashCode()} doc unloading");
             }
         }
         class testtoolitem : Canvas, IDockToolbar, IDockSerializable
         {
             Widget IDockContent.Widget => this;
             string IDockContent.TabText => $"tool{this.Id}";
-            DockPanel IDockContent.DockPanel { get; set; }
+            IDockPane IDockContent.DockPane { get; set; }
 
             public int Id { get; }
 
@@ -106,7 +99,7 @@ namespace DockExample
             }
             void Initialize()
             { 
-                this.MinWidth = this.MinHeight = 100;
+                this.MinWidth = this.MinHeight = 10;
                 this.BackgroundColor = Colors.Aquamarine;
             }
             string IDockSerializable.Serialize()
@@ -114,6 +107,7 @@ namespace DockExample
                 return this.Id.ToString();
             }
         }
+        
         public mainwindow(IXwt xwt)
         {
             this.Title = $"Xwt Demo Application {Xwt.Toolkit.CurrentEngine.Type}";

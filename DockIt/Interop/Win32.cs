@@ -23,10 +23,10 @@ namespace BaseLib.DockIt_Xwt.Interop
 
         public struct POINT
         {
-            public int x, y;
+            public int X, Y;
             public static implicit operator Point(POINT pt)
             {
-                return new Point(pt.x, pt.y);
+                return new Point(pt.X, pt.Y);
             }
         }
         [DllImport("user32.dll", SetLastError = true)]

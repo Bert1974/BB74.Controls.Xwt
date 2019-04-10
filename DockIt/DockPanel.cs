@@ -26,6 +26,8 @@ namespace BaseLib.DockIt_Xwt
         public static Color DropTargetColorSelected { get; set; } = Colors.OrangeRed;
         public static Color MDIColor { get; set; } = Colors.DarkGray;
         public static Color ColorSplitter { get; set; } = Colors.Black;
+        public static Color ButtonHighlight { get; set; } = Colors.White;
+        public static Color ButtonHighlightDim { get; set; } = Colors.DarkGray;
 
         public static Rectangle DragRectangle { get; set; } = new Rectangle(-4, -4, 8, 8);
 
@@ -200,12 +202,14 @@ namespace BaseLib.DockIt_Xwt
             try
             {
                 using (var stream = File.OpenRead(filename))
-            {
-                LoadXml(stream, deserializeDockContent);
+                {
+                    LoadXml(stream, deserializeDockContent);
                 }
             }
             catch (Exception e)
             {
+                this.Reset();
+
                 if (throwonerror)
                 {
                     throw e;

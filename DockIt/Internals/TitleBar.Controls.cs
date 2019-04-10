@@ -7,7 +7,7 @@ using Xwt.Drawing;
 
 namespace BaseLib.DockIt_Xwt
 {
-    partial class TitleBar 
+    partial class TitleBar
     {
         class ScrollButtons : Canvas // dropdown for multiple documents
         {
@@ -87,7 +87,7 @@ namespace BaseLib.DockIt_Xwt
                 internal IDockContent doc;
                 private bool captured = false;
                 private Point dragpt;
-                private Button closebutton;
+                private Label closebutton;
                 private Font closebuttonfont;
 
                 public bool Active
@@ -108,17 +108,19 @@ namespace BaseLib.DockIt_Xwt
                 public DockButton(Buttons buttons, IDockContent doc)
                     : base()
                 {
-                    this.closebuttonfont = Font.WithSize(closesize.Height - 6);
+                    this.closebuttonfont = Font.WithSize(6);
                     this.buttons = buttons;
                     this.doc = doc;
                     this.Text = doc.TabText;
 
                     this.Margin = 0;
-                    this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
+                    //this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
+
+                    var size = new TextLayout() { Font = this.closebuttonfont, Text = "X" }.GetSize();
+                    this.closesize = new Size(size.Width + 2, size.Height + 2);
 
                     this.Update();
                 }
-
                 internal void Update()
                 {
                     this.Text = doc.TabText;
@@ -137,11 +139,25 @@ namespace BaseLib.DockIt_Xwt
                     }
                 }
 
+                private void Closebutton_ButtonPressed(object sender, ButtonEventArgs e)
+                {
+                    var pt = new Point(e.X + CloseRectangle.Left, e.Y + CloseRectangle.Top);
+                    var ee = new ButtonEventArgs() { Button = e.Button, IsContextMenuTrigger = e.IsContextMenuTrigger, MultiplePress = e.MultiplePress, X = pt.X, Y = pt.Y };
+                    OnButtonPressed(ee);
+                    e.Handled = ee.Handled;
+                }
                 protected override void OnButtonPressed(ButtonEventArgs args)
                 {
                     args.Handled = true;
                     if (args.Button == PointerButton.Left)
                     {
+                        if (this.closebutton != null && this.CloseRectangle.Contains(args.Position))
+                        {
+                            this.dragpt = args.Position;
+                            this.captured = true;
+                            this.buttons.titlebar.pane.DockPanel.xwt.SetCapture(this);
+                            return;
+                        }
                         var opos = this.buttons.GetChildBounds(this);
                         this.buttons.titlebar.pane.SetActive(this.doc);
 
@@ -156,9 +172,24 @@ namespace BaseLib.DockIt_Xwt
                     }
                     else if (captured)
                     {
-                        ClrCapture();
+                        if (this.CloseRectangle.Contains(this.dragpt))
+                        {
+                            ClrCapture();
+                            Closebutton_Clicked(null, null);
+                        }
+                        else
+                        {
+                            ClrCapture();
+                        }
                     }
                     //                    base.OnButtonPressed(args);
+                }
+                private void Closebutton_MouseMoved(object sender, MouseMovedEventArgs e)
+                {
+                    var pt = new Point(e.X + this.CloseRectangle.Left, e.Y + this.CloseRectangle.Top);
+                    var ee = new MouseMovedEventArgs(0, pt.X, pt.Y);
+                    this.OnMouseMoved(ee);
+                    e.Handled = ee.Handled;
                 }
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
@@ -166,7 +197,20 @@ namespace BaseLib.DockIt_Xwt
                     if (captured)
                     {
                         args.Handled = true;
-                        if (!DockPanel.DragRectangle.Contains(args.X - this.dragpt.X, args.Y - this.dragpt.Y))
+                        if (this.closebutton != null && this.CloseRectangle.Contains(this.dragpt))
+                        {
+                            if (!this.CloseRectangle.Contains(args.X, args.Y))
+                            {
+                                // pressed & outside
+                                this.closebutton.BackgroundColor = DockPanel.ButtonHighlightDim;
+                            }
+                            else
+                            {
+                                // pressed & inside
+                                this.closebutton.BackgroundColor = DockPanel.ButtonHighlight;
+                            }
+                        }
+                        else if (!DockPanel.DragRectangle.Contains(args.X - this.dragpt.X, args.Y - this.dragpt.Y))
                         {
                             ClrCapture();
 
@@ -184,18 +228,21 @@ namespace BaseLib.DockIt_Xwt
                         {
                             if (closebutton == null)
                             {
-                                closebutton = new Button("X")
+                                this.closebutton = new Label("X")
                                 {
-                                    WidthRequest = this.closesize.Width,
-                                    HeightRequest = this.closesize.Height,
-                                    Font= this.closebuttonfont
+                                    Font = this.closebuttonfont,
+                                    Visible = false,
+                                    BackgroundColor = DockPanel.ButtonHighlight,
+                                    
                                 };
-                                closebutton.Clicked += Closebutton_Clicked;
-                                closebutton.MouseExited += Closebutton_MouseExited;
-
+                                this.closebutton.ButtonPressed += Closebutton_ButtonPressed;
+                                this.closebutton.MouseMoved += Closebutton_MouseMoved;
+                                this.closebutton.ButtonReleased += Closebutton_ButtonReleased;
+                                
                                 this.buttons.AddChild(closebutton);
                                 var b = this.buttons.GetChildBounds(this);
-                                this.buttons.SetChildBounds(closebutton, new Rectangle(CloseRectangle.Location.X + b.Location.X, CloseRectangle.Location.Y + b.Location.Y, closesize.Width, closesize.Height));
+                                this.buttons.SetChildBounds(closebutton, new Rectangle(CloseRectangle.Location.X + b.Location.X, CloseRectangle.Location.Y + b.Location.Y, CloseRectangle.Width, CloseRectangle.Height));
+                                this.closebutton.Visible = true;
                             }
                             args.Handled = true;
                         }
@@ -209,12 +256,13 @@ namespace BaseLib.DockIt_Xwt
                         base.OnMouseMoved(args);
                     }
                 }
-
-                private void Closebutton_MouseExited(object sender, EventArgs e)
+                protected override void OnMouseExited(EventArgs args)
                 {
-                    this.RemoveCloseButton();
+                    if (!this.captured)
+                    {
+                        this.RemoveCloseButton();
+                    }
                 }
-                
                 private void Closebutton_Clicked(object sender, EventArgs e)
                 {
                     this.buttons.titlebar.pane.CloseDocument(this.doc);
@@ -222,19 +270,37 @@ namespace BaseLib.DockIt_Xwt
 
                 internal void RemoveCloseButton()
                 {
-                    if (closebutton != null)
+                    if (this.closebutton != null)
                     {
-                        this.buttons.RemoveChild(closebutton);
+                        this.buttons.RemoveChild(this.closebutton);
                         this.closebutton.Dispose();
                         this.closebutton = null;
                     }
+                }
+                private void Closebutton_ButtonReleased(object sender, ButtonEventArgs e)
+                {
+                    var pt = new Point(e.X + this.CloseRectangle.Left, e.Y + this.CloseRectangle.Top);
+                    var ee = new ButtonEventArgs() { Button = e.Button, MultiplePress = e.MultiplePress, IsContextMenuTrigger = e.IsContextMenuTrigger, X = pt.X, Y = pt.Y };
+                    this.OnButtonReleased(ee);
+                    e.Handled = ee.Handled;
                 }
 
                 protected override void OnButtonReleased(ButtonEventArgs args)
                 {
                     args.Handled = true;
+
+                    if (captured)
+                    {
                         ClrCapture();
 
+                        if (this.closebutton != null && this.CloseRectangle.Contains(this.dragpt))
+                        {
+                            if (this.CloseRectangle.Contains(args.X, args.Y))
+                            {
+                                Closebutton_Clicked(null, null);
+                            }
+                        }
+                    }
                     //     base.OnButtonReleased(args);
                 }
                 private void ClrCapture()
@@ -245,14 +311,14 @@ namespace BaseLib.DockIt_Xwt
                         this.buttons.titlebar.pane.DockPanel.xwt.ReleaseCapture(this);
                     }
                 }
-                private Size closesize => new Size(14, 14);
+                private Size closesize { get; set; }
                 private Rectangle CloseRectangle
                 {
                     get
                     {
-                        Size s = this.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                        Size s = this.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
 
-                        return new Rectangle(s.Width - closesize.Width - 2, 2, closesize.Width, closesize.Height);
+                        return new Rectangle(s.Width - closesize.Width, 0, closesize.Width, closesize.Height);
                     }
                 }
             }
