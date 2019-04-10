@@ -238,7 +238,8 @@ namespace BaseLib.DockIt_Xwt
                                 this.closebutton.ButtonPressed += Closebutton_ButtonPressed;
                                 this.closebutton.MouseMoved += Closebutton_MouseMoved;
                                 this.closebutton.ButtonReleased += Closebutton_ButtonReleased;
-                                
+                                this.closebutton.MouseExited += Closebutton_MouseExited;
+
                                 this.buttons.AddChild(closebutton);
                                 var b = this.buttons.GetChildBounds(this);
                                 this.buttons.SetChildBounds(closebutton, new Rectangle(CloseRectangle.Location.X + b.Location.X, CloseRectangle.Location.Y + b.Location.Y, CloseRectangle.Width, CloseRectangle.Height));
@@ -256,7 +257,7 @@ namespace BaseLib.DockIt_Xwt
                         base.OnMouseMoved(args);
                     }
                 }
-                protected override void OnMouseExited(EventArgs args)
+                protected void Closebutton_MouseExited(object sender, EventArgs args)
                 {
                     if (!this.captured)
                     {
