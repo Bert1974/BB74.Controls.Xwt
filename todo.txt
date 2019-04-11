@@ -1,5 +1,8 @@
 mdi pane
 test widget ipv gadget
+windowmenu
+autohide?
+dubbel dock als vs
 better layout:
 -keep same on dock
 example-app:

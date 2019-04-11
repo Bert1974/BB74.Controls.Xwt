@@ -51,9 +51,21 @@ namespace BaseLib.DockIt_Xwt
         }
         public event EventHandler ActiveContentChanged;
 
+        public DocumentStyle DocumentStyle
+        {
+            get => this._docstyle;
+            set
+            {
+                if (this._docstyle != value)
+                {
+                    this._docstyle = value;
+                }
+            }
+        }
+
         private IDockLayout _content;
+        private DocumentStyle _docstyle;
         internal int busy;
-        private Size _size;
         private IDockSplitter dragsplit;
         private Point dragpt;
         private int dragind;
@@ -366,7 +378,6 @@ namespace BaseLib.DockIt_Xwt
         protected override void OnBoundsChanged()
         {
             base.OnBoundsChanged();
-            this._size = this.Bounds.Size;
             this._DoLayout();
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
@@ -1402,7 +1413,7 @@ namespace BaseLib.DockIt_Xwt
                 var empty = this.AllLayouts.OfType<IDockPane>().Where(_t => !_t.Documents.Any());
                 var docs = this.AllLayouts.OfType<IDockPane>().Where(_t => _t.Documents.OfType<IDockDocument>().Any());
 
-                if (!docs.Any() || this.FloatForm != null) // -> no docs, keep 1
+                if ((this._docstyle != DocumentStyle.JustDock &&  !docs.Any()) || this.FloatForm != null) // -> no docs, keep 1, float can always close
                 {
                     if (empty.Count() > 1)
                     {
@@ -1425,7 +1436,7 @@ namespace BaseLib.DockIt_Xwt
                         }
                     }
                 }
-                else
+                else // there is pane with documents, close empty panes
                 {
                     foreach (var l in empty.ToArray())
                     {

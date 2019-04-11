@@ -94,7 +94,7 @@ namespace BaseLib.DockIt_Xwt
     }
     public enum DockPosition
     {
- //       Document,
+        //       Document,->Center
         Left,
         Right,
         Top,
@@ -106,5 +106,10 @@ namespace BaseLib.DockIt_Xwt
     {
         Horizontal,
         Vertical
+    }
+    public enum DocumentStyle
+    {
+        JustDock,
+        SDI
     }
 }
