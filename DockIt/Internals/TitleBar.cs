@@ -53,6 +53,8 @@ namespace BaseLib.DockIt_Xwt
 
         private TitleBar(DockPane pane, bool isheader)
         {
+            TitleBar.SmallFont = TitleBar.SmallFont ?? Xwt.Drawing.Font.SystemFont.WithSize(6);
+
             this.IsHeader = isheader;
             this.pane = pane;
             this.MinHeight = HeightRequest = TitleBar.TitleBarHeight;
@@ -74,7 +76,7 @@ namespace BaseLib.DockIt_Xwt
         internal void CheckBounds()
         { 
             var buttonsize = this.buttons.Width;// GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-            var scrollsize = this.scrollwindow.Size;//.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained,SizeConstraint.Unconstrained);
+            var scrollsize = this.scrollwindow.WindowSize;//.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained,SizeConstraint.Unconstrained);
 
             bool overflow = buttonsize + scrollsize.Width > this.Bounds.Width && this.docs.Count() > 1;
 
@@ -122,12 +124,17 @@ namespace BaseLib.DockIt_Xwt
             this.scrollwindow.SetDocuments(this.docs);
             this.buttons.SetDocuments(this.docsvis.ToArray());
 
-            CheckBounds();
-
+            if (Bounds.Width > 1 && Bounds.Height > 1)
+            {
+                CheckBounds();
+            }
             if (this.Visible != this.docsvis.Any())
             {
                 this.Visible = this.docsvis.Any();
-                this.pane.MoveWindows();
+                if (Bounds.Width > 1 && Bounds.Height > 1)
+                {
+                    this.pane.MoveWindows();
+                }
             }
         }
     }

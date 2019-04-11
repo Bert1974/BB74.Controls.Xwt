@@ -148,7 +148,7 @@ namespace BaseLib.DockIt_Xwt
         }
         internal void MoveWindows()
         {
-            if (this.WidgetSize.Width>=0&&this.WidgetSize.Height>=0)
+            if (this.WidgetSize.Width > 0 && this.WidgetSize.Height > 0)
             {
                 if (this.topbar.Visible)
                 {

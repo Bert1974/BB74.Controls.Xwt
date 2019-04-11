@@ -8,7 +8,9 @@ using Xwt.Drawing;
 namespace BaseLib.DockIt_Xwt
 {
     partial class TitleBar
-    {
+    { 
+        public static Font SmallFont { get; private set; }
+
         class ScrollButtons : Canvas // dropdown for multiple documents
         {
             int dx = 3;
@@ -31,15 +33,14 @@ namespace BaseLib.DockIt_Xwt
             public ScrollButtons(TitleBar titleBar)
             {
                 this.Margin = 0;
-                this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
                 this.titleBar = titleBar;
-                this.buttonpopup = new Label() { Text = "V", BackgroundColor = DockPanel.ToolbarInactiveColor };
+                this.buttonpopup = new Label() { Text = "*", BackgroundColor = DockPanel.ToolbarInactiveColor };
                 this.buttonpopup.ButtonPressed += showmenuclick;
                 base.AddChild(buttonpopup);
-                var size = OnGetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-                base.SetChildBounds(buttonpopup, new Rectangle(new Point(dx, 0), size));
+                this.ButtonSize = new TextLayout(this) { Text = this.buttonpopup.Text }.GetSize();
+                base.SetChildBounds(buttonpopup, new Rectangle(new Point(dx, 0), ButtonSize));
                 this.ClipToBounds();
-
+               
                 this.documentslistwindow = new Menu();
             }
             private void showmenuclick(object sender, ButtonEventArgs a)
@@ -67,17 +68,11 @@ namespace BaseLib.DockIt_Xwt
 
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                var r = this.buttonpopup.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
-                r = new Size(r.Width + dx * 2, r.Height);
-                return r;
+                return new Size(Width, ButtonSize.Height);
             }
-            public new Size Size
-            {
-                get
-                {
-                    return OnGetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-                }
-            }
+            public double Width => ButtonSize.Width + dx * 2;
+            public Size ButtonSize { get; }
+            public Size WindowSize => new Size(Width, ButtonSize.Height);
         }
         class Buttons : Canvas // document buttons
         {
@@ -88,7 +83,6 @@ namespace BaseLib.DockIt_Xwt
                 private bool captured = false;
                 private Point dragpt;
                 private Label closebutton;
-                private Font closebuttonfont;
 
                 public bool Active
                 {
@@ -108,7 +102,6 @@ namespace BaseLib.DockIt_Xwt
                 public DockButton(Buttons buttons, IDockContent doc)
                     : base()
                 {
-                    this.closebuttonfont = Font.WithSize(6);
                     this.buttons = buttons;
                     this.doc = doc;
                     this.Text = doc.TabText;
@@ -116,7 +109,7 @@ namespace BaseLib.DockIt_Xwt
                     this.Margin = 0;
                     //this.VerticalPlacement = this.HorizontalPlacement = WidgetPlacement.Fill;
 
-                    var size = new TextLayout() { Font = this.closebuttonfont, Text = "X" }.GetSize();
+                    var size = new TextLayout() { Font = TitleBar.SmallFont, Text = "X" }.GetSize();
                     this.closesize = new Size(size.Width + 2, size.Height + 2);
 
                     this.Update();
@@ -230,7 +223,7 @@ namespace BaseLib.DockIt_Xwt
                             {
                                 this.closebutton = new Label("X")
                                 {
-                                    Font = this.closebuttonfont,
+                                    Font = TitleBar.SmallFont,
                                     Visible = false,
                                     BackgroundColor = DockPanel.ButtonHighlight,
                                     
