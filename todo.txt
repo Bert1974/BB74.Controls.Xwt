@@ -1,8 +1,8 @@
 mdi pane
-test widget ipv gadget
 windowmenu
 autohide?
 dubbel dock als vs
+propertytabs, category, dropdownvalues, defaultvalue, array/list
 better layout:
 -keep same on dock
 example-app:
