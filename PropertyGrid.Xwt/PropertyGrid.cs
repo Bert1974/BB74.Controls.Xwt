@@ -26,7 +26,7 @@ namespace BaseLib.Xwt
         static Font PropertyFont = Font.SystemFont.WithSize(13);
         static Font CategoryFont = PropertyFont.WithWeight(FontWeight.Heavy);
         static Font ButtonFont = Font.SystemFont.WithSize(13).WithWeight(FontWeight.Heavy);
-        const int spacedx = 12, splitheight = 12, lineheight = 28;
+        const int spacedx = 12, splitheight = 12, lineheight = 22;
         private bool EditMode => CheckEditMode(this.tree);
 
         private bool CheckEditMode(GridItem item) => ((item?.Widget?.Tag as EditCanvas)?.editmode ?? false) || (item?.Items?.Any(_subitem => CheckEditMode(_subitem)) ?? false);
@@ -62,11 +62,11 @@ namespace BaseLib.Xwt
         {
             this.BackgroundColor = Colors.White;
 
-            this.scrollbar = new VScrollbar() { ExpandVertical=true, VerticalPlacement = WidgetPlacement.Fill };
+            this.scrollbar = new VScrollbar() { ExpandVertical = true, VerticalPlacement = WidgetPlacement.Fill };
             this.scrollbar.ValueChanged += Scrollbar_ValueChanged;
 
 
-            this.vboxlist = new VBox() { Spacing = 1 };
+            this.vboxlist = new VBox() { Spacing = 0 };
 
             this.scrollcanvas = new Canvas();
             this.scrollcanvas.AddChild(this.vboxlist);
@@ -95,11 +95,13 @@ namespace BaseLib.Xwt
 
         private void Scrollbar_ValueChanged(object sender, EventArgs e)
         {
-            var listsize = this.vboxlist.Children.Select(_c => _c.HeightRequest).Sum();
+            var listsize = this.ListHeight;
             var pagsize = this.Bounds.Height - splitheight;
 
             this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.Bounds.Width - scrollw, listsize));
         }
+
+        private double ListHeight => this.vboxlist.Children.Select(_c => _c.HeightRequest).Sum()+2;
 
         private void QueueOnUI(Action m)
         {
@@ -152,7 +154,7 @@ namespace BaseLib.Xwt
 
                 base.OnBoundsChanged();
 
-                var listsize = this.vboxlist.Children.Select(_c => _c.HeightRequest).Sum();
+                var listsize = this.ListHeight;
                 var pagsize = this.Bounds.Height - splitheight;
 
                 this.scrollbar.StepIncrement = 1;
