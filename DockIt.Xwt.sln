@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		todo.txt = todo.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid.Xwt", "PropertyGrid.Xwt\PropertyGrid.Xwt.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

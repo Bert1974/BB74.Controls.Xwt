@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "DockIt\DockPan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample.XamMac", "DockExample\DockExample.XamMac.csproj", "{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid.Xwt", "PropertyGrid.Xwt\PropertyGrid.Xwt.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
