@@ -83,10 +83,16 @@
       <Project>{D50C178E-866C-47D4-903F-87A1553B3273}</Project>
       <Name>DockPanel</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PropertyGrid.Xwt\PropertyGrid.Xwt.csproj">
+      <Project>{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}</Project>
+      <Name>PropertyGrid.Xwt</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="mainwindow.cs" />
+    <Compile Include="documents.cs" />
+    <Compile Include="toolbars.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

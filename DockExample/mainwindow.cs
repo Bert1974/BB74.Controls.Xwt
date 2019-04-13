@@ -1,4 +1,5 @@
 ﻿using BaseLib.DockIt_Xwt;
+using BaseLib.Xwt;
 using System;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ using Xwt.Drawing;
 
 namespace DockExample
 {
-    class mainwindow : Window
+    partial class mainwindow : Window
     {
         DockPanel dock;
         bool closing = false;
@@ -16,96 +17,19 @@ namespace DockExample
 
         private IDockContent Deserialize(DockPanel dockpanel, Type type, string data)
         {
-            if (type == typeof(testdockitem))
+            /*if (type == typeof(testdockitem))
             {
                 return new testdockitem();
+            }*/
+            if (type == typeof(testwebitem))
+            {
+                return new testwebitem(dockpanel, data);
             }
             if (type == typeof(testtoolitem))
             {
                 return new testtoolitem(data);
             }
             return null;
-        }
-
-        class testdockitem : Canvas, IDockDocument, IDockNotify
-        {
-            Widget IDockContent.Widget => this;
-            string IDockContent.TabText => "testdoc";
-            IDockPane IDockContent.DockPane { get; set; }
-
-            public testdockitem()
-            {
-                this.MinWidth = this.MinHeight = 100;
-                this.BackgroundColor = Colors.White;
-            }
-            private void queuedraw(object sender,EventArgs e)
-            {
-                base.QueueDraw();
-            }
-            protected override void OnDraw(Context ctx, Rectangle dirtyRect)
-            {
-                base.OnDraw(ctx, dirtyRect);
-
-                ctx.SetColor(this.BackgroundColor);
-                ctx.Rectangle(this.Bounds);
-                ctx.Fill();
-
-                var tl = new TextLayout(this) { Text= (this as IDockContent).DockPane.DockPanel.Dump() };
-
-                ctx.SetColor(Colors.Black);
-                ctx.DrawTextLayout(tl, new Point(0, 0));
-            }
-
-            void IDockNotify.OnLoaded(IDockPane pane)
-            {
-                Console.WriteLine($"{base.GetHashCode()} doc onloaded");
-            }
-
-            void IDockNotify.OnUnloading()
-            {
-                Console.WriteLine($"{base.GetHashCode()} doc unloading");
-            }
-        }
-        class testtoolitem : Canvas, IDockToolbar, IDockSerializable
-        {
-            Widget IDockContent.Widget => this;
-            string IDockContent.TabText => $"tool{this.Id}";
-            IDockPane IDockContent.DockPane { get; set; }
-
-            public int Id { get; }
-
-            public testtoolitem(mainwindow main)
-                : this(main.dock)
-            {
-            }
-            private testtoolitem(DockPanel dock)
-            {
-                var w = dock.AllContent.OfType<testtoolitem>().Select(_tw => _tw.Id);
-
-                if (w.Any())
-                {
-                    Id = w.Max() + 1;
-                }
-                else
-                {
-                    Id = 1;
-                }
-                Initialize();
-            }
-            public testtoolitem(string data)
-            {
-                this.Id = int.Parse(data);
-                Initialize();
-            }
-            void Initialize()
-            { 
-                this.MinWidth = this.MinHeight = 10;
-                this.BackgroundColor = Colors.Aquamarine;
-            }
-            string IDockSerializable.Serialize()
-            {
-                return this.Id.ToString();
-            }
         }
         
         public mainwindow(IXwt xwt)
@@ -122,6 +46,8 @@ namespace DockExample
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New window", new_mainwindow));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New testdoc", new_testdoc));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New toolbar", new_toolbar));
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New google", new_webview));
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New properties", new_properties));
             //   file.SubMenu.Items.Add(new MenuItem("_Open"));
             //    file.SubMenu.Items.Add(new MenuItem("_New"));
             var mi = new MenuItem("_Close");
@@ -189,7 +115,15 @@ namespace DockExample
         }
         void new_toolbar(object sender, EventArgs e)
         {
-            dock.Dock(new testtoolitem(this));
+            dock.Dock(new testtoolitem(this), DockPosition.Left);
+        }
+        void new_webview(object sender, EventArgs e)
+        {
+            dock.Dock(new testwebitem());
+        }
+        void new_properties(object sender, EventArgs e)
+        {
+            dock.Dock(new testpropertiesitem(), DockPosition.Left);
         }
         void save_layout(object sender, EventArgs e)
         {

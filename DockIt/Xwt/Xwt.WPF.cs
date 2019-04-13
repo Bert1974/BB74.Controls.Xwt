@@ -49,7 +49,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (widget != null)
                 {
-                    var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                    var backend = widget.GetBackend();
                     var w = backend.GetType().GetPropertyValue(backend, "Widget");
                     w.GetType().Invoke(w, "ReleaseMouseCapture");
                 }
@@ -58,7 +58,7 @@ namespace BaseLib.DockIt_Xwt
             {
                 if (widget != null)
                 {
-                    var backend = Toolkit.CurrentEngine.GetSafeBackend(widget);
+                    var backend = widget.GetBackend();
                     var w = backend.GetType().GetPropertyValue(backend, "Widget");
                     w.GetType().Invoke(w, "CaptureMouse");
                 }
