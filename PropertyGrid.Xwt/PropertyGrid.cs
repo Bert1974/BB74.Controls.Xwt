@@ -64,12 +64,15 @@ namespace BaseLib.Xwt
 
             this.scrollbar = new VScrollbar() { ExpandVertical = true, VerticalPlacement = WidgetPlacement.Fill };
             this.scrollbar.ValueChanged += Scrollbar_ValueChanged;
+            this.scrollbar.MouseScrolled += Scroll_MouseScrolled;
 
 
             this.vboxlist = new VBox() { Spacing = 0 };
 
             this.scrollcanvas = new Canvas();
             this.scrollcanvas.AddChild(this.vboxlist);
+
+            this.scrollcanvas.MouseScrolled += Scroll_MouseScrolled;
 
             this.scrollcanvas.ClipToBounds();
 
@@ -91,6 +94,16 @@ namespace BaseLib.Xwt
             this.scrollw = this.scrollbar.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width;
 
             QueueOnUI(() => { this.splitheader.SetPosition(.5); SetWidth(this.tree); });
+        }
+
+        private void Scroll_MouseScrolled(object sender, MouseScrolledEventArgs e)
+        {
+            ScrollDelta((e.Direction == ScrollDirection.Down ? 1 : -1)*10);
+        }
+        private void ScrollDelta(double v)
+        {
+            this.scrollbar.Value = Math.Max(this.scrollbar.LowerValue, Math.Min(this.scrollbar.UpperValue, this.scrollbar.Value + v));
+            Scrollbar_ValueChanged(null, EventArgs.Empty);
         }
 
         private void Scrollbar_ValueChanged(object sender, EventArgs e)
@@ -150,9 +163,8 @@ namespace BaseLib.Xwt
                 this.SetChildBounds(this.splitheader, new Rectangle(0, 0, this.Bounds.Width - scrollw, splitheight));
                 this.SetChildBounds(this.scrollcanvas, new Rectangle(0, splitheight, this.Bounds.Width - scrollw, this.Bounds.Height - splitheight));
                 this.SetChildBounds(this.scrollbar, new Rectangle(this.Bounds.Width - scrollw, splitheight, scrollw, this.Bounds.Height - splitheight));
-                SetWidth(this.tree);
 
-                base.OnBoundsChanged();
+                //base.OnBoundsChanged();
 
                 var listsize = this.ListHeight;
                 var pagsize = this.Bounds.Height - splitheight;
@@ -160,9 +172,12 @@ namespace BaseLib.Xwt
                 this.scrollbar.StepIncrement = 1;
                 this.scrollbar.UpperValue = Math.Max(0, listsize - pagsize);
                 this.scrollbar.PageSize = 1;
-                this.scrollbar.ClampPage(0, this.scrollbar.UpperValue);
+                this.scrollbar.Value = Math.Max(0, Math.Min(this.scrollbar.Value, this.scrollbar.UpperValue));
+                //this.scrollbar.ClampPage(0, listsize);
 
                 this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.Bounds.Width - scrollw, listsize));
+
+                SetWidth(this.tree);
 
                 this.updating--;
             }
@@ -198,7 +213,7 @@ namespace BaseLib.Xwt
 
             if (item is GridItemCategory)
             {
-                var box = new HBox() { Tag = item, Spacing = 0 };
+                var box = new HBox() { Tag = item, Spacing = 0,ExpandHorizontal=true };
                 // expand button
                 if (item.Expandable)
                 {
@@ -234,8 +249,8 @@ namespace BaseLib.Xwt
                         Font=PropertyGrid.PropertyFont
                     };
                     var ww = this.Size.Width > 0 && this.Size.Height > 0 ? (this.Size.Width * this.splitheader.GetPosition()) : 0;
-                    var left = new Table() { WidthRequest = ww, HeightRequest = lineheight };
-                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - ww), HeightRequest = lineheight };
+                    var left = new Table() { WidthRequest = ww, HeightRequest = lineheight,ExpandHorizontal=true };
+                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - ww), HeightRequest = lineheight,ExpandHorizontal=true };
 
                     // spacing
                     left.Add(new Label() { WidthRequest = level * spacedx, HeightRequest=lineheight, MinWidth = level * spacedx }, 0, 0, 1, 1, vexpand: true);
