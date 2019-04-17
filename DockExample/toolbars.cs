@@ -1,8 +1,12 @@
-﻿using BaseLib.DockIt_Xwt;
-using BaseLib.Xwt;
+﻿using BaseLib.Xwt;
+using BaseLib.Xwt.Design;
+using BaseLib.Xwt.DockPanel;
+using BaseLib.Xwt.PropertyGrid;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using Xwt;
 using Xwt.Drawing;
@@ -78,6 +82,47 @@ namespace DockExample
                 }
             }
 
+            class ICollectionEditor : UITypeEditor
+            {
+                public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+                {
+                    return UITypeEditorEditStyle.Modal;
+                }
+                public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+                {
+                    var svc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
+
+                    var dialog = new Dialog();
+                    dialog.Content = new Label("hello");
+
+                    var cmd = svc.ShowDialog(dialog);
+
+                    return value;
+                }
+            }
+
+            class ICollectionConverter : CollectionConverter
+            {
+                public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                {
+                    if (sourceType == typeof(string)) { return false; }
+                    return base.CanConvertFrom(context, sourceType);
+                }
+                public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+                {
+                    if (destinationType == typeof(string)) { return true; }
+                    return base.CanConvertTo(context, destinationType);
+                }
+                public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+                {
+                    if (destinationType == typeof(string))
+                    {
+                        return $"Count={(value as ICollection)?.Count}";
+                    }
+                    return base.ConvertTo(context, culture, value, destinationType);
+                }
+            }
+
             [TypeConverter(typeof(ExpandableObjectConverter))]
             public struct point
             {
@@ -96,6 +141,14 @@ namespace DockExample
 
                 public Int32 getal { get; set; }
 
+                [Editor(typeof(ICollectionEditor), typeof(UITypeEditor))]
+                [TypeConverter(typeof(ICollectionConverter))]
+                public object[][] testarray { get; set; } = new object[][] { new object[] { "abc", 0 } };
+
+                [Editor(typeof(ICollectionEditor), typeof(UITypeEditor))]
+                [TypeConverter(typeof(ICollectionConverter))]
+                [BrowsableAttribute(true)]
+                public List<Int32> testlist { get; set; } = new List<int>(new int[] { 2, 3 });
 
                 public enum testenum
                 {
@@ -123,7 +176,7 @@ namespace DockExample
             {
                 this.BackgroundColor = Colors.Aquamarine;
 
-                this.widget = new BaseLib.Xwt.PropertyGrid();
+                this.widget = new PropertyGrid();
                 this.AddChild(this.widget);
 
                 this.MinWidth = this.widget.MinWidth;

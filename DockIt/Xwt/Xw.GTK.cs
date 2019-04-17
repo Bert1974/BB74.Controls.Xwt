@@ -1,11 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using BaseLib.DockIt_Xwt.Interop;
-using BaseLib.XwtPlatForm;
+﻿using BaseLib.Xwt.Interop;
+using System;
 using Xwt;
-using Xwt.Backends;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt
 {
     partial class XwtImpl
     {

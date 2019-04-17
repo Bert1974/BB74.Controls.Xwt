@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D50C178E-866C-47D4-903F-87A1553B3273}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>DockPanel</RootNamespace>
+    <RootNamespace>BaseLib.Xwt.DockPanel</RootNamespace>
     <AssemblyName>DockPanel</AssemblyName>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>

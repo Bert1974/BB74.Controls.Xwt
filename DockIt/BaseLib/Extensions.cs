@@ -1,5 +1,4 @@
-﻿using BaseLib.DockIt_Xwt.Interop;
-using BaseLib.XwtPlatForm;
+﻿using BaseLib.Xwt.Interop;
 using System;
 using System.Reflection;
 using Xwt;

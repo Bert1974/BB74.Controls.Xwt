@@ -1,11 +1,10 @@
-﻿using BaseLib.XwtPlatForm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel.Internals
 {
     partial class TitleBar
     { 

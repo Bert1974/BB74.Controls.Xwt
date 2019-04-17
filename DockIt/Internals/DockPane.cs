@@ -5,8 +5,10 @@ using System.Diagnostics;
 using Xwt;
 using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel.Internals
 {
+    using Xwt = global::Xwt;
+
     internal class DockPane : Canvas, IDockPane, IDockNotify
     {
         #region DropTarget

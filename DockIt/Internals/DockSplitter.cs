@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xwt;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel.Internals
 {
     internal class DockSplitter : IDockSplitter
     {

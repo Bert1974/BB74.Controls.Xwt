@@ -1,10 +1,9 @@
-﻿using BaseLib.DockIt_Xwt;
-using BaseLib.Xwt;
+﻿using BaseLib.Xwt;
+using BaseLib.Xwt.DockPanel;
 using System;
 using System.IO;
 using System.Linq;
 using Xwt;
-using Xwt.Drawing;
 
 namespace DockExample
 {

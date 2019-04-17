@@ -1,11 +1,12 @@
-﻿using BaseLib.XwtPlatForm;
-using System;
+﻿using System;
 using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel.Internals
 {
+    using Xwt = global::Xwt;
+
     static class DockItDragDrop
     {
         #region abstract class DragWindow
@@ -318,7 +319,7 @@ namespace BaseLib.DockIt_Xwt
         {
             try
             {
-                var hits = BaseLib.XwtPlatForm.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
+                var hits = BaseLib.Xwt.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
 
                 foreach (var w in hits)
                 {

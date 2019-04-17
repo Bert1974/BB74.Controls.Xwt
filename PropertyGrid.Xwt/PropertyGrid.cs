@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaseLib.Xwt.Design;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,23 +12,17 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt
+namespace BaseLib.Xwt.PropertyGrid
 {
-    public enum PropertySort
-    {
-        NoSort,
-        Alphabetical,
-        Categorized,
-        CategorizedAlphabetical
-    }
+    using Internals;
 
-    public partial class PropertyGrid : Canvas
+    public class PropertyGrid : Canvas
     {
         static Font PropertyFont = Font.SystemFont.WithSize(13);
         static Font CategoryFont = PropertyFont.WithWeight(FontWeight.Heavy);
         static Font ButtonFont = Font.SystemFont.WithSize(13).WithWeight(FontWeight.Heavy);
         const int spacedx = 12, splitheight = 12, lineheight = 22;
-        private bool EditMode => CheckEditMode(this.tree);
+        internal bool EditMode => CheckEditMode(this.tree);
 
         private bool CheckEditMode(GridItem item) => ((item?.Widget?.Tag as EditCanvas)?.editmode ?? false) || (item?.Items?.Any(_subitem => CheckEditMode(_subitem)) ?? false);
 
@@ -98,7 +93,7 @@ namespace BaseLib.Xwt
 
         private void Scroll_MouseScrolled(object sender, MouseScrolledEventArgs e)
         {
-            ScrollDelta((e.Direction == ScrollDirection.Down ? 1 : -1)*10);
+            ScrollDelta((e.Direction == ScrollDirection.Down ? 1 : -1) * 10);
         }
         private void ScrollDelta(double v)
         {
@@ -114,7 +109,7 @@ namespace BaseLib.Xwt
             this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.Bounds.Width - scrollw, listsize));
         }
 
-        private double ListHeight => this.vboxlist.Children.Select(_c => _c.HeightRequest).Sum()+2;
+        private double ListHeight => this.vboxlist.Children.Select(_c => _c.HeightRequest).Sum() + 2;
 
         private void QueueOnUI(Action m)
         {
@@ -190,7 +185,7 @@ namespace BaseLib.Xwt
         {
             if (item != null)
             {
-                if (item.Widget!=null && item.Widget.Tag is EditCanvas)
+                if (item.Widget != null && item.Widget.Tag is EditCanvas)
                 {
                     var hbox = item.Widget as HBox;
                     var pos = this.splitheader.GetPosition();
@@ -213,7 +208,7 @@ namespace BaseLib.Xwt
 
             if (item is GridItemCategory)
             {
-                var box = new HBox() { Tag = item, Spacing = 0,ExpandHorizontal=true };
+                var box = new HBox() { Tag = item, Spacing = 0, ExpandHorizontal = true };
                 // expand button
                 if (item.Expandable)
                 {
@@ -246,14 +241,14 @@ namespace BaseLib.Xwt
                     var editfld = new EditCanvas(this, item)
                     {
                         MinWidth = 64,
-                        Font=PropertyGrid.PropertyFont
+                        Font = PropertyGrid.PropertyFont
                     };
-                    var ww = this.Size.Width > 0 && this.Size.Height > 0 ? ((this.Size.Width-scrollw) * this.splitheader.GetPosition()) : 0;
-                    var left = new Table() { WidthRequest = ww, HeightRequest = lineheight,ExpandHorizontal=true };
-                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - scrollw-ww), HeightRequest = lineheight,ExpandHorizontal=true };
+                    var ww = this.Size.Width > 0 && this.Size.Height > 0 ? ((this.Size.Width - scrollw) * this.splitheader.GetPosition()) : 0;
+                    var left = new Table() { WidthRequest = ww, HeightRequest = lineheight, ExpandHorizontal = true };
+                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - scrollw - ww), HeightRequest = lineheight, ExpandHorizontal = true };
 
                     // spacing
-                    left.Add(new Label() { WidthRequest = level * spacedx, HeightRequest=lineheight, MinWidth = level * spacedx }, 0, 0, 1, 1, vexpand: true);
+                    left.Add(new Label() { WidthRequest = level * spacedx, HeightRequest = lineheight, MinWidth = level * spacedx }, 0, 0, 1, 1, vexpand: true);
 
                     // expand button
                     if (item.Expandable)
@@ -271,20 +266,21 @@ namespace BaseLib.Xwt
                     {
                         MinWidth = spacedx * 2,
                         Tag = editfld,
-                        Font = PropertyGrid.PropertyFont
+                        Font = PropertyGrid.PropertyFont,
+                        //     HorizontalPlacement=WidgetPlacement.Fill
                     };
                     left.Add(label, 2, 0, 1, 1, hexpand: true, vexpand: true);
 
 
                     right.Add(editfld, 0, 0, hexpand: true, vexpand: true);
-                    if (item.HasEditor)
+                    if ((item.Editor?.GetEditStyle() ?? UITypeEditorEditStyle.None) != UITypeEditorEditStyle.None)
                     {
                         var edit = new Button("E")
                         {
-                            WidthRequest = spacedx,
                             Tag = editfld,
                             Font = PropertyGrid.PropertyFont
                         };
+                        edit.Clicked += Edit_Clicked;
                         right.Add(edit, 1, 0, vexpand: true);
                     }
 
@@ -317,6 +313,21 @@ namespace BaseLib.Xwt
                 }
             }
             return true;
+        }
+
+        private void Edit_Clicked(object sender, EventArgs e)
+        {
+            var editfld = (EditCanvas)(sender as Widget).Tag;
+            var item = editfld.item;
+
+            if (item.Editor != null)
+            {
+                if (!this.EditMode || this.CancelEdit(true))
+                {
+                    var value = GetValue(item);
+                    item.Editor.EditValue(item as ITypeDescriptorContext, item as IServiceProvider, value);
+                }
+            }
         }
         private void Expand_Clicked(object sender, ButtonEventArgs e)
         {
@@ -405,7 +416,7 @@ namespace BaseLib.Xwt
             }
             return null;
         }
-        private void SetValue(GridItem item, object value)
+        internal void SetValue(GridItem item, object value)
         {
             if (item is GridItemRoot)
             {
@@ -452,107 +463,110 @@ namespace BaseLib.Xwt
             return item.PropertyDescriptor.GetValue(parentobj);
         }
     }
-    internal static class Extension
+    namespace Internals
     {
-         public static void ClipToBounds(this Canvas widget)
-         {
-             ClipToBounds(widget.GetBackend());
-         }
-        public static void ClipToBounds(this IWidgetBackend backend)
+        internal static class Extension
         {
-            if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
+            public static void ClipToBounds(this Canvas widget)
             {
-                var nativectl = backend.NativeWidget;
+                ClipToBounds(widget.GetBackend());
+            }
+            public static void ClipToBounds(this IWidgetBackend backend)
+            {
+                if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
+                {
+                    var nativectl = backend.NativeWidget;
 
-                Type t = GetType("System.Windows.Controls.Panel");
+                    Type t = GetType("System.Windows.Controls.Panel");
 
-                Debug.Assert(t != null);
+                    Debug.Assert(t != null);
 
-                if (nativectl.GetType().IsDerived(t))
-                {
-                    nativectl.GetType().SetPropertyValue(nativectl, "ClipToBounds", true);
+                    if (nativectl.GetType().IsDerived(t))
+                    {
+                        nativectl.GetType().SetPropertyValue(nativectl, "ClipToBounds", true);
+                    }
                 }
             }
-        }
-        public static Type GetType(string typeName)
-        {
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
-            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+            public static Type GetType(string typeName)
             {
-                type = a.GetType(typeName);
-                if (type != null)
-                    return type;
+                var type = Type.GetType(typeName);
+                if (type != null) return type;
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    type = a.GetType(typeName);
+                    if (type != null)
+                        return type;
+                }
+                return null;
             }
-            return null;
-        }
-        public static bool IsDerived(this Type b, Type t)
-        {
-            while (b != null && !object.ReferenceEquals(b, t))
+            public static bool IsDerived(this Type b, Type t)
             {
-                b = b.BaseType;
+                while (b != null && !object.ReferenceEquals(b, t))
+                {
+                    b = b.BaseType;
+                }
+                return b != null;
             }
-            return b != null;
-        }
-        public static void SetPropertyValue(this Type type, object instance, string propertyname, object value)
-        {
-            type.GetProperty(propertyname, BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty).SetValue(instance, value, new object[0]);
-        }
+            public static void SetPropertyValue(this Type type, object instance, string propertyname, object value)
+            {
+                type.GetProperty(propertyname, BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty).SetValue(instance, value, new object[0]);
+            }
 
-        public static IWidgetBackend GetBackend(this Widget o)
-        {
-            return (IWidgetBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
-        }
-        public static IWindowFrameBackend GetBackend(this WindowFrame o)
-        {
-            return (IWindowFrameBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
-        }
-        public static IWindowBackend GetBackend(this Window o)
-        {
-            return (IWindowBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
-        }
-        public static double GetPosition(this HPaned paned)
-        {
-            var ww = paned.Size.Width;
-            if (ww <= 0.0)
+            public static IWidgetBackend GetBackend(this Widget o)
             {
-                ww = paned.Panel1.Content.MinWidth + paned.Panel2.Content.MinWidth;
+                return (IWidgetBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
             }
-            if (ww > 0.0)
+            public static IWindowFrameBackend GetBackend(this WindowFrame o)
             {
-                double value;
-                if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
-                {
-                    value = paned.Panel1.Content.Size.Width;
-                }
-                else 
-                {
-                    value = paned.Position;
-                }
-                return value / ww;
+                return (IWindowFrameBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
             }
-            return .5;
-        }
-        public static void SetPosition(this HPaned paned, double value)
-        {
-         //   if (Toolkit.CurrentEngine.Type != ToolkitType.XamMac)
+            public static IWindowBackend GetBackend(this Window o)
             {
-                if (paned.Size.Width <= 0)
-                {
-                    Debug.Assert(false);
-                }
-                else
-                {
-                    value *= paned.Size.Width;
-                }
+                return (IWindowBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
             }
-            try
+            public static double GetPosition(this HPaned paned)
             {
-               paned.Position = value;
-            } 
-            catch (Exception e)
+                var ww = paned.Size.Width;
+                if (ww <= 0.0)
+                {
+                    ww = paned.Panel1.Content.MinWidth + paned.Panel2.Content.MinWidth;
+                }
+                if (ww > 0.0)
+                {
+                    double value;
+                    if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+                    {
+                        value = paned.Panel1.Content.Size.Width;
+                    }
+                    else
+                    {
+                        value = paned.Position;
+                    }
+                    return value / ww;
+                }
+                return .5;
+            }
+            public static void SetPosition(this HPaned paned, double value)
             {
-                Console.WriteLine(e.ToString());
+                //   if (Toolkit.CurrentEngine.Type != ToolkitType.XamMac)
+                {
+                    if (paned.Size.Width <= 0)
+                    {
+                        Debug.Assert(false);
+                    }
+                    else
+                    {
+                        value *= paned.Size.Width;
+                    }
+                }
+                try
+                {
+                    paned.Position = value;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
             }
         }
     }

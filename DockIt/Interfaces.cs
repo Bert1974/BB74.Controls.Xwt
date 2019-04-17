@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using Xwt;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt
 {
+    using Xwt = global::Xwt;
+
     public interface IXwt
     {
         void SetCapture(Widget widget);
@@ -13,6 +15,11 @@ namespace BaseLib.DockIt_Xwt
         void QueueOnUI(Action method);
         void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
     }
+}
+namespace BaseLib.Xwt.DockPanel
+{
+    using Xwt = global::Xwt;
+    
     public interface IDockToolbar : IDockContent // use this for your docking toolbar widget
     {
     }

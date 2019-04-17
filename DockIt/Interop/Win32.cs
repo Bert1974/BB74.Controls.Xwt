@@ -1,12 +1,11 @@
-﻿using BaseLib.XwtPlatForm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Xwt;
 
-namespace BaseLib.DockIt_Xwt.Interop
+namespace BaseLib.Xwt.Interop
 {
     static class Win32
     {

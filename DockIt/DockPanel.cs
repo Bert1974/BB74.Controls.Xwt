@@ -1,5 +1,4 @@
-﻿using BaseLib.XwtPlatForm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,8 +9,11 @@ using System.Xml;
 using Xwt;
 using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel
 {
+    using Xwt = global::Xwt;
+    using BaseLib.Xwt.DockPanel.Internals;
+
     public class DockPanel : Canvas
     {
         public static bool DefaultFloat { get; set; } = true;

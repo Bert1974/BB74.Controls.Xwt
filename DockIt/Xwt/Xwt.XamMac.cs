@@ -1,14 +1,11 @@
-﻿using BaseLib.DockIt_Xwt.Interop;
-using BaseLib.XwtPlatForm;
+﻿using BaseLib.Xwt.Interop;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
 using Xwt;
-using Xwt.Backends;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt
 {
+    using Xwt = global::Xwt;
     partial class XwtImpl
     {
         class XamMacXwt : RealXwt

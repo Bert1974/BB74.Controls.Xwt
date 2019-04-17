@@ -4,8 +4,10 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel.Internals
 {
+    using Xwt = global::Xwt;
+
     class FloatWindow : Xwt.Window, IDockFloatWindow
     {
         public static IDockFloatWindow Create(DockPanel dock, IDockContent[] docs, Point formpos, out IDockPane panefloat)

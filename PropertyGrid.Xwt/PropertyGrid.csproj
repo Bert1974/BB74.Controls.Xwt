@@ -7,8 +7,8 @@
     <ProjectGuid>{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PropertyGrid.Xwt</RootNamespace>
-    <AssemblyName>PropertyGrid.Xwt</AssemblyName>
+    <RootNamespace>BaseLib.Xwt.PropertyGrid</RootNamespace>
+    <AssemblyName>PropertyGrid</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -43,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="definitions.cs" />
     <Compile Include="GridItem.cs" />
     <Compile Include="PropertyGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

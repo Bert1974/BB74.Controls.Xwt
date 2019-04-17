@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Reflection;
-using BaseLib.XwtPlatForm;
 
-namespace BaseLib.DockIt_Xwt.Interop
+namespace BaseLib.Xwt.Interop
 {
     static class XamMac
     {

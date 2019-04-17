@@ -1,4 +1,4 @@
-﻿using BaseLib.DockIt_Xwt;
+﻿using BaseLib.Xwt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +38,7 @@ namespace DockExample
 #else
             if (System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
             {
-                BaseLib.XwtPlatForm.PlatForm.Initialize(args.Contains("gtk3")? ToolkitType.Gtk3 : ToolkitType.Gtk);
+                BaseLib.Xwt.PlatForm.Initialize(args.Contains("gtk3")? ToolkitType.Gtk3 : ToolkitType.Gtk);
             }
             else
             {

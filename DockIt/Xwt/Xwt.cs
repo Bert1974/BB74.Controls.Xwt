@@ -1,13 +1,9 @@
-﻿using BaseLib.XwtPlatForm;
-using System;
-using System.Linq;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Xwt;
-using Xwt.Backends;
-using Xwt.Drawing;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt
 {
     public partial class XwtImpl : IXwt
     {

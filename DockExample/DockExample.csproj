@@ -83,9 +83,9 @@
       <Project>{d50c178e-866c-47d4-903f-87a1553b3273}</Project>
       <Name>DockPanel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PropertyGrid.Xwt\PropertyGrid.Xwt.csproj">
+    <ProjectReference Include="..\PropertyGrid.Xwt\PropertyGrid.csproj">
       <Project>{aefe8698-65d7-48df-ad23-99f2ccca2694}</Project>
-      <Name>PropertyGrid.Xwt</Name>
+      <Name>PropertyGrid</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

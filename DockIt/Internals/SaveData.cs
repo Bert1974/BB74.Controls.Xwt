@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BaseLib.Xwt.DockPanel.Internals;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Xwt;
 
-namespace BaseLib.DockIt_Xwt
+namespace BaseLib.Xwt.DockPanel
 {
     [Serializable()]
     public abstract class DockState
@@ -14,7 +15,7 @@ namespace BaseLib.DockIt_Xwt
 
         internal static DockSave SaveState(DockPanel dockPanel)
         {
-            var forms = XwtPlatForm.PlatForm.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
+            var forms = BaseLib.Xwt.PlatForm.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
 
             return new DockSave()
             {
@@ -138,7 +139,7 @@ namespace BaseLib.DockIt_Xwt
                 int ind = _t.IndexOf(":");
                 if (ind > 0)
                 {
-                    Type t = XwtPlatForm.PlatForm.GetType(_t.Substring(0, ind));
+                    Type t = BaseLib.Xwt.PlatForm.GetType(_t.Substring(0, ind));
 
                     if (ind + 2 >= _t.Length)
                     {
