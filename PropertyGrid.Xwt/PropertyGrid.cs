@@ -194,8 +194,8 @@ namespace BaseLib.Xwt
                 {
                     var hbox = item.Widget as HBox;
                     var pos = this.splitheader.GetPosition();
-                    hbox.Children.First().WidthRequest = (this.Size.Width - scrollw) * pos;
-                    hbox.Children.Skip(1).First().WidthRequest = (this.Size.Width - scrollw) * (1 - pos);
+                    hbox.Children.First().WidthRequest = Math.Floor((this.Size.Width - scrollw) * pos);
+                    hbox.Children.Skip(1).First().WidthRequest = Math.Floor((this.Size.Width - scrollw) * (1 - pos));
                 }
                 if (item.Expanded && !(item is GridItemCategory))
                 {
@@ -248,9 +248,9 @@ namespace BaseLib.Xwt
                         MinWidth = 64,
                         Font=PropertyGrid.PropertyFont
                     };
-                    var ww = this.Size.Width > 0 && this.Size.Height > 0 ? (this.Size.Width * this.splitheader.GetPosition()) : 0;
+                    var ww = this.Size.Width > 0 && this.Size.Height > 0 ? ((this.Size.Width-scrollw) * this.splitheader.GetPosition()) : 0;
                     var left = new Table() { WidthRequest = ww, HeightRequest = lineheight,ExpandHorizontal=true };
-                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - ww), HeightRequest = lineheight,ExpandHorizontal=true };
+                    var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - scrollw-ww), HeightRequest = lineheight,ExpandHorizontal=true };
 
                     // spacing
                     left.Add(new Label() { WidthRequest = level * spacedx, HeightRequest=lineheight, MinWidth = level * spacedx }, 0, 0, 1, 1, vexpand: true);
@@ -279,11 +279,11 @@ namespace BaseLib.Xwt
                     right.Add(editfld, 0, 0, hexpand: true, vexpand: true);
                     if (item.HasEditor)
                     {
-                        var edit = new Button("*")
+                        var edit = new Button("E")
                         {
                             WidthRequest = spacedx,
                             Tag = editfld,
-                            Font = PropertyGrid.ButtonFont
+                            Font = PropertyGrid.PropertyFont
                         };
                         right.Add(edit, 1, 0, vexpand: true);
                     }
