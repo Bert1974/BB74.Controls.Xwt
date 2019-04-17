@@ -1,4 +1,6 @@
-﻿using System;
+﻿ using BaseLib.Xwt.DockPanel.Internals;
+using BaseLib.Xwt.DockPanel.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -12,7 +14,6 @@ using Xwt.Drawing;
 namespace BaseLib.Xwt.DockPanel
 {
     using Xwt = global::Xwt;
-    using BaseLib.Xwt.DockPanel.Internals;
 
     public class DockPanel : Canvas
     {

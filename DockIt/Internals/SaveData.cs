@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using Xwt;
 
-namespace BaseLib.Xwt.DockPanel
+namespace BaseLib.Xwt.DockPanel.Serialization
 {
     [Serializable()]
     public abstract class DockState
