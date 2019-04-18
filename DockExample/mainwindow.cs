@@ -1,5 +1,5 @@
 ﻿using BaseLib.Xwt;
-using BaseLib.Xwt.DockPanel;
+using BaseLib.Xwt.Controls.DockPanel;
 using System;
 using System.IO;
 using System.Linq;
@@ -77,7 +77,7 @@ namespace DockExample
             {
                 dock.Dock(new testdockitem());
                 dock.Dock(new testtoolitem(this), DockPosition.Top);
-                dock.Dock(new IDockContent[] { new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this) }, DockPosition.Bottom);
+                dock.Dock(new IDockContent[] { new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this) }, DockPosition.Top);
             }
         }
         protected override void OnShown()

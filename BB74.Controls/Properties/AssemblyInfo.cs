@@ -4,12 +4,12 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("BB74.Xwt.Controls.DockPanel")]
+[assembly: AssemblyTitle("BB74.Xwt.Controls")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("${AuthorCopyright}")]
+[assembly: AssemblyCopyright("(c)2019 Bert Bruggeman")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

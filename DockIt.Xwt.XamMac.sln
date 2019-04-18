@@ -3,11 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "DockIt\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "BB74.Controls\DockPanel\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample.XamMac", "DockExample\DockExample.XamMac.csproj", "{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid.Xwt", "PropertyGrid.Xwt\PropertyGrid.Xwt.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid", "BB74.Controls\PropertyGrid\PropertyGrid.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Media.OpenTK", "Media.OpenTK\Media.OpenTK.csproj", "{D7CAD493-7F4B-4C83-A592-8D071B01CF28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Media.OpenTK.XamMac", "Media.OpenTK.XamMac\Media.OpenTK.XamMac.csproj", "{D1713229-CA4A-4E30-8C21-626F0416B012}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BB74.Controls", "BB74.Controls", "{4FFA43B0-F369-4720-88B3-41E97FD6275F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BB74.Controls", "BB74.Controls\BB74.Controls.csproj", "{265B302E-B436-46F7-8CB1-57D42FD242AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,11 +35,28 @@ Global
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7CAD493-7F4B-4C83-A592-8D071B01CF28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7CAD493-7F4B-4C83-A592-8D071B01CF28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7CAD493-7F4B-4C83-A592-8D071B01CF28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7CAD493-7F4B-4C83-A592-8D071B01CF28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1713229-CA4A-4E30-8C21-626F0416B012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1713229-CA4A-4E30-8C21-626F0416B012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1713229-CA4A-4E30-8C21-626F0416B012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1713229-CA4A-4E30-8C21-626F0416B012}.Release|Any CPU.Build.0 = Release|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88D550D3-C309-4594-8445-F249F4365A57}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{265B302E-B436-46F7-8CB1-57D42FD242AC} = {4FFA43B0-F369-4720-88B3-41E97FD6275F}
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694} = {4FFA43B0-F369-4720-88B3-41E97FD6275F}
+		{D50C178E-866C-47D4-903F-87A1553B3273} = {4FFA43B0-F369-4720-88B3-41E97FD6275F}
 	EndGlobalSection
 EndGlobal

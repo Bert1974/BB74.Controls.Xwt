@@ -1,4 +1,4 @@
-﻿using BaseLib.Xwt.DockPanel;
+﻿using BaseLib.Xwt.Controls.DockPanel;
 using System;
 using Xwt;
 using Xwt.Drawing;
@@ -40,7 +40,7 @@ namespace DockExample
                 this.MinWidth = this.MinHeight = 100;
                 this.BackgroundColor = Colors.White;
             }
-            private void queuedraw(object sender,EventArgs e)
+            private void queuedraw(object sender, EventArgs e)
             {
                 base.QueueDraw();
             }
@@ -52,7 +52,7 @@ namespace DockExample
                 ctx.Rectangle(this.Bounds);
                 ctx.Fill();
 
-                var tl = new TextLayout(this) { Text= (this as IDockContent).DockPane.DockPanel.Dump() };
+                var tl = new TextLayout(this) { Text = (this as IDockContent).DockPane?.DockPanel.Dump() };
 
                 ctx.SetColor(Colors.Black);
                 ctx.DrawTextLayout(tl, new Point(0, 0));

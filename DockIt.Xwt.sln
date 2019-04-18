@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "DockIt\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample", "DockExample\DockExample.csproj", "{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A058B28A-13DD-4C88-9A14-45EA35C498C2}"
@@ -14,7 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		todo.txt = todo.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid", "PropertyGrid.Xwt\PropertyGrid.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BB74.Xwt.Controls", "BB74.Controls\BB74.Xwt.Controls.csproj", "{265B302E-B436-46F7-8CB1-57D42FD242AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "BB74.Controls\DockPanel\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid", "BB74.Controls\PropertyGrid\PropertyGrid.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BB74.Controls", "BB74.Controls", "{0DB0DB9B-9088-48FF-968C-BC229AC75086}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,14 +26,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D50C178E-866C-47D4-903F-87A1553B3273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D50C178E-866C-47D4-903F-87A1553B3273}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.Build.0 = Release|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13BA0AD4-3C49-4BE6-9844-08FEC59834BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{265B302E-B436-46F7-8CB1-57D42FD242AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D50C178E-866C-47D4-903F-87A1553B3273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D50C178E-866C-47D4-903F-87A1553B3273}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D50C178E-866C-47D4-903F-87A1553B3273}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -37,6 +45,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{265B302E-B436-46F7-8CB1-57D42FD242AC} = {0DB0DB9B-9088-48FF-968C-BC229AC75086}
+		{D50C178E-866C-47D4-903F-87A1553B3273} = {0DB0DB9B-9088-48FF-968C-BC229AC75086}
+		{AEFE8698-65D7-48DF-AD23-99F2CCCA2694} = {0DB0DB9B-9088-48FF-968C-BC229AC75086}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {88D550D3-C309-4594-8445-F249F4365A57}

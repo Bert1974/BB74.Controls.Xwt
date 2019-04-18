@@ -1,7 +1,6 @@
-﻿using BaseLib.Xwt;
+﻿using BaseLib.Xwt.Controls.DockPanel;
+using BaseLib.Xwt.Controls.PropertyGrid;
 using BaseLib.Xwt.Design;
-using BaseLib.Xwt.DockPanel;
-using BaseLib.Xwt.PropertyGrid;
 using System;
 using System.Collections;
 using System.Collections.Generic;

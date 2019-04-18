@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>__UNIFIED__;__MACOS__;DEBUG;OPENTK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
@@ -34,10 +34,9 @@
     <AOTMode>None</AOTMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>__UNIFIED__;__MACOS__;OPENTK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <EnableCodeSigning>false</EnableCodeSigning>
@@ -79,13 +78,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DockIt\DockPanel.csproj">
-      <Project>{D50C178E-866C-47D4-903F-87A1553B3273}</Project>
-      <Name>DockPanel</Name>
+    <ProjectReference Include="..\Media.OpenTK\Media.OpenTK.csproj">
+      <Project>{D7CAD493-7F4B-4C83-A592-8D071B01CF28}</Project>
+      <Name>Media.OpenTK</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PropertyGrid.Xwt\PropertyGrid.Xwt.csproj">
-      <Project>{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}</Project>
-      <Name>PropertyGrid.Xwt</Name>
+    <ProjectReference Include="..\Media.OpenTK.XamMac\Media.OpenTK.XamMac.csproj">
+      <Project>{D1713229-CA4A-4E30-8C21-626F0416B012}</Project>
+      <Name>Media.OpenTK.XamMac</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BB74.Controls\BB74.Controls.csproj">
+      <Project>{265B302E-B436-46F7-8CB1-57D42FD242AC}</Project>
+      <Name>BB74.Controls</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +96,10 @@
     <Compile Include="mainwindow.cs" />
     <Compile Include="documents.cs" />
     <Compile Include="toolbars.cs" />
+    <Compile Include="OpenTK\Interfaces.cs" />
+    <Compile Include="OpenTK\Render.cs" />
+    <Compile Include="OpenTK\Time.cs" />
+    <Compile Include="OpenTK\testdoc.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>

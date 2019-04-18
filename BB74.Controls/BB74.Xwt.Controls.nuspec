@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Bert Bruggeman</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://github.com/Bert1974/Dockit.Xwt/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/Bert1974/Dockit.Xwt</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Xwt Widget Library</description>
+    <copyright>Copyright 2019 Bert Bruggeman</copyright>
+    <tags>BB74 c# Mono VisualStudio Xwt Dock PropertyGrid</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Xwt" version="0.2.166" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

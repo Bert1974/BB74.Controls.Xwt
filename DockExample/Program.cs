@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xwt;
 
 namespace DockExample
@@ -16,7 +17,7 @@ namespace DockExample
         }
         public static void NewWindow()
         {
-            var mainWindow = new mainwindow(Program.xwt)
+            var mainWindow = new mainwindow(Program.Xwt)
             {
             };
             Program.AddWindow(mainWindow);
@@ -27,8 +28,7 @@ namespace DockExample
     class Program
     {
         static readonly List<mainwindow> openwindows = new List<mainwindow>();
-
-        public static IXwt xwt { get; private set; }
+        public static IXwt Xwt { get; private set; }
 
         [STAThread()]
         static void Main(string[] args)
@@ -45,7 +45,8 @@ namespace DockExample
                 Application.Initialize(ToolkitType.Wpf);
             }
 #endif
-            Program.xwt = (IXwt)XwtImpl.Create();
+            Program.Xwt = (IXwt)XwtImpl.Create();
+
             UIHelpers.NewWindow();
             Application.Run();
         }
