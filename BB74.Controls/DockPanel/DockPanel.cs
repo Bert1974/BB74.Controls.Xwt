@@ -203,8 +203,12 @@ namespace BaseLib.Xwt.DockPanel
             BeginLayout();
             this.Current.RemoveWidget();
             this.Current.Dispose();
-            this.Current = null;
+
             this.floating.ToList().ForEach(_f => _f.Close());
+
+            this.Current = new DockPane(this, new IDockContent[0]);
+            this.Current.AddWidget();
+
             EndLayout(false);
         }
 
