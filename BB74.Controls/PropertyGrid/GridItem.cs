@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using Xwt;
 
-namespace BaseLib.Xwt.PropertyGrid
+namespace BaseLib.Xwt.Controls.PropertyGrid
 {
     using Internals;
 

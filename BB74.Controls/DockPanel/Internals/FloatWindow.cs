@@ -4,7 +4,7 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.DockPanel.Internals
+namespace BaseLib.Xwt.Controls.DockPanel.Internals
 {
     using Xwt = global::Xwt;
 

@@ -12,7 +12,7 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.PropertyGrid
+namespace BaseLib.Xwt.Controls.PropertyGrid
 {
     using Internals;
 

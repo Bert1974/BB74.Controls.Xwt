@@ -4,7 +4,7 @@ using System.Linq;
 using Xwt;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.DockPanel.Internals
+namespace BaseLib.Xwt.Controls.DockPanel.Internals
 {
     using Xwt = global::Xwt;
 

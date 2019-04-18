@@ -8,7 +8,7 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.PropertyGrid.Internals
+namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
 {
     internal class EditCanvas : Canvas
     {

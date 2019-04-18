@@ -16,7 +16,7 @@ namespace BaseLib.Xwt
         void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
     }
 }
-namespace BaseLib.Xwt.DockPanel
+namespace BaseLib.Xwt.Controls.DockPanel
 {
     using Xwt = global::Xwt;
     

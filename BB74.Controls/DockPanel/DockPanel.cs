@@ -1,5 +1,5 @@
-﻿ using BaseLib.Xwt.DockPanel.Internals;
-using BaseLib.Xwt.DockPanel.Serialization;
+﻿using BaseLib.Xwt.Controls.DockPanel.Internals;
+using BaseLib.Xwt.Controls.DockPanel.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ using System.Xml;
 using Xwt;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.DockPanel
+namespace BaseLib.Xwt.Controls.DockPanel
 {
     using Xwt = global::Xwt;
 

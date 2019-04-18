@@ -1,4 +1,4 @@
-﻿using BaseLib.Xwt.DockPanel.Internals;
+﻿using BaseLib.Xwt.Controls.DockPanel.Internals;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using Xwt;
 
-namespace BaseLib.Xwt.DockPanel.Serialization
+namespace BaseLib.Xwt.Controls.DockPanel.Serialization
 {
     [Serializable()]
     public abstract class DockState

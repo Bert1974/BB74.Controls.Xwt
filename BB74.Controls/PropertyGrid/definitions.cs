@@ -196,7 +196,7 @@ namespace BaseLib.Xwt.Design
 #endif
     }
 }
-namespace BaseLib.Xwt.PropertyGrid
+namespace BaseLib.Xwt.Controls.PropertyGrid
 {
     public enum PropertySort
     {
