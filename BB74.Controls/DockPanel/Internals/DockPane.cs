@@ -269,6 +269,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
             else
             {
                 this.AddChild(this.Document.Widget);
+                (this.Document as IDockNotify)?.OnLoaded(this);
             }
             this.DockPanel.SetActive(this.DockPanel.ActiveDocument ?? this.Document ?? this.DockPanel.DefaultDocument);
             this.topbar.SetDocuments(this._docs);
@@ -281,6 +282,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
             {
                 if (this.Document?.Widget.Parent != null)
                 {
+                    (this.Document as IDockNotify)?.OnUnloading();
                     this.RemoveChild(this.Document.Widget);
                 }
                 this.DockPanel.RemoveChild(this);

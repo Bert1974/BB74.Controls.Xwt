@@ -439,6 +439,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         }
         void IDockFloatWindow.Close()
         {
+            this.DockPanel.Reset();
             base.Close();
             this.Dispose();
         }

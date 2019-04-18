@@ -90,6 +90,8 @@ namespace DockExample
         }
         protected override void OnClosed()
         {
+            this.dock.Reset();
+
             base.OnClosed();
 
             if (Program.RemoveWindow(this))
