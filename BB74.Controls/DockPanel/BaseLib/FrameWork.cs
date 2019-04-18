@@ -250,10 +250,24 @@ namespace BaseLib.Xwt
                 {
                     hwnd = (IntPtr)form;
                 }
-                else
+                else if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                 {
                     var wih = Activator.CreateInstance(Win32.swi_wininterophelper, new object[] { form });
                     hwnd = (IntPtr)wih.GetType().GetPropertyValue(wih, "Handle");
+                }
+                else if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Gtk)
+                {
+                    var gtkwin = form;
+                    var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
+                    var xy = new object[] { 0, 0 };
+                    var wh = new object[] { 0, 0 };
+                    gdkwin.GetType().Invoke(gdkwin, "GetOrigin", xy);
+                    gdkwin.GetType().Invoke(gdkwin, "GetSize", wh);
+                    return new Rectangle((int)xy[0], (int)xy[1], (int)wh[0], (int)wh[1]);
+                }
+                else
+                {
+                    throw new NotImplementedException();
                 }
                 Win32.GetWindowRect(hwnd, out Win32.RECT r);
                 return new Rectangle(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);

@@ -11,10 +11,15 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Xwt Widget Library</description>
     <copyright>Copyright 2019 Bert Bruggeman</copyright>
-    <tags>BB74 c# Mono VisualStudio Xwt Dock PropertyGrid</tags>
+    <tags>BB74 c# Mono VisualStudio Xwt DockPanel PropertyGrid windows ubuntu macos xammac gtk wpf</tags>
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Xwt" version="0.2.166" />
+        <dependency id="Xwt.Gtk" version="0.2.166" />
+        <dependency id="Xwt.Gtk.Mac" version="0.2.166" />
+        <dependency id="Xwt.Gtk.Windows" version="0.2.166" />
+        <dependency id="Xwt.WPF" version="0.2.166" />
+        <dependency id="Xwt.XamMac" version="0.2.166" />
       </group>
     </dependencies>
   </metadata>

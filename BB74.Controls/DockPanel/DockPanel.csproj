@@ -53,6 +53,12 @@
       <HintPath>..\..\packages\Xwt.Gtk.Windows.0.2.166\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Xwt.WPF, Version=0.2.166.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xwt.WPF.0.2.166\lib\net40\Xwt.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.XamMac, Version=0.2.166.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xwt.XamMac.0.2.166\lib\net40\Xwt.XamMac.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseLib\Extensions.cs" />
