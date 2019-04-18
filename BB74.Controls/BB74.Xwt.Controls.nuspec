@@ -24,6 +24,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\BB74.Xwt.Controls.dll.config" target="content" />
+    <file src=".\bin\$configuration$\BB74.Xwt.Controls.dll.config" target="lib\net40" />
   </files>
 </package>

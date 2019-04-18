@@ -8,7 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A058B28A-13DD-4C88-9A14-45EA35C498C2}"
 	ProjectSection(SolutionItems) = preProject
 		BB74.Controls\BB74.Xwt.Controls.nuspec = BB74.Controls\BB74.Xwt.Controls.nuspec
-		BB74.Controls\BB74.Xwt.Controls.target = BB74.Controls\BB74.Xwt.Controls.target
+		BB74.Controls\BB74.Xwt.Controls.targets = BB74.Controls\BB74.Xwt.Controls.targets
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 		todo.txt = todo.txt
