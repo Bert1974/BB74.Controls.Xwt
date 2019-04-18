@@ -8,3 +8,11 @@
 /DockIt/obj
 /DockIt/bin
 /DockExample/obj
+/.vs
+/BB74.Controls/.vs/BB74.Controls/v16
+/BB74.Controls/bin
+/BB74.Controls/DockPanel/bin
+/BB74.Controls/obj
+/BB74.Controls/PropertyGrid/bin
+/BB74.Controls/DockPanel/obj
+/BB74.Controls/PropertyGrid/obj
