@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xwt.Gtk.0.2.166\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.166\build\Xwt.Gtk.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{265B302E-B436-46F7-8CB1-57D42FD242AC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>BaseLib.Xwt.DockPanel</RootNamespace>
+    <AssemblyName>DockPanel</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>MINIMAL;DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants>MINIMAL</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Xwt, Version=0.2.166.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.0.2.166\lib\net40\Xwt.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DockPanel\BaseLib\Extensions.cs" />
+    <Compile Include="DockPanel\Internals\DragDrop.cs" />
+    <Compile Include="DockPanel\Internals\FloatWindow.cs" />
+    <Compile Include="DockPanel\BaseLib\FrameWork.cs" />
+    <Compile Include="DockPanel\Internals\SaveData.cs" />
+    <Compile Include="DockPanel\Internals\TitleBar.Controls.cs" />
+    <Compile Include="DockPanel\Internals\TitleBar.cs" />
+    <Compile Include="DockPanel\Interop\Gtk.cs" />
+    <Compile Include="DockPanel\Interop\Win32.cs" />
+    <Compile Include="DockPanel\Internals\DockPane.cs" />
+    <Compile Include="DockPanel\Internals\DockSplitter.cs" />
+    <Compile Include="DockPanel\Interfaces.cs" />
+    <Compile Include="DockPanel\DockPanel.cs" />
+    <Compile Include="DockPanel\Xwt\Xw.GTK.cs" />
+    <Compile Include="DockPanel\Xwt\Xwt.XamMac.cs" />
+    <Compile Include="DockPanel\Xwt\Xwt.WPF.cs" />
+    <Compile Include="DockPanel\Xwt\Xwt.cs" />
+    <Compile Include="DockPanel\Xwt\Xw.GTK3.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\Class.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\Cocoa.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\NS.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\NSBitmapFormat.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\NSFloat.cs" />
+    <Compile Include="DockPanel\Xwt\OpenTK-Mac\Selector.cs" />
+    <Compile Include="DockPanel\Interop\XamMac.cs" />
+    <Compile Include="PropertyGrid\definitions.cs" />
+    <Compile Include="PropertyGrid\GridItem.cs" />
+    <Compile Include="PropertyGrid\PropertyGrid.cs" />
+    <Compile Include="PropertyGrid\PropertyGrid.EditCanvas.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -39,7 +39,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Xwt, Version=0.2.166.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xwt.0.2.166\lib\net40\Xwt.dll</HintPath>
+      <HintPath>..\..\packages\Xwt.0.2.166\lib\net40\Xwt.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
