@@ -351,7 +351,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                 droppane = null; drophit = null;
                 DockPanel.ClrHightlight();
             }
-            catch { throw; }
+            catch(Exception e)
+             { throw; }
             finally
             {
                 if (setpos)

@@ -78,17 +78,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Media.OpenTK\Media.OpenTK.csproj">
-      <Project>{D7CAD493-7F4B-4C83-A592-8D071B01CF28}</Project>
-      <Name>Media.OpenTK</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Media.OpenTK.XamMac\Media.OpenTK.XamMac.csproj">
-      <Project>{D1713229-CA4A-4E30-8C21-626F0416B012}</Project>
-      <Name>Media.OpenTK.XamMac</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BB74.Controls\BB74.Controls.csproj">
+    <ProjectReference Include="..\BB74.Controls\BB74.Xwt.Controls.csproj">
       <Project>{265B302E-B436-46F7-8CB1-57D42FD242AC}</Project>
-      <Name>BB74.Controls</Name>
+      <Name>BB74.Xwt.Controls</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -96,10 +88,6 @@
     <Compile Include="mainwindow.cs" />
     <Compile Include="documents.cs" />
     <Compile Include="toolbars.cs" />
-    <Compile Include="OpenTK\Interfaces.cs" />
-    <Compile Include="OpenTK\Render.cs" />
-    <Compile Include="OpenTK\Time.cs" />
-    <Compile Include="OpenTK\testdoc.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
