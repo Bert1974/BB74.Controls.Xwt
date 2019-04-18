@@ -189,8 +189,11 @@ namespace BaseLib.Xwt.PropertyGrid
                 {
                     var hbox = item.Widget as HBox;
                     var pos = this.splitheader.GetPosition();
-                    hbox.Children.First().WidthRequest = Math.Floor((this.Size.Width - scrollw) * pos);
-                    hbox.Children.Skip(1).First().WidthRequest = Math.Floor((this.Size.Width - scrollw) * (1 - pos));
+
+                    var ww = Math.Max(0, this.Size.Width - scrollw);
+
+                    hbox.Children.First().WidthRequest = Math.Floor(ww * pos);
+                    hbox.Children.Skip(1).First().WidthRequest = Math.Floor(ww * (1 - pos));
                 }
                 if (item.Expanded && !(item is GridItemCategory))
                 {

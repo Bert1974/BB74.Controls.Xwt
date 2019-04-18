@@ -27,14 +27,17 @@ namespace BaseLib.Xwt
         }
         public static void Initialize(ToolkitType type)
         {
-            switch (type)
+            if (PlatForm.OSPlatform == PlatformID.Unix)
             {
-                case ToolkitType.Gtk3:
-                    LoadDlls("3.0");
-                    break;
-                case ToolkitType.Gtk:
-                    LoadDlls("2.0");
-                    break;
+                switch (type)
+                {
+                    case ToolkitType.Gtk3:
+                        LoadDlls("3.0");
+                        break;
+                    case ToolkitType.Gtk:
+                        LoadDlls("2.0");
+                        break;
+                }
             }
             Application.Initialize(type);
         }
@@ -277,11 +280,40 @@ namespace BaseLib.Xwt
                        return new Tuple<IntPtr, object>(_h, obj ?? _h);
                    });
                 }
+                else if (Xwt.Toolkit.CurrentEngine.Type == ToolkitType.Gtk)
+                {
+                    var d = CreateGtkLookup();
+
+                    return found.Select(_h =>
+                    {
+                        d.TryGetValue(_h, out object obj);
+                     //   var obj = Win32.swi_hwndsource.InvokeStatic("FromHwnd", _h);
+                    //    obj = obj?.GetType().GetPropertyValue(obj, "RootVisual");
+                        return new Tuple<IntPtr, object>(_h, obj ?? _h);
+                    });
+                }
                 else
                 {
                     return found.Select(_h => new Tuple<IntPtr, object>(_h, _h));
                 }
             }
+            public Dictionary<IntPtr, object> CreateGtkLookup()
+            {
+                var d = new Dictionary<IntPtr, object>();
+
+                foreach (var _gtkwin in ((Array)Gtk.gtk_window.InvokeStatic("ListToplevels")).Cast<object>())
+                {
+                    var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
+                    if (gdkwin != null)
+                    {
+                        d[gdk_win32_drawable_get_handle((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"))] = _gtkwin;
+                    }
+                }
+                return d;
+            }
+            const string linux_libgdk_win_name = "libgdk-win32-2.0-0.dll";
+            [DllImport(linux_libgdk_win_name, CallingConvention = CallingConvention.Cdecl)]
+            private static extern IntPtr gdk_win32_drawable_get_handle(IntPtr raw);
         }
         internal class X11_GTK2 : X11
         {
@@ -395,22 +427,29 @@ namespace BaseLib.Xwt
                 var rootWindow = getxid(rwh);
                 try
                 {
-                    var d = new Dictionary<IntPtr, object>();
-
-                    foreach (var _gtkwin in ((Array)Gtk.gtk_window.InvokeStatic("ListToplevels")).Cast<object>())
-                    {
-                        var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
-                        if (gdkwin != null)
-                        {
-                            d[getxid((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"))] = _gtkwin;
-                        }
-                    }
+                    var d = CreateGdkLookup();
                     return _AllWindows(xdisp, rootWindow, d);
                 }
                 finally
                 {
                 }
             }
+
+            public Dictionary<IntPtr, object> CreateGdkLookup()
+            {
+                var d = new Dictionary<IntPtr, object>();
+
+                foreach (var _gtkwin in ((Array)Gtk.gtk_window.InvokeStatic("ListToplevels")).Cast<object>())
+                {
+                    var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
+                    if (gdkwin != null)
+                    {
+                        d[getxid((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"))] = _gtkwin;
+                    }
+                }
+                return d;
+            }
+
             private IEnumerable<Tuple<IntPtr, object>> _AllWindows(IntPtr display, IntPtr rootWindow, Dictionary<IntPtr, object> gtkwins, int level = 0)
             {
                 var status = XQueryTree(display, rootWindow, out IntPtr root_return, out IntPtr parent_return, out IntPtr children_return, out int nchildren_return);
