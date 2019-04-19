@@ -201,8 +201,8 @@ namespace BaseLib.Xwt.Controls.DockPanel
         public void Reset()
         {
             BeginLayout();
-            this.Current.RemoveWidget();
-            this.Current.Dispose();
+            this.Current?.RemoveWidget();
+            this.Current?.Dispose();
 
             this.floating.ToList().ForEach(_f => _f.Close());
 
