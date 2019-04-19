@@ -32,6 +32,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         private readonly ResizeAndTitleBaranvas Canvas;
         private DockPanel maindock;
         private bool titlebarvisible;
+        private bool isclosing = false;
 
         Window IDockFloatWindow.Window => this;
         DockPanel IDockFloatWindow.MainDockPanel => maindock;
@@ -411,27 +412,36 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         {
        //     this.SetTitleBarVisble();
         }
-   /*     private void SetTitleBarVisble()
+        /*     private void SetTitleBarVisble()
+             {
+              /*   if (this.DockPanel.Current is IDockPane) // not splitted?
+                 {
+                     if (this.titlebarvisible)
+                     {
+                         this.titlebarvisible = false;
+                         this.Canvas.MoveWindows();
+                         this.Canvas.QueueDraw();
+                     }
+                 }
+                 else
+                 {
+                     if (!this.titlebarvisible)
+                     {
+                         this.titlebarvisible = true;
+                 //     this.Canvas.MoveWindows();
+              //      this.Canvas.QueueDraw();
+                     }
+                 }
+             }*/
+        protected override bool OnCloseRequested()
         {
-         /*   if (this.DockPanel.Current is IDockPane) // not splitted?
+            if (!this.isclosing)
             {
-                if (this.titlebarvisible)
-                {
-                    this.titlebarvisible = false;
-                    this.Canvas.MoveWindows();
-                    this.Canvas.QueueDraw();
-                }
+                this.DockPanel.Reset();
+                return true;
             }
-            else
-            {
-                if (!this.titlebarvisible)
-                {
-                    this.titlebarvisible = true;
-            //     this.Canvas.MoveWindows();
-         //      this.Canvas.QueueDraw();
-                }
-            }
-        }*/
+            return true;// base.OnCloseRequested();
+        }
         protected override void OnClosed()
         {
             this.maindock.RemoveFloat(this);
@@ -440,6 +450,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         void IDockFloatWindow.Close()
         {
             this.DockPanel.Reset();
+            this.isclosing = true;
             base.Close();
             this.Dispose();
         }
