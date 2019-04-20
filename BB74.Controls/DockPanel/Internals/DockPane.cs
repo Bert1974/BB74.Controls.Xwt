@@ -72,6 +72,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                         this.AddChild(this._activedoc.Widget);
                         this.SetChildBounds(this._activedoc.Widget, DocumentRectangle);
 
+                 //       this.DockPanel.xwt.DoEvents(); // lets bounds get changed
+
                         if ((this.ParentWindow?.Visible ?? false)  && this.DockPanel.MainDockPanel.onloadedfired)
                         {
                             (this as IDockNotify).OnLoaded(this);
@@ -290,7 +292,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         }
         void IDockNotify.OnLoaded(IDockPane pane)
         {
-            (this._activedoc as IDockNotify)?.OnLoaded(this);
+            (this._activedoc as IDockNotify)?.OnLoaded(pane);
         }
 
         void IDockNotify.OnUnloading()

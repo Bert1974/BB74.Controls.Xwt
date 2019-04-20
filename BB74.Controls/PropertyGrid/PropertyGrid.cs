@@ -246,7 +246,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                         MinWidth = 64,
                         Font = PropertyGrid.PropertyFont
                     };
-                    var ww = this.Size.Width > 0 && this.Size.Height > 0 ? ((this.Size.Width - scrollw) * this.splitheader.GetPosition()) : 0;
+                    var ww = this.Size.Width >= scrollw && this.Size.Height > 0 ? ((this.Size.Width - scrollw) * this.splitheader.GetPosition()) : scrollw;
                     var left = new Table() { WidthRequest = ww, HeightRequest = lineheight, ExpandHorizontal = true };
                     var right = new Table() { WidthRequest = Math.Max(0, this.Size.Width - scrollw - ww), HeightRequest = lineheight, ExpandHorizontal = true };
 
