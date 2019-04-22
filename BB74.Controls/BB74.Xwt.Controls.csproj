@@ -60,7 +60,7 @@
     <Compile Include="DockPanel\BaseLib\Extensions.cs" />
     <Compile Include="DockPanel\Internals\DragDrop.cs" />
     <Compile Include="DockPanel\Internals\FloatWindow.cs" />
-    <Compile Include="DockPanel\BaseLib\FrameWork.cs" />
+    <Compile Include="DockPanel\BaseLib\Framework.cs" />
     <Compile Include="DockPanel\Internals\SaveData.cs" />
     <Compile Include="DockPanel\Internals\TitleBar.Controls.cs" />
     <Compile Include="DockPanel\Internals\TitleBar.cs" />

@@ -11,7 +11,7 @@ using Xwt.Backends;
 namespace BaseLib.Xwt
 {
     using Xwt = global::Xwt;
-    public abstract class PlatForm
+    public abstract class Platform
     {
         public static Type GetType(string typeName)
         {
@@ -27,7 +27,7 @@ namespace BaseLib.Xwt
         }
         public static void Initialize(ToolkitType type)
         {
-            if (PlatForm.OSPlatform == PlatformID.Unix)
+            if (Platform.OSPlatform == PlatformID.Unix)
             {
                 switch (type)
                 {
@@ -67,8 +67,8 @@ namespace BaseLib.Xwt
                 }
             }
         }
-        private static PlatForm _instance = null;
-        public static PlatForm Instance
+        private static Platform _instance = null;
+        public static Platform Instance
         {
             get
             {
@@ -114,11 +114,11 @@ namespace BaseLib.Xwt
                 Assembly.Load(new AssemblyName($"{name}, Version={dllversion}"));
             }
         }
-        private static PlatForm Create()
+        private static Platform Create()
         {
             switch (OSPlatform)
             {
-                case PlatformID.Win32Windows: return new Implementation.PlatFormWin32();
+                case PlatformID.Win32Windows: return new Implementation.PlatformWin32();
                 case PlatformID.MacOSX: return new Implementation.PlatformXamMac();
                 case PlatformID.Unix:
                     {
@@ -138,7 +138,7 @@ namespace BaseLib.Xwt
 
     namespace Implementation
     {
-        internal class PlatformXamMac : PlatForm
+        internal class PlatformXamMac : Platform
         {
             //   const string qlib = "/System/Library/Frameworks/QuartzCore.framework/QuartzCore";
             const string qlib = @"/System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/CoreGraphics";
@@ -241,7 +241,7 @@ namespace BaseLib.Xwt
             }
         }
 
-        internal class PlatFormWin32 : PlatForm
+        internal class PlatformWin32 : Platform
         {
             protected override Rectangle GetWindowRect(IntPtr display, object form)
             {
@@ -381,7 +381,7 @@ namespace BaseLib.Xwt
                 return base.GetWindowRect(xdisp, gtkwin);
             }
         }
-        internal abstract class X11 : PlatForm
+        internal abstract class X11 : Platform
         {
             const string libX11 = "libX11";
 

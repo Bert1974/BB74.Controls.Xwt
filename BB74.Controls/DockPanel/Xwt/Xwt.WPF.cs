@@ -14,14 +14,14 @@ namespace BaseLib.Xwt
             [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
             public override void DoEvents()
             {
-                var t1 = PlatForm.GetType("System.Windows.Threading.DispatcherFrame");
+                var t1 = Platform.GetType("System.Windows.Threading.DispatcherFrame");
                 var frame = Activator.CreateInstance(t1);
 
-                var t = PlatForm.GetType("System.Windows.Threading.Dispatcher");
+                var t = Platform.GetType("System.Windows.Threading.Dispatcher");
                 var current = t.GetPropertyValueStatic("CurrentDispatcher");
 
-                var t3 = PlatForm.GetType("System.Windows.Threading.DispatcherPriority");
-                var t4 = PlatForm.GetType("System.Windows.Threading.DispatcherOperationCallback");
+                var t3 = Platform.GetType("System.Windows.Threading.DispatcherPriority");
+                var t4 = Platform.GetType("System.Windows.Threading.DispatcherOperationCallback");
 
                 var callback = Delegate.CreateDelegate(t4, typeof(WPF), "ExitFrame");
 

@@ -5,15 +5,15 @@ namespace BaseLib.Xwt.Interop
 {
     static class XamMac
     {
-        public static Type appkit_nsapplication = PlatForm.GetType("AppKit.NSApplication");
-        public static Type appkit_nswindow = PlatForm.GetType("AppKit.NSWindow");
-        public static Type appkit_nsevent = PlatForm.GetType("AppKit.NSEvent");
-        public static Type appkit_nseventmask = PlatForm.GetType("AppKit.NSEventMask");
-        public static Type appkit_nsrunningapp = PlatForm.GetType("AppKit.NSRunningApplication");
-        public static Type xwtmacbackend = PlatForm.GetType("Xwt.Mac.MacDesktopBackend");
-        public static Type found_nsrunloopmode = PlatForm.GetType("Foundation.NSRunLoopMode");
-        public static Type found_nsdate = PlatForm.GetType("Foundation.NSDate");
-        public static Type cg_cgrect = PlatForm.GetType("CoreGraphics.CGRect");
+        public static Type appkit_nsapplication = Platform.GetType("AppKit.NSApplication");
+        public static Type appkit_nswindow = Platform.GetType("AppKit.NSWindow");
+        public static Type appkit_nsevent = Platform.GetType("AppKit.NSEvent");
+        public static Type appkit_nseventmask = Platform.GetType("AppKit.NSEventMask");
+        public static Type appkit_nsrunningapp = Platform.GetType("AppKit.NSRunningApplication");
+        public static Type xwtmacbackend = Platform.GetType("Xwt.Mac.MacDesktopBackend");
+        public static Type found_nsrunloopmode = Platform.GetType("Foundation.NSRunLoopMode");
+        public static Type found_nsdate = Platform.GetType("Foundation.NSDate");
+        public static Type cg_cgrect = Platform.GetType("CoreGraphics.CGRect");
 
 
         public static MethodInfo mi_nsapp_nextevent = appkit_nsapplication.GetMethod("NextEvent", new Type[] { appkit_nseventmask, found_nsdate, found_nsrunloopmode, typeof(bool) });
