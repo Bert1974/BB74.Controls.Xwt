@@ -6,7 +6,7 @@
     <title>$title$</title>
     <authors>Bert Bruggeman</authors>
     <owners>$author$</owners>
-    <licenseUrl>https://github.com/Bert1974/BB74.Controls.Xwt/blob/master/LICENSE.txt</licenseUrl>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/Bert1974/BB74.Controls.Xwt</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Xwt Widget Library</description>
