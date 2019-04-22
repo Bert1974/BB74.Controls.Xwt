@@ -45,9 +45,9 @@ namespace BaseLib.Xwt.Interop
         public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
 
-        public static Type swc_panel = PlatForm.GetType("System.Windows.Controls.Panel");
-        public static Type swi_wininterophelper = PlatForm.GetType("System.Windows.Interop.WindowInteropHelper");
-        public static Type swi_hwndsource = PlatForm.GetType("System.Windows.Interop.HwndSource");
+        public static Type swc_panel = Platform.GetType("System.Windows.Controls.Panel");
+        public static Type swi_wininterophelper = Platform.GetType("System.Windows.Interop.WindowInteropHelper");
+        public static Type swi_hwndsource = Platform.GetType("System.Windows.Interop.HwndSource");
 
     }
 }

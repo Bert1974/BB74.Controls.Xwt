@@ -227,8 +227,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                 Interop.Gtk.gtk_window.Invoke(this.GetBackend().Window, "Present");
                 Interop.Gtk.gtk_window.Invoke(this.GetBackend().Window, "ActivateFocus");
 
-                var iddle_type = PlatForm.GetType("GLib.Idle");
-                var iddlehandler_type = PlatForm.GetType("GLib.IdleHandler");
+                var iddle_type = Platform.GetType("GLib.Idle");
+                var iddlehandler_type = Platform.GetType("GLib.IdleHandler");
                 iddle_type.InvokeStatic("Add", Delegate.CreateDelegate(iddlehandler_type, this, "on_idle"));
                 
                 while (!this.doexit)
@@ -319,7 +319,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         {
             try
             {
-                var hits = BaseLib.Xwt.PlatForm.Instance.Search(window, pt); // all hit window-handle son system
+                var hits = BaseLib.Xwt.Platform.Instance.Search(window, pt); // all hit window-handle son system
 
                 foreach (var w in hits)
                 {

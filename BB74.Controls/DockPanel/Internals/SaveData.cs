@@ -15,7 +15,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
 
         internal static DockSave SaveState(DockPanel dockPanel)
         {
-            var forms = BaseLib.Xwt.PlatForm.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
+            var forms = BaseLib.Xwt.Platform.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
 
             return new DockSave()
             {
@@ -139,7 +139,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
                 int ind = _t.IndexOf(":");
                 if (ind > 0)
                 {
-                    Type t = BaseLib.Xwt.PlatForm.GetType(_t.Substring(0, ind));
+                    Type t = BaseLib.Xwt.Platform.GetType(_t.Substring(0, ind));
 
                     if (ind + 2 >= _t.Length)
                     {

@@ -112,7 +112,7 @@ namespace BaseLib.Xwt
             }
             public override void SetParent(WindowFrame r, WindowFrame parentWindow)
             {
-                Type et = PlatForm.GetType("AppKit.NSWindowLevel");
+                Type et = Platform.GetType("AppKit.NSWindowLevel");
                 var level = Enum.ToObject(et, 3L/*floating*/);
                 var w = r.GetBackend().Window;
                 w.GetType().SetPropertyValue(w, "Level", level);
