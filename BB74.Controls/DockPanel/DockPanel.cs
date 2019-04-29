@@ -1021,11 +1021,21 @@ namespace BaseLib.Xwt.Controls.DockPanel
             {
                 case Orientation.Horizontal:
                     {
-
+                        
                         //      if ((Control.ModifierKeys & Keys.Shift) != 0)
                         {
                             s = panes[ind + 0].WidgetSize;
                             pt = panes[ind + 0].Location;
+
+                            if (s.Width + d < panes[ind + 0].MinimumSize.Width)
+                            {
+                                d = panes[ind + 0].MinimumSize.Width - s.Width;
+                            }
+                            if (panes[ind + 1].WidgetSize.Width - d < panes[ind + 1].MinimumSize.Width)
+                            {
+                                d = panes[ind + 1].WidgetSize.Width - panes[ind + 1].MinimumSize.Width;
+                            }
+
                             panes[ind + 0].Layout(pt, new Size(s.Width + d, s.Height));
 
                             pt.Offset(s.Width - d + SplitSize, 0);
@@ -1077,6 +1087,15 @@ namespace BaseLib.Xwt.Controls.DockPanel
                     break;
                 case Orientation.Vertical:
                     {
+                        if (panes[ind + 0].WidgetSize.Height + d < panes[ind + 0].MinimumSize.Height)
+                        {
+                            d = panes[ind + 0].MinimumSize.Height - panes[ind + 0].WidgetSize.Height;
+                        }
+                        if (panes[ind + 1].WidgetSize.Height - d < panes[ind + 1].MinimumSize.Height)
+                        {
+                            d = panes[ind + 1].WidgetSize.Height - panes[ind + 1].MinimumSize.Height;
+                        }
+
                         s = panes[ind + 0].WidgetSize;
                         pt = panes[ind + 0].Location;
                         panes[ind + 0].Layout(pt, new Size(s.Width, s.Height + d));
