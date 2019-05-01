@@ -15,11 +15,6 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Xwt" version="0.2.166" />
-        <dependency id="Xwt.Gtk" version="0.2.166" />
-        <dependency id="Xwt.Gtk.Mac" version="0.2.166" />
-        <dependency id="Xwt.Gtk.Windows" version="0.2.166" />
-        <dependency id="Xwt.WPF" version="0.2.166" />
-        <dependency id="Xwt.XamMac" version="0.2.166" />
       </group>
     </dependencies>
   </metadata>
