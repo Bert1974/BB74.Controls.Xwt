@@ -1,4 +1,5 @@
-﻿using BaseLib.Xwt.Controls.DockPanel;
+﻿using BaseLib.Xwt;
+using BaseLib.Xwt.Controls.DockPanel;
 using BaseLib.Xwt.Controls.PropertyGrid;
 using BaseLib.Xwt.Design;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Xwt;
 using Xwt.Drawing;
 
@@ -14,6 +16,48 @@ namespace DockExample
 {
     partial class mainwindow
     {
+        class winlisttoolitem : Label, IDockToolbar, IDockNotify
+        {
+            private IDisposable timer;
+
+            public winlisttoolitem()
+            {
+                this.MinWidth = this.MinHeight = 10;
+                this.BackgroundColor = Colors.White;
+            }
+
+            public IDockPane /*IDockContent.*/DockPane { get; set; }
+            Widget IDockContent.Widget => this;
+            string IDockContent.TabText => "Windows";
+
+            void IDockNotify.OnLoaded(IDockPane pane)
+            {
+                this.timer = Application.TimeoutInvoke(100, _update);
+            }
+            void IDockNotify.OnUnloading()
+            {
+                this.timer?.Dispose();
+                this.timer = null;
+            }
+            private bool _update()
+            {
+                var wi=BaseLib.Xwt.Platform.Instance.AllForms(this.ParentWindow);
+                var b = new StringBuilder();
+
+                append(b, wi, "");
+                
+                base.Text = b.ToString();
+                return true;
+            }
+
+            private void append(StringBuilder b, IEnumerable<Tuple<IntPtr, object>> wi, string v)
+            {
+                foreach (var t in wi)
+                {
+                    b.AppendLine($"{v} - {Platform.Instance.GetWindowRect(Platform.Instance.GetDisplay(this.ParentWindow),t.Item2)} {t.Item2.GetType().Name}");
+                }
+            }
+        }
         class testtoolitem : Canvas, IDockToolbar, IDockSerializable
         {
             Widget IDockContent.Widget => this;

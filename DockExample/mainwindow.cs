@@ -47,6 +47,7 @@ namespace DockExample
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New toolbar", new_toolbar));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New google", new_webview));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New properties", new_properties));
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New winlist", (s, a) => dock.Dock(new winlisttoolitem(), DockPosition.Left)));
             //   file.SubMenu.Items.Add(new MenuItem("_Open"));
             //    file.SubMenu.Items.Add(new MenuItem("_New"));
             var mi = new MenuItem("_Close");
