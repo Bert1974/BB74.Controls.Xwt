@@ -41,7 +41,15 @@ namespace DockExample
             }
             else
             {
-                Application.Initialize(ToolkitType.Wpf);
+                if (args.Contains("gtk"))
+                {
+                    try { Application.Initialize(ToolkitType.Gtk); }
+                    catch { Application.Initialize(ToolkitType.Wpf); }
+                }
+                else
+                {
+                    Application.Initialize(ToolkitType.Wpf);
+                }
             }
 #endif
             Program.Xwt = (IXwt)XwtImpl.Create();
