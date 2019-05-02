@@ -36,7 +36,12 @@ namespace BaseLib.Xwt.Interop
         public static extern bool GetCursorPos(ref POINT lpPoint);
 
         [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnumChildWindows(IntPtr hwndParent, EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
         public static extern int GetWindowLongPtr(IntPtr hWnd, int nIndex);
@@ -44,10 +49,13 @@ namespace BaseLib.Xwt.Interop
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
 
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         public static Type swc_panel = Platform.GetType("System.Windows.Controls.Panel");
         public static Type swi_wininterophelper = Platform.GetType("System.Windows.Interop.WindowInteropHelper");
         public static Type swi_hwndsource = Platform.GetType("System.Windows.Interop.HwndSource");
+        public static Type swm_visual = Platform.GetType("System.Windows.Media.Visual");
 
     }
 }
