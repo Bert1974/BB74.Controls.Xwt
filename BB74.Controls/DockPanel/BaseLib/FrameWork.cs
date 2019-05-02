@@ -483,20 +483,27 @@ namespace BaseLib.Xwt
                             }
                             else
                             {
-                                if (level < 2)
+                                var attr = new XWindowAttributes();
+                                XGetWindowAttributes(display, children[nit], ref attr);
+
+                                if (attr.map_state == 2)
                                 {
-                                    bool fnd = false;
-                                    foreach (var form in _AllWindows(display, children[nit], gtkwins, level + 1))
+                                    if (level < 2)
                                     {
-                                        if (form.Item2 != null)
+                                        bool fnd = false;
+                                        foreach (var form in _AllWindows(display, children[nit], gtkwins, level + 1))
                                         {
-                                            fnd = true;
-                                            yield return form;
+                                            if (form.Item2 != null)
+                                            {
+                                                fnd = true;
+                                                yield return form;
+                                                break;
+                                            }
                                         }
-                                    }
-                                    if (!fnd)
-                                    {
-                                        yield return new Tuple<IntPtr, object>(children[nit], children[nit]);
+                                        if (!fnd && level == 0)
+                                        {
+                                            yield return new Tuple<IntPtr, object>(children[nit], children[nit]);
+                                        }
                                     }
                                 }
                             }
