@@ -91,8 +91,8 @@ namespace BaseLib.Xwt
         }
         public abstract IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr display, Xwt.Backends.IWindowFrameBackend window);
 
-        protected virtual IntPtr GetDisplay(WindowFrame window) => IntPtr.Zero;
-        protected abstract Rectangle GetWindowRect(IntPtr display, object form);
+        public virtual IntPtr GetDisplay(WindowFrame window) => IntPtr.Zero;
+        public abstract Rectangle GetWindowRect(IntPtr display, object form);
 
         private static void LoadDlls(string dllversion)
         {
@@ -227,7 +227,7 @@ namespace BaseLib.Xwt
                 }
                 OpenTK.Platform.MacOS.Cocoa.SendVoid(wi, OpenTK.Platform.MacOS.Selector.Release);
             }
-            protected override Rectangle GetWindowRect(IntPtr display, object form)
+            public override Rectangle GetWindowRect(IntPtr display, object form)
             {
                 if (form is IWindowFrameBackend)
                 {
@@ -243,7 +243,7 @@ namespace BaseLib.Xwt
 
         internal class PlatformWin32 : Platform
         {
-            protected override Rectangle GetWindowRect(IntPtr display, object form)
+            public override Rectangle GetWindowRect(IntPtr display, object form)
             {
                 IntPtr hwnd;
                 if (form is IntPtr)
@@ -368,7 +368,7 @@ namespace BaseLib.Xwt
             {
                 return gdk_x11_window_get_xid(gdkwin);
             }
-            protected override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
+            public override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
             {
                 if (!(gtkwin is IntPtr))
                 {
@@ -424,7 +424,7 @@ namespace BaseLib.Xwt
             protected abstract IntPtr getxdisplay(IntPtr display);
             protected abstract IntPtr getxid(IntPtr gdkwin);
 
-            protected override IntPtr GetDisplay(WindowFrame window)
+            public override IntPtr GetDisplay(WindowFrame window)
             {
                 var gtkkwin = window.GetBackend().Window;
                 var gdkdisp = gtkkwin.GetType().GetPropertyValue(gtkkwin, "Display");
@@ -483,7 +483,7 @@ namespace BaseLib.Xwt
                             }
                             else
                             {
-                                if (level == 0)
+                                if (level < 2)
                                 {
                                     bool fnd = false;
                                     foreach (var form in _AllWindows(display, children[nit], gtkwins, level + 1))
@@ -491,8 +491,8 @@ namespace BaseLib.Xwt
                                         if (form.Item2 != null)
                                         {
                                             fnd = true;
+                                            yield return form;
                                         }
-                                        yield return form;
                                     }
                                     if (!fnd)
                                     {
@@ -508,7 +508,7 @@ namespace BaseLib.Xwt
                     }
                 }
             }
-            protected override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
+            public override Rectangle GetWindowRect(IntPtr xdisp, object gtkwin)
             {
                 if (gtkwin is IntPtr)
                 {
