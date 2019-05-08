@@ -27,19 +27,26 @@ namespace BaseLib.Xwt
         }
         public static void Initialize(ToolkitType type)
         {
-            if (Platform.OSPlatform == PlatformID.Unix)
+            try
             {
-                switch (type)
+                if (Platform.OSPlatform == PlatformID.Unix || Platform.OSPlatform == PlatformID.MacOSX)
                 {
-                    case ToolkitType.Gtk3:
-                        LoadDlls("3.0");
-                        break;
-                    case ToolkitType.Gtk:
-                        LoadDlls("2.0");
-                        break;
+                    switch (type)
+                    {
+                        case ToolkitType.Gtk3:
+                            LoadDlls("3.0");
+                            break;
+                        case ToolkitType.Gtk:
+                            LoadDlls("2.0");
+                            break;
+                    }
                 }
+                Application.Initialize(type);
             }
-            Application.Initialize(type);
+            catch(Exception e)
+            {
+                throw;
+            }
         }
 
         public static PlatformID OSPlatform
@@ -105,7 +112,7 @@ namespace BaseLib.Xwt
         }
         private static void LoadDll(string name, string dllversion)
         {
-            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+            if (Platform.OSPlatform == PlatformID.Unix)
             {
                 Assembly.LoadFile($"/usr/lib/cli/{name}-{dllversion}/{name}.dll");
             }
@@ -119,7 +126,16 @@ namespace BaseLib.Xwt
             switch (OSPlatform)
             {
                 case PlatformID.Win32Windows: return new Implementation.PlatformWin32();
-                case PlatformID.MacOSX: return new Implementation.PlatformXamMac();
+                case PlatformID.MacOSX:
+                    if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+                    {
+                        return new Implementation.PlatformXamMac();
+                    }
+                    else if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk)
+                    {
+                        return new Implementation.OSX_GTK2();
+                    }
+                    break;
                 case PlatformID.Unix:
                     {
                         if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk3)
@@ -328,6 +344,28 @@ namespace BaseLib.Xwt
             const string linux_libgdk_win_name = "libgdk-win32-2.0-0.dll";
             [DllImport(linux_libgdk_win_name, CallingConvention = CallingConvention.Cdecl)]
             private static extern IntPtr gdk_win32_drawable_get_handle(IntPtr raw);
+        }
+        internal class OSX_GTK2 : X11
+        {
+            const string libGtk = "libgdk-win32-2.0-0.dll";
+
+            [DllImport(libGtk)]
+            internal extern static object gdk_quartz_window_get_nswindow(IntPtr window);
+
+            [DllImport(libGtk)]
+            public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
+
+            protected override IntPtr getxdisplay(IntPtr display)
+            {
+                var test= gdk_x11_display_get_xdisplay(display);
+                return (IntPtr)test;
+            }
+
+            protected override IntPtr getxid(IntPtr gdkwin)
+            {
+                var test = gdk_quartz_window_get_nswindow(gdkwin);
+                return (IntPtr)test;
+            }
         }
         internal class X11_GTK2 : X11
         {

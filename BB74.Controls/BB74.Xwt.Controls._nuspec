@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>BB74.Xwt.Controls</id>
+    <version>$version$</version>
+    <title>BB74.Xwt.Controls</title>
+    <authors>Bert Bruggeman</authors>
+    <owners>$author$</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Bert1974/BB74.Controls.Xwt</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Xwt Widget Library (DockPanel,PropertyGrid)</description>
+    <copyright>Copyright 2019 Bert Bruggeman</copyright>
+    <tags>BB74 c# Mono VisualStudio Xwt DockPanel PropertyGrid windows ubuntu macos xammac gtk wpf</tags>
+    <dependencies>
+      <group targetFramework="net40">
+        <dependency id="Xwt" version="0.2.167" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Xwt" version="0.2.167" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\**\*.*" target="\" exclude="*.*"/>
+    <file src="lib\**" target="lib" />
+  </files>
+</package>

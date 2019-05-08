@@ -3,6 +3,8 @@ using System.Linq;
 using System.Collections.Generic;
 using BaseLib.Xwt;
 using Xwt;
+using System.Reflection;
+using System.IO;
 
 namespace DockExample
 {
@@ -32,8 +34,18 @@ namespace DockExample
         [STAThread()]
         static void Main(string[] args)
         {
+            try
+            {
 #if (__MACOS__)
-            Application.Initialize(ToolkitType.XamMac);
+                if (args.Contains("gtk"))
+                {
+                    try { BaseLib.Xwt.Platform.Initialize(ToolkitType.Gtk); }
+                    catch { Application.Initialize(ToolkitType.XamMac); }
+                }
+                else
+                {
+                    Application.Initialize(ToolkitType.XamMac);
+                }
 #else
             if (System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
             {
@@ -52,10 +64,14 @@ namespace DockExample
                 }
             }
 #endif
-            Program.Xwt = (IXwt)XwtImpl.Create();
+                Program.Xwt = (IXwt)XwtImpl.Create();
 
-            UIHelpers.NewWindow();
-            Application.Run();
+                UIHelpers.NewWindow();
+                Application.Run();
+            }
+            catch(Exception e)
+            {
+            }
         }
         public static void AddWindow(mainwindow window)
         {

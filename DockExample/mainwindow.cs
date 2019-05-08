@@ -55,13 +55,6 @@ namespace DockExample
             file.SubMenu.Items.Add(mi);
             menu.Items.Add(file);
 
-            /*      var edit = new MenuItem("_Edit");
-                  edit.SubMenu = new Menu();
-                  edit.SubMenu.Items.Add(new MenuItem("_Copy"));
-                  edit.SubMenu.Items.Add(new MenuItem("Cu_t"));
-                  edit.SubMenu.Items.Add(new MenuItem("_Paste"));
-                  menu.Items.Add(edit);*/
-
             var dockmenu = new MenuItem("Dock") { SubMenu = new Menu() };
             dockmenu.SubMenu.Items.Add(UIHelpers.NewMenuItem("save layout to disk", save_layout));
             dockmenu.SubMenu.Items.Add(UIHelpers.NewMenuItem("load layout from disk", load_layout));
