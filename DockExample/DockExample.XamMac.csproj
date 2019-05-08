@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xwt.Gtk3.0.2.166\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.166\build\Xwt.Gtk3.props')" />
-  <Import Project="..\packages\Xwt.Gtk.0.2.166\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.166\build\Xwt.Gtk.props')" />
+  <Import Project="..\packages\Xwt.Gtk3.0.2.167\build\Xwt.Gtk3.props" Condition="Exists('..\packages\Xwt.Gtk3.0.2.167\build\Xwt.Gtk3.props')" />
+  <Import Project="..\packages\Xwt.Gtk.0.2.167\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.167\build\Xwt.Gtk.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,6 +32,11 @@
     <LinkMode>None</LinkMode>
     <XamMacArch></XamMacArch>
     <AOTMode>None</AOTMode>
+    <PlatformTarget>x86</PlatformTarget>
+    <I18n></I18n>
+    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
+    <I18n></I18n>
+    <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -54,20 +59,29 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Mac" />
-    <Reference Include="Xwt">
-      <HintPath>..\packages\Xwt.0.2.166\lib\net40\Xwt.dll</HintPath>
-    </Reference>
     <Reference Include="Xwt.Gtk">
-      <HintPath>..\packages\Xwt.Gtk.0.2.166\lib\net40\Xwt.Gtk.dll</HintPath>
+      <HintPath>..\packages\Xwt.Gtk.0.2.167\lib\net40\Xwt.Gtk.dll</HintPath>
     </Reference>
     <Reference Include="Xwt.Gtk.Mac">
-      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.166\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
+      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.167\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
     </Reference>
     <Reference Include="Xwt.XamMac">
-      <HintPath>..\packages\Xwt.XamMac.0.2.166\lib\net40\Xwt.XamMac.dll</HintPath>
+      <HintPath>..\packages\Xwt.XamMac.0.2.167\lib\net40\Xwt.XamMac.dll</HintPath>
     </Reference>
     <Reference Include="Xwt.Gtk3">
-      <HintPath>..\packages\Xwt.Gtk3.0.2.166\lib\net40\Xwt.Gtk3.dll</HintPath>
+      <HintPath>..\packages\Xwt.Gtk3.0.2.167\lib\net40\Xwt.Gtk3.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.Gtk.Windows">
+      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.167\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.WPF">
+      <HintPath>..\packages\Xwt.WPF.0.2.167\lib\net40\Xwt.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cairo">
+      <HintPath>..\..\..\..\Library\Frameworks\Mono.framework\Versions\5.18.1\lib\mono\gac\Mono.Cairo\4.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt">
+      <HintPath>..\packages\Xwt.0.2.167\lib\net40\Xwt.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +90,7 @@
   <ItemGroup>
     <None Include="Info.plist" />
     <None Include="packages.config" />
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BB74.Controls\BB74.Xwt.Controls.csproj">
