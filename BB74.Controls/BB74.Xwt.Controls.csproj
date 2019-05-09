@@ -36,12 +36,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml" />
     <Reference Include="Xwt">
       <HintPath>..\packages\Xwt.0.2.167\lib\net40\Xwt.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DockPanel\BaseLib\Extensions.cs" />

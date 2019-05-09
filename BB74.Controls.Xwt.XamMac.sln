@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockPanel", "BB74.Controls\DockPanel\DockPanel.csproj", "{D50C178E-866C-47D4-903F-87A1553B3273}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample.XamMac", "DockExample\DockExample.XamMac.csproj", "{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockExample.Mac", "DockExample\DockExample.Mac.csproj", "{74E6BB7D-239B-4D30-ADF7-5A0A84C8B6BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid", "BB74.Controls\PropertyGrid\PropertyGrid.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
 EndProject

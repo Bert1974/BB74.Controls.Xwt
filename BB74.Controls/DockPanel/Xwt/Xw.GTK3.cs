@@ -41,12 +41,12 @@ namespace BaseLib.Xwt
 
             public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
             {
-                Type t = XwtImpl.GetType("Gdk.ModifierType");
+                Type t = BaseLib.Xwt.Platform.GetType("Gdk.ModifierType");
 
                 var display = Interop.Gtk.gtk_window.GetPropertyValue(window.GetBackend().Window, "Display");
 
                 var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
+                var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), BaseLib.Xwt.Platform.GetType("Gdk.ModifierType&") });
 
                 mi.Invoke(display, parms);
 

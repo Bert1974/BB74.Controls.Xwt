@@ -30,19 +30,7 @@ namespace BaseLib.Xwt
         }
 
         private RealXwt Implementation;
-
-        internal static Type GetType(string typeName)
-        {
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
-            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                type = a.GetType(typeName);
-                if (type != null)
-                    return type;
-            }
-            return null;
-        }
+        
         protected XwtImpl()
         {
         }
@@ -66,7 +54,7 @@ namespace BaseLib.Xwt
                 {
                     this.Implementation = new GTK3Xwt();
                 }
-                else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+               else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                 {
                     this.Implementation = new XamMacXwt();
                 }

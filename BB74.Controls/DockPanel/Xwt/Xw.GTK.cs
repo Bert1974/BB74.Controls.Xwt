@@ -56,12 +56,38 @@ namespace BaseLib.Xwt
 
             public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
             {
-                Type t = XwtImpl.GetType("Gdk.ModifierType");
+                if (Platform.OSPlatform==PlatformID.MacOSX)
+                {
+                    Type et = Platform.GetType("AppKit.NSEvent");
+                    var flags = et.GetPropertyValueStatic("CurrentPressedMouseButtons");
+                    var pos = et.GetPropertyValueStatic("CurrentMouseLocation");
+
+                    var screens = (Array)Platform.GetType("AppKit.NSScreen").GetPropertyValueStatic("Screens");
+
+                    Rectangle desktopBounds = Rectangle.Zero;
+
+                    foreach (var s in screens)
+                    {
+                        var r = s.GetType().GetPropertyValue(s, "Frame");
+                        desktopBounds = desktopBounds.Union(new Rectangle(
+                            (r.GetType().GetPropertyValue(r, "X") as IConvertible).ToInt32(null),
+                            (r.GetType().GetPropertyValue(r, "Y") as IConvertible).ToInt32(null),
+                            (r.GetType().GetPropertyValue(r, "Width") as IConvertible).ToInt32(null),
+                            (r.GetType().GetPropertyValue(r, "Height") as IConvertible).ToInt32(null)));
+                    }
+
+                    mx = (pos.GetType().GetPropertyValue(pos, "X") as IConvertible).ToInt32(null);
+                    my = Convert.ToInt32(desktopBounds.Bottom - (pos.GetType().GetPropertyValue(pos, "Y") as IConvertible).ToInt32(null));
+                    buttons = (uint)(flags as IConvertible).ToInt32(null);
+
+                    return;
+                }
+                Type t = BaseLib.Xwt.Platform.GetType("Gdk.ModifierType");
 
                 var display = Interop.Gtk.gtk_window.GetPropertyValue(window.GetBackend().Window, "Display");
 
                 var parms = new object[] { 0, 0, Enum.ToObject(t, 0) };
-                var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), XwtImpl.GetType("Gdk.ModifierType&") });
+                var mi = display.GetType().GetMethod("GetPointer", new Type[] { Type.GetType("System.Int32&"), Type.GetType("System.Int32&"), BaseLib.Xwt.Platform.GetType("Gdk.ModifierType&") });
 
                 mi.Invoke(display, parms);
 

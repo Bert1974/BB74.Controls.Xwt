@@ -13,15 +13,21 @@ namespace BaseLib.Xwt
     using Xwt = global::Xwt;
     public abstract class Platform
     {
+        static Dictionary<string, Type> _typeslooked = new Dictionary<string, Type>();
+
         public static Type GetType(string typeName)
         {
-            var type = Type.GetType(typeName);
-            if (type != null) return type;
+            if (_typeslooked.TryGetValue(typeName, out Type type))
+            {
+                return type;
+            }
+            type = Type.GetType(typeName);
+            if (type != null) return (_typeslooked[typeName] = type);
             foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
             {
                 type = a.GetType(typeName);
                 if (type != null)
-                    return type;
+                    return (_typeslooked[typeName]=type);
             }
             return null;
         }
@@ -42,6 +48,8 @@ namespace BaseLib.Xwt
                     }
                 }
                 Application.Initialize(type);
+
+                _instance = Create();
             }
             catch (Exception e)
             {
@@ -290,11 +298,6 @@ namespace BaseLib.Xwt
             {
                 public double x, y, w, h;
             }
-
-            const string libQuartz = "libgdk-win32-2.0-0.dll";
-
-            [DllImport(libQuartz)]
-            internal extern static IntPtr gdk_quartz_window_get_nswindow(IntPtr window);
             
             public Dictionary<int, object> CreateGdkLookup()
             {
@@ -305,7 +308,7 @@ namespace BaseLib.Xwt
                     var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
                     if (gdkwin != null)
                     {
-                        var nswin = gdk_quartz_window_get_nswindow((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"));
+                        var nswin = GtkMac.gdk_quartz_window_get_nswindow((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"));
                         var _windowid = OpenTK.Platform.MacOS.Cocoa.SendIntPtr(nswin, OpenTK.Platform.MacOS.Selector.Get("windowNumber"));
                      //   var windowid = OpenTK.Platform.MacOS.Cocoa.SendInt(_windowid, OpenTK.Platform.MacOS.Selector.Get("intValue"));
                          //   var nsint= nswin.GetType().GetPropertyValue(nswin, "WindowNumber");
