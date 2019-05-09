@@ -32,11 +32,18 @@
     <LinkMode>None</LinkMode>
     <XamMacArch></XamMacArch>
     <AOTMode>None</AOTMode>
-    <PlatformTarget>x86</PlatformTarget>
     <I18n></I18n>
     <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
     <I18n></I18n>
     <MonoBundlingExtraArgs></MonoBundlingExtraArgs>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp "/Library/Frameworks/Mono.framework/Versions/5.18.1/etc/mono/config" "${TargetDir}/${ProjectName}.app/Contents/MonoBundle/"</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -65,23 +72,27 @@
     <Reference Include="Xwt.Gtk.Mac">
       <HintPath>..\packages\Xwt.Gtk.Mac.0.2.167\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cairo">
+      <HintPath>..\..\..\..\Library\Frameworks\Mono.framework\Versions\5.18.1\lib\mono\gac\Mono.Cairo\4.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xwt">
+      <HintPath>..\packages\Xwt.0.2.167\lib\net40\Xwt.dll</HintPath>
+    </Reference>
+    <Reference Include="Xwt.WPF">
+      <HintPath>..\packages\Xwt.WPF.0.2.167\lib\net40\Xwt.WPF.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xwt.Gtk.Windows">
+      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.167\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Xwt.XamMac">
       <HintPath>..\packages\Xwt.XamMac.0.2.167\lib\net40\Xwt.XamMac.dll</HintPath>
     </Reference>
     <Reference Include="Xwt.Gtk3">
       <HintPath>..\packages\Xwt.Gtk3.0.2.167\lib\net40\Xwt.Gtk3.dll</HintPath>
-    </Reference>
-    <Reference Include="Xwt.Gtk.Windows">
-      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.167\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
-    </Reference>
-    <Reference Include="Xwt.WPF">
-      <HintPath>..\packages\Xwt.WPF.0.2.167\lib\net40\Xwt.WPF.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cairo">
-      <HintPath>..\..\..\..\Library\Frameworks\Mono.framework\Versions\5.18.1\lib\mono\gac\Mono.Cairo\4.0.0.0__0738eb9f132ed756\Mono.Cairo.dll</HintPath>
-    </Reference>
-    <Reference Include="Xwt">
-      <HintPath>..\packages\Xwt.0.2.167\lib\net40\Xwt.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>

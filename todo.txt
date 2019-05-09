@@ -3,6 +3,7 @@ windowmenu
 autohide?
 dubbel dock als vs
 propertytabs, category, dropdownvalues, defaultvalue, array/list
+properties voor dokcpanel-main
 better layout:
 -keep same on dock
 example-app:

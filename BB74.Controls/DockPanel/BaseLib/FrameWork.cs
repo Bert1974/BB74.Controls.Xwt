@@ -43,7 +43,7 @@ namespace BaseLib.Xwt
                 }
                 Application.Initialize(type);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw;
             }
@@ -133,7 +133,7 @@ namespace BaseLib.Xwt
                     }
                     else if (Toolkit.CurrentEngine.Type == ToolkitType.Gtk)
                     {
-                        return new Implementation.OSX_GTK2();
+                        return new Implementation.PlatformGtkMac();
                     }
                     break;
                 case PlatformID.Unix:
@@ -151,7 +151,6 @@ namespace BaseLib.Xwt
             throw new NotImplementedException();
         }
     }
-
     namespace Implementation
     {
         internal class PlatformXamMac : Platform
@@ -256,6 +255,138 @@ namespace BaseLib.Xwt
                 throw new ApplicationException();
             }
         }
+        internal class PlatformGtkMac : Platform
+        {
+            //   const string qlib = "/System/Library/Frameworks/QuartzCore.framework/QuartzCore";
+            const string qlib = @"/System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/CoreGraphics";
+
+            [DllImport(qlib)]
+            static extern IntPtr CGWindowListCopyWindowInfo(int option, uint relativeToWindow);
+
+            [DllImport(qlib)]
+            static extern IntPtr CFArrayGetValueAtIndex(IntPtr array, int index);
+            [DllImport(qlib)]
+            static extern int CFArrayGetCount(IntPtr array);
+
+            [DllImport(qlib)]
+            static extern IntPtr CFDictionaryGetValue(IntPtr dict, IntPtr key);
+            [DllImport(qlib)]
+            static extern int CFDictionaryGetCount(IntPtr dict);
+            [DllImport(qlib)]
+            static extern bool CFDictionaryContainsKey(IntPtr dict, IntPtr key);
+            [DllImport(qlib)]
+            static extern int CFDictionaryGetKeysAndValues(IntPtr dict, IntPtr[] keys, IntPtr[] values);
+
+            [DllImport(qlib)]
+            static extern bool CGRectMakeWithDictionaryRepresentation(IntPtr dict, out CGRect rect);
+
+            public PlatformGtkMac()
+            {
+                Platform.GetType("Xwt.Gtk.Mac.MacPlatformBackend").Assembly.GetType("Xwt.Mac.NSApplicationInitializer").InvokeStatic("Initialize");
+            }
+
+            [StructLayout(LayoutKind.Sequential)]
+            struct CGRect
+            {
+                public double x, y, w, h;
+            }
+
+            const string libQuartz = "libgdk-win32-2.0-0.dll";
+
+            [DllImport(libQuartz)]
+            internal extern static IntPtr gdk_quartz_window_get_nswindow(IntPtr window);
+            
+            public Dictionary<int, object> CreateGdkLookup()
+            {
+                var d = new Dictionary<int, object>();
+
+                foreach (var _gtkwin in ((Array)Gtk.gtk_window.InvokeStatic("ListToplevels")).Cast<object>())
+                {
+                    var gdkwin = _gtkwin.GetType().GetPropertyValue(_gtkwin, "GdkWindow");
+                    if (gdkwin != null)
+                    {
+                        var nswin = gdk_quartz_window_get_nswindow((IntPtr)gdkwin.GetType().GetPropertyValue(gdkwin, "Handle"));
+                        var _windowid = OpenTK.Platform.MacOS.Cocoa.SendIntPtr(nswin, OpenTK.Platform.MacOS.Selector.Get("windowNumber"));
+                     //   var windowid = OpenTK.Platform.MacOS.Cocoa.SendInt(_windowid, OpenTK.Platform.MacOS.Selector.Get("intValue"));
+                         //   var nsint= nswin.GetType().GetPropertyValue(nswin, "WindowNumber");
+                        d[_windowid.ToInt32()] = _gtkwin;
+                    }
+                }
+                return d;
+            }
+            public override IEnumerable<Tuple<IntPtr, object>> AllForms(IntPtr _display, IWindowFrameBackend window)
+            {
+                var wi = CGWindowListCopyWindowInfo(0x1, 0);
+
+                var count = CFArrayGetCount(wi);
+
+                var winarray = CreateGdkLookup();
+
+                var curapp = XamMac.appkit_nsrunningapp.GetPropertyValueStatic("CurrentApplication");
+                var appid = (int)XamMac.appkit_nsrunningapp.GetPropertyValue(curapp, "ProcessIdentifier");
+
+                var kCGWindowIsOnscreen = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowIsOnscreen");
+                var name_window = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowName");
+                var id_window = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowNumber");
+                var id_owner = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowOwnerPID");
+                var kCGWindowBounds = OpenTK.Platform.MacOS.Cocoa.ToNSString("kCGWindowBounds");
+
+                for (int nit = 0; nit < count; nit++)
+                {
+                    var cfdict = CFArrayGetValueAtIndex(wi, nit);
+
+                    var visible = OpenTK.Platform.MacOS.Cocoa.SendBool(CFDictionaryGetValue(cfdict, kCGWindowIsOnscreen), OpenTK.Platform.MacOS.Selector.Get("boolValue"));
+
+                    if (visible)
+                    {
+                        var windowid = OpenTK.Platform.MacOS.Cocoa.SendInt(CFDictionaryGetValue(cfdict, id_window), OpenTK.Platform.MacOS.Selector.Get("intValue"));
+                        var i2 = OpenTK.Platform.MacOS.Cocoa.SendInt(CFDictionaryGetValue(cfdict, id_owner), OpenTK.Platform.MacOS.Selector.Get("intValue"));
+
+                        if (i2 == appid)
+                        {
+                            if (winarray.TryGetValue(windowid, out object gtkwin))
+                            {
+                                yield return new Tuple<IntPtr, object>(new IntPtr(windowid), gtkwin);
+                            }
+                        }
+                        else
+                        {
+                            if (CGRectMakeWithDictionaryRepresentation(CFDictionaryGetValue(cfdict, kCGWindowBounds), out CGRect rr))
+                            {
+                                var name = OpenTK.Platform.MacOS.Cocoa.FromNSString(CFDictionaryGetValue(cfdict, name_window));
+                             
+                                if (name != "Dock") // todo check with screenbounds
+                                {
+                                    yield return new Tuple<IntPtr, object>(new IntPtr(windowid), new  Rectangle(rr.x,rr.y,rr.w,rr.h));
+                                }
+                            }
+                        }
+                    }
+                }
+                OpenTK.Platform.MacOS.Cocoa.SendVoid(wi, OpenTK.Platform.MacOS.Selector.Release);
+            }
+            public override Rectangle GetWindowRect(IntPtr display, object form)
+            {
+                if (form is IWindowFrameBackend)
+                {
+                    return (form as IWindowFrameBackend).Bounds;
+                }
+                if (form is Rectangle)
+                {
+                    return (Rectangle)form;
+                }
+                if (form.GetType().Name == "Window")
+                {
+                    var gdkwin = form.GetType().GetPropertyValue(form, "GdkWindow");
+                    var xy = new object[] { 0, 0 };
+                    var wh = new object[] { 0, 0 };
+                    gdkwin.GetType().Invoke(gdkwin, "GetOrigin", xy);
+                    gdkwin.GetType().Invoke(gdkwin, "GetSize", wh);
+                    return new Rectangle((int)xy[0], (int)xy[1], (int)wh[0], (int)wh[1]);
+                }
+                throw new ApplicationException();
+            }
+        }
 
         internal class PlatformWin32 : Platform
         {
@@ -294,7 +425,7 @@ namespace BaseLib.Xwt
                 Win32.EnumWindowsProc func = (hwnd, lparam) =>
                 {
                     if ((Win32.GetWindowLongPtr(hwnd, -16) & 0x10000000L) != 0) // WS_STYLE&WS_VISIBLE
-                {
+                    {
                         found.Add(hwnd);
                     }
                     return true;
@@ -317,8 +448,8 @@ namespace BaseLib.Xwt
                     return found.Select(_h =>
                     {
                         d.TryGetValue(_h, out object obj);
-                     //   var obj = Win32.swi_hwndsource.InvokeStatic("FromHwnd", _h);
-                    //    obj = obj?.GetType().GetPropertyValue(obj, "RootVisual");
+                        //   var obj = Win32.swi_hwndsource.InvokeStatic("FromHwnd", _h);
+                        //    obj = obj?.GetType().GetPropertyValue(obj, "RootVisual");
                         return new Tuple<IntPtr, object>(_h, obj ?? _h);
                     });
                 }
@@ -344,28 +475,6 @@ namespace BaseLib.Xwt
             const string linux_libgdk_win_name = "libgdk-win32-2.0-0.dll";
             [DllImport(linux_libgdk_win_name, CallingConvention = CallingConvention.Cdecl)]
             private static extern IntPtr gdk_win32_drawable_get_handle(IntPtr raw);
-        }
-        internal class OSX_GTK2 : X11
-        {
-            const string libGtk = "libgdk-win32-2.0-0.dll";
-
-            [DllImport(libGtk)]
-            internal extern static object gdk_quartz_window_get_nswindow(IntPtr window);
-
-            [DllImport(libGtk)]
-            public static extern IntPtr gdk_x11_display_get_xdisplay(IntPtr gdskdisplay);
-
-            protected override IntPtr getxdisplay(IntPtr display)
-            {
-                var test= gdk_x11_display_get_xdisplay(display);
-                return (IntPtr)test;
-            }
-
-            protected override IntPtr getxid(IntPtr gdkwin)
-            {
-                var test = gdk_quartz_window_get_nswindow(gdkwin);
-                return (IntPtr)test;
-            }
         }
         internal class X11_GTK2 : X11
         {
