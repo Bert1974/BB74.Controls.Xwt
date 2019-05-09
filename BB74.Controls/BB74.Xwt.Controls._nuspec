@@ -22,7 +22,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\**\*.*" target="\" exclude="*.*"/>
     <file src="lib\**" target="lib" />
   </files>
 </package>
