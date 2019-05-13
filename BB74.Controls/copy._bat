@@ -1,0 +1,1 @@
+nuget add packages\BB74.Xwt.Controls.$version$.nupkg -source e:\nuget

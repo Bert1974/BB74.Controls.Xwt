@@ -35,7 +35,7 @@ namespace BaseLib.Xwt
         {
             try
             {
-                if (Platform.OSPlatform == PlatformID.Unix || Platform.OSPlatform == PlatformID.MacOSX)
+                if (Platform.OSPlatform == PlatformID.Unix/* || Platform.OSPlatform == PlatformID.MacOSX*/)
                 {
                     switch (type)
                     {
@@ -49,7 +49,7 @@ namespace BaseLib.Xwt
                 }
                 Application.Initialize(type);
 
-                _instance = Create();
+                //_instance = Create();
             }
             catch (Exception e)
             {
