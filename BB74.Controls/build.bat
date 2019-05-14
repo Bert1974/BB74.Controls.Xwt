@@ -27,10 +27,10 @@ if "%DevEnvDir%"=="" goto Error
 
 msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.0;Configuration=%BB74_CONFIG%,Platform=AnyCPU /p:OutputPath=.\package\lib\net40
 IF ERRORLEVEL 1 GOTO Error
-msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.5;Configuration=%BB74_CONFIG%,Platform=AnyCPU /p:OutputPath=.\package\lib\net45
-IF ERRORLEVEL 1 GOTO Error
-msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.7.2;Configuration=%BB74_CONFIG%,Platform=AnyCPU /p:OutputPath=.\package\lib\net472
-IF ERRORLEVEL 1 GOTO Error
+rem msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.5;Configuration=%BB74_CONFIG%,Platform=AnyCPU /p:OutputPath=.\package\lib\net45
+rem IF ERRORLEVEL 1 GOTO Error
+rem msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.7.2;Configuration=%BB74_CONFIG%,Platform=AnyCPU /p:OutputPath=.\package\lib\net472
+rem IF ERRORLEVEL 1 GOTO Error
 
 :versiononly
 getversion -version_ext "%BB74_VERSION%"  package\lib\net40\BB74.Xwt.Controls.dll BB74.Xwt.Controls._nuspec _tmp\BB74.Xwt.Controls.nuspec
