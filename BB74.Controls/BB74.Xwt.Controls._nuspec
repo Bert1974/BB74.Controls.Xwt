@@ -16,9 +16,6 @@
       <group targetFramework="net40">
         <dependency id="Xwt" version="0.2.167" />
       </group>
-      <group targetFramework="net45">
-        <dependency id="Xwt" version="0.2.167" />
-      </group>
     </dependencies>
   </metadata>
   <files>
