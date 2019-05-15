@@ -6,8 +6,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Xml;
 using Xwt;
 using Xwt.Drawing;
 
@@ -212,17 +212,32 @@ namespace BaseLib.Xwt.Controls.DockPanel
             EndLayout(false);
         }
 
+        [Obsolete()]
         public void LoadXml(string filename, DeserializeDockContent deserializeDockContent = null)
         {
-            LoadXml(filename, true, deserializeDockContent);
+            Load(filename, true, deserializeDockContent);
         }
+        [Obsolete()]
         public void LoadXml(string filename, bool throwonerror = true, DeserializeDockContent deserializeDockContent = null)
+        {
+            Load(filename, throwonerror, deserializeDockContent);
+        }
+        [Obsolete()]
+        public bool LoadXml(Stream stream, DeserializeDockContent deserializeDockContent = null)
+        {
+            return Load(stream, deserializeDockContent);
+        }
+        public void Load(string filename, DeserializeDockContent deserializeDockContent = null)
+        {
+            Load(filename, true, deserializeDockContent);
+        }
+        public void Load(string filename, bool throwonerror = true, DeserializeDockContent deserializeDockContent = null)
         {
             try
             {
                 using (var stream = File.OpenRead(filename))
                 {
-                    LoadXml(stream, deserializeDockContent);
+                    Load(stream, deserializeDockContent);
                 }
             }
             catch (Exception e)
@@ -239,19 +254,20 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 }
             }
         }
-        public bool LoadXml(Stream stream, DeserializeDockContent deserializeDockContent = null)
+        public bool Load(Stream stream, DeserializeDockContent deserializeDockContent = null)
         {
-            var xmlReader = XmlReader.Create(stream,
-                new XmlReaderSettings()
-                {
-                    IgnoreComments = true,
-                    IgnoreProcessingInstructions = true,
-                    IgnoreWhitespace = true
-                });
+            DockSave data= (DockSave)new BinaryFormatter().Deserialize(stream);
 
-            var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
-            var data = (DockSave)serializer.Deserialize(xmlReader);
-            
+            /*  var xmlReader = XmlReader.Create(stream,
+                  new XmlReaderSettings()
+                  {
+                      IgnoreComments = true,
+                      IgnoreProcessingInstructions = true,
+                      IgnoreWhitespace = true
+                  });
+               var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
+               var data = (DockSave)serializer.Deserialize(xmlReader);*/
+
             BeginLayout();
             Reset();
 
@@ -286,14 +302,23 @@ namespace BaseLib.Xwt.Controls.DockPanel
             }
             EndLayout(true);
         }
-
+        [Obsolete()]
         public void SaveXml(string filename, bool throwonerror = true)
+        {
+            Save(filename, throwonerror);
+        }
+        [Obsolete()]
+        public void SaveXml(Stream stream)
+        {
+            Save(stream);
+        }
+        public void Save(string filename, bool throwonerror = true)
         {
             try
             {
                 using (var stream = File.Create(filename))
                 {
-                    SaveXml(stream);
+                    Save(stream);
                 }
             }
             catch (Exception e)
@@ -308,11 +333,12 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 }
             }
         }
-        public void SaveXml(Stream stream)
+        public void Save(Stream stream)
         {
             var data = DockState.SaveState(this);
-            
-            var xmlWriter = XmlWriter.Create(stream,
+
+            new BinaryFormatter().Serialize(stream, data);
+         /*   var xmlWriter = XmlWriter.Create(stream,
                 new XmlWriterSettings()
                 {
                     Encoding = new UTF8Encoding(false, true),
@@ -323,7 +349,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 });
 
             var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
-            serializer.Serialize(xmlWriter, data);
+            serializer.Serialize(xmlWriter, data);*/
         }
 
 
