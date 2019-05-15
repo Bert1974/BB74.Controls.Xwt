@@ -20,6 +20,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyGrid", "BB74.Controls\PropertyGrid\PropertyGrid.csproj", "{AEFE8698-65D7-48DF-AD23-99F2CCCA2694}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BB74.Controls", "BB74.Controls", "{0DB0DB9B-9088-48FF-968C-BC229AC75086}"
+	ProjectSection(SolutionItems) = preProject
+		BB74.Controls\BB74.Xwt.Controls._nuspec = BB74.Controls\BB74.Xwt.Controls._nuspec
+		BB74.Controls\build.bat = BB74.Controls\build.bat
+		BB74.Controls\copy._bat = BB74.Controls\copy._bat
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -5,10 +5,10 @@ using System.Runtime.CompilerServices;
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle("BB74.Xwt.Controls")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Xwt Controls (DockPanel, PropertyGrid)")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
+[assembly: AssemblyCompany("Bert Bruggeman")]
+[assembly: AssemblyProduct("BB74.Xwt.Controls")]
 [assembly: AssemblyCopyright("(c)2019 Bert Bruggeman")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

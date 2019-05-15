@@ -33,7 +33,7 @@ rem msbuild BB74.Xwt.Controls.csproj /p:TargetFrameworkVersion=v4.7.2;Configurat
 rem IF ERRORLEVEL 1 GOTO Error
 
 :versiononly
-getversion -version_ext "%BB74_VERSION%"  package\lib\net40\BB74.Xwt.Controls.dll BB74.Xwt.Controls._nuspec _tmp\BB74.Xwt.Controls.nuspec
+getversion -version_ext "%BB74_VERSION%" -assembly package\lib\net40\BB74.Xwt.Controls.dll BB74.Xwt.Controls._nuspec _tmp\BB74.Xwt.Controls.nuspec
 IF ERRORLEVEL 1 GOTO Error
 
 if "%BB74_VERSIONONLY%"=="TRUE" goto exit
@@ -43,7 +43,7 @@ IF ERRORLEVEL 1 GOTO Error
 
 if NOT "%BB74_PUBLISH%"=="bert" goto exit
 
-getversion -version_ext "%BB74_VERSION%" package\lib\net40\BB74.Xwt.Controls.dll copy._bat _tmp\copy.bat
+getversion -version_ext "%BB74_VERSION%" -assembly package\lib\net40\BB74.Xwt.Controls.dll copy._bat _tmp\copy.bat
 IF ERRORLEVEL 1 GOTO Error
 
 call _tmp\copy.bat
