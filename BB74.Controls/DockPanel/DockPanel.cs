@@ -947,16 +947,23 @@ namespace BaseLib.Xwt.Controls.DockPanel
 
                 if (this.firedocschanged)
                 {
-                    OnDocumentChanged();
+                    OnDocumentsChanged();
                 }
             }
         }
 
-        private void OnActiveDocumentChanged()
+        protected virtual void OnActiveDocumentChanged()
         {
-            (this.FloatForm?.MainDockPanel ?? this).activedocchanged?.Invoke(this, EventArgs.Empty);
+            if (this.FloatForm != null)
+            {
+                this.FloatForm.MainDockPanel.OnActiveDocumentChanged();
+            }
+            else
+            {
+                activedocchanged?.Invoke(this, EventArgs.Empty);
+            }
         }
-        private void OnDocumentChanged()
+        private void OnDocumentsChanged()
         {
             (this.FloatForm?.MainDockPanel ?? this).docschanged?.Invoke(this, EventArgs.Empty);
         }
@@ -1241,7 +1248,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 Debug.Assert(false);
             }
         }
-        private void ClearContent()
+        protected void ClearContent()
         {
             this.Current?.RemoveWidget();
             this.Current?.OnHidden();

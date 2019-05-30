@@ -4,9 +4,9 @@ using System.Reflection;
 using Xwt;
 using Xwt.Backends;
 
-namespace BaseLib
+namespace BaseLib.Xwt
 {
-    internal static class Extension
+    public static class Extensions
     {
         public static void ClipToBounds(this Canvas widget)
         {
@@ -35,7 +35,28 @@ namespace BaseLib
         {
             return (IWindowBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
         }
-
+        public static ICellViewBackend GetBackend(this CellView o)
+        {
+            return (ICellViewBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
+        }
+    }
+}
+namespace BaseLib
+{
+    internal static class Extensions
+    {
+        public static double CalculateFor(this SizeConstraint constraint, double value)
+        {
+            if (value == -1)
+            {
+                return constraint.AvailableSize;
+            }
+            if (constraint == SizeConstraint.Unconstrained)
+            {
+                return value;
+            }
+            return Math.Min(value, constraint.AvailableSize);
+        }
         public static object InvokeStatic(this Type type, string method, params object[] arguments)
         {
             return type.GetMethod(method, BindingFlags.Public | BindingFlags.Static).Invoke(null, arguments);

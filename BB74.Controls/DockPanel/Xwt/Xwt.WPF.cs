@@ -75,7 +75,11 @@ namespace BaseLib.Xwt
 
             public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
             {
-                throw new NotImplementedException();
+                Win32.POINT mp = new Win32.POINT();
+                Win32.GetCursorPos(ref mp);
+
+                mx = mp.X;my = mp.Y;
+                buttons = (uint)((((Win32.GetKeyState(1) & 1) != 0) ? 1 : 0) | (((Win32.GetKeyState(2) & 1) != 0) ? 2 : 0));
             }
         }
     }

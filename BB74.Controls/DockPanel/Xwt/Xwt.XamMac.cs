@@ -120,7 +120,28 @@ namespace BaseLib.Xwt
 
             public override void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
             {
-                throw new NotImplementedException();
+                Type et = Platform.GetType("AppKit.NSEvent");
+                var flags = et.GetPropertyValueStatic("CurrentPressedMouseButtons");
+                var pos = et.GetPropertyValueStatic("CurrentMouseLocation");
+
+                var screens = (Array)Platform.GetType("AppKit.NSScreen").GetPropertyValueStatic("Screens");
+
+                Rectangle desktopBounds = Rectangle.Zero;
+
+                foreach (var s in screens)
+                {
+                    var r = s.GetType().GetPropertyValue(s, "Frame");
+                    desktopBounds = desktopBounds.Union(new Rectangle(
+                        (r.GetType().GetPropertyValue(r, "X") as IConvertible).ToInt32(null),
+                        (r.GetType().GetPropertyValue(r, "Y") as IConvertible).ToInt32(null),
+                        (r.GetType().GetPropertyValue(r, "Width") as IConvertible).ToInt32(null),
+                        (r.GetType().GetPropertyValue(r, "Height") as IConvertible).ToInt32(null)));
+                }
+
+                mx = (pos.GetType().GetPropertyValue(pos, "X") as IConvertible).ToInt32(null);
+                my = Convert.ToInt32(desktopBounds.Bottom - (pos.GetType().GetPropertyValue(pos, "Y") as IConvertible).ToInt32(null));
+                buttons = (uint)(flags as IConvertible).ToInt32(null);
+
             }
         }
     }

@@ -13,9 +13,10 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
     public abstract class GridItem
     {
         public PropertyGrid Owner { get; }
+        PropertyGrid OwnerGrid { get; }
         protected GridItem(PropertyGrid owner)
         {
-            this.Owner = owner;
+            this.OwnerGrid = this.Owner = owner;
         }
         public virtual bool Expandable { get; internal set; } = false;
         public virtual bool Expanded { get; set; }

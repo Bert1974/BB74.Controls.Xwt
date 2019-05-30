@@ -35,6 +35,9 @@ namespace BaseLib.Xwt.Interop
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCursorPos(ref POINT lpPoint);
 
+        [DllImport("USER32.dll")]
+        public static extern short GetKeyState(int nVirtKey);
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool EnumWindows(EnumWindowsProc enumProc, IntPtr lParam);
