@@ -595,12 +595,8 @@ namespace BaseLib.Xwt.Controls
                         hh += rowh[row];
                     }
                 }
-                var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
-                this.scrollplace.SetChildBounds(this.viewplace, r);
-                this.vscroll.PageSize = 1;
-                this.vscroll.PageIncrement = this.scrollplace.Bounds.Height;
-                this.vscroll.UpperValue = Math.Max(0,rowh.Sum()- this.scrollplace.Bounds.Height);
-
+                SetScroll(ww, rowh);
+  
                 sync_viewpos();
             }
         }
@@ -663,8 +659,21 @@ namespace BaseLib.Xwt.Controls
                         hh += rowh[row];
                     }
                 }
+                SetScroll(ww, rowh);
+                sync_viewpos();
             }
         }
+
+        private void SetScroll(double[] ww,double[]rowh)
+        {
+            var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
+            this.scrollplace.SetChildBounds(this.viewplace, r);
+            this.vscroll.PageSize = 1;
+            this.vscroll.PageIncrement = this.scrollplace.Bounds.Height;
+            this.vscroll.UpperValue = Math.Max(0, rowh.Sum() - this.scrollplace.Bounds.Height);
+
+        }
+
         /// <summary>
         /// Gets or sets the data source from which to get the data of the items
         /// </summary>
@@ -683,8 +692,8 @@ namespace BaseLib.Xwt.Controls
                 if (source != null)
                 {
                     source.RowChanged -= Source_RowChanged;
-                    source.RowDeleted -= HandleModelChanged;
-                    source.RowInserted -= HandleModelChanged;
+                    source.RowDeleted -= Source_RowDeleted;
+                    source.RowInserted -= Source_RowInserted;
                     source.RowsReordered -= HandleModelChanged;
                 }
 
@@ -696,13 +705,55 @@ namespace BaseLib.Xwt.Controls
                 if (source != null)
                 {
                     source.RowChanged += Source_RowChanged;
-                    source.RowDeleted += HandleModelChanged;
-                    source.RowInserted += HandleModelChanged;
+                    source.RowDeleted += Source_RowDeleted;
+                    source.RowInserted += Source_RowInserted;
                     source.RowsReordered += HandleModelChanged;
                 }
             }
         }
 
+        private void Source_RowInserted(object sender, ListRowEventArgs e)
+        {
+            if (!SetViews())
+            {
+                rows.Insert(e.Row, this.views.Select(_v => handlers[_v].CreateForRow(e.Row)).ToArray());
+
+                for (int n = 0; n < this.views.Count; n++)
+                {
+                    handlers[views[n]].InitialzeForRow(e.Row, rows[e.Row][n]);
+                }
+                for (int n = 0; n < this.views.Count; n++)
+                {
+                    if (this.rows[e.Row][n].Widget != null)
+                    {
+                        this.viewplace.AddChild(this.rows[e.Row][n].Widget);
+                    }
+                }
+                this.SyncRows();
+            }
+        }
+
+        private void Source_RowDeleted(object sender, ListRowEventArgs e)
+        {
+            int ind = this.rows.IndexOf(this.rows.FirstOrDefault(_r => _r.First().Row == e.Row));
+
+            for (int n = 0; n < this.views.Count; n++)
+            {
+                if (this.rows[ind][n].Widget != null)
+                {
+                    this.viewplace.RemoveChild(this.rows[ind][n].Widget);
+                }
+            }
+            rows.RemoveAt(ind);
+            if (this.selectedRows.Contains(ind))
+            {
+                this.selectedRows.Remove(ind);
+            }
+            if (this.DataSource.RowCount > 0)
+            {
+                this.SyncRows();
+            }
+        }
 
         /*     /// <summary>
     /// Gets or sets the vertical scroll policy.

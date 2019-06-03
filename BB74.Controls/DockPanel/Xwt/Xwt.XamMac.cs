@@ -26,12 +26,12 @@ namespace BaseLib.Xwt
         }
 
         public Type type;
-        public object obj; 
+        public object obj;
     }
 
     static class Extensions2
     {
-        public static object alloc(this Type type, params object[]values)
+        public static object alloc(this Type type, params object[] values)
         {
             return Activator.CreateInstance(type, values);
         }
@@ -119,13 +119,13 @@ namespace BaseLib.Xwt
                     this.captureitemeventdoeventcnt++;
                     //     do
                     {
-                        var e2 = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, false});
+                        var e2 = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, false });
 
                         if (this.captured != 0 && e2 != null)
                         {
                             e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask });
 
-                            if ( e != null)
+                            if (e != null)
                             {
                                 Debug.Assert(this.captured != 0);
                                 var et = e.GetType().GetPropertyValue(e, "Type");
@@ -147,7 +147,7 @@ namespace BaseLib.Xwt
                             }
                         }
                     }
-               //     while (e != null && this.captured > 0 && --cnt >= 0);
+                    //     while (e != null && this.captured > 0 && --cnt >= 0);
                     this.captureitemeventdoeventcnt--;
                 }
                 else
@@ -156,11 +156,11 @@ namespace BaseLib.Xwt
                     object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
                     object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-                 //   do
+                    //   do
                     {
                         e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
                     }
-                 //    while (e != null && --cnt >= 0);
+                    //    while (e != null && --cnt >= 0);
                 }
             }
             public override void SetParent(WindowFrame r, WindowFrame parentWindow)
@@ -197,31 +197,30 @@ namespace BaseLib.Xwt
 
             }
 
-         /*   void InitPasteboard(NSPasteboard pb, TransferDataSource data)
-            {
-                pb.ClearContents();
-                foreach (var t in data.DataTypes)
-                {
-                    if (t == TransferDataType.Text)
-                    {
-                        pb.AddTypes(new string[] { NSPasteboard.NSStringType }, null);
-                        pb.SetStringForType((string)data.GetValue(t), NSPasteboard.NSStringType);
-                    }
-                }
-            }*/
+            /*   void InitPasteboard(NSPasteboard pb, TransferDataSource data)
+               {
+                   pb.ClearContents();
+                   foreach (var t in data.DataTypes)
+                   {
+                       if (t == TransferDataType.Text)
+                       {
+                           pb.AddTypes(new string[] { NSPasteboard.NSStringType }, null);
+                           pb.SetStringForType((string)data.GetValue(t), NSPasteboard.NSStringType);
+                       }
+                   }
+               }*/
             public override bool StartDrag(Widget source, DragOperation operation)
             {
                 var startdata = (Xwt.Backends.DragStartData)operation.GetType().InvokePrivate(operation, "GetStartData");
-                 
+
                 typeof(Widget).InvokePrivate(source, "DragStart", new object[] { startdata });
 
-                    var eventDelegate = (Delegate)typeof(DragOperation).GetFieldValuePrivate(operation, "Finished"); 
-                    if (eventDelegate != null)
+                var eventDelegate = (Delegate)typeof(DragOperation).GetFieldValuePrivate(operation, "Finished");
+                if (eventDelegate != null)
+                {
+                    foreach (var handler in eventDelegate.GetInvocationList())
                     {
-                        foreach (var handler in eventDelegate.GetInvocationList())
-                        {
-                            handler.Method.Invoke(handler.Target, new object[] { operation, new DragFinishedEventArgs(false) });
-                        }
+                        handler.Method.Invoke(handler.Target, new object[] { operation, new DragFinishedEventArgs(false) });
                     }
                 }
                 return true;
