@@ -47,7 +47,7 @@ namespace BaseLib
     {
         public static double CalculateFor(this SizeConstraint constraint, double value)
         {
-            if (value == -1)
+            if (value < 0)
             {
                 return constraint.AvailableSize;
             }
@@ -93,9 +93,17 @@ namespace BaseLib
         {
             return type.GetField(propertyname, BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField).GetValue(instance);
         }
+        public static object GetFieldValuePrivate(this Type type, object instance, string propertyname)
+        {
+            return type.GetField(propertyname, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField).GetValue(instance);
+        }
         public static object GetFieldValueStatic(this Type type, object instance, string propertyname)
         {
             return type.GetField(propertyname, BindingFlags.Public | BindingFlags.Static | BindingFlags.GetField).GetValue(instance);
+        }
+        public static void SetFieldValuePrivate(this Type type, object instance, string propertyname, object value)
+        {
+            type.GetField(propertyname, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetField).SetValue(instance, value);
         }
 
         public static bool IsDerived(this Type b, Type t)

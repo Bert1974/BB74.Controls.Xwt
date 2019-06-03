@@ -597,7 +597,7 @@ namespace BaseLib.Xwt.Controls
                 }
                 var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
                 this.scrollplace.SetChildBounds(this.viewplace, r);
-
+                this.vscroll.PageSize = 1;
                 this.vscroll.PageIncrement = this.scrollplace.Bounds.Height;
                 this.vscroll.UpperValue = Math.Max(0,rowh.Sum()- this.scrollplace.Bounds.Height);
 

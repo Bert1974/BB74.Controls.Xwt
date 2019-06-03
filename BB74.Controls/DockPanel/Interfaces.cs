@@ -14,6 +14,7 @@ namespace BaseLib.Xwt
         void SetParent(WindowFrame window, WindowFrame parentWindow);
         void QueueOnUI(Action method);
         void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
+        void StartDrag(Widget widget, DragOperation operation);
     }
 }
 namespace BaseLib.Xwt.Controls.DockPanel

@@ -1,11 +1,58 @@
 ﻿using BaseLib.Xwt.Interop;
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Xwt;
 
 namespace BaseLib.Xwt
 {
     using Xwt = global::Xwt;
+
+    class oo
+    {
+        public oo(Type type)
+        {
+            this.type = type;
+        }
+        public oo(Type type, object obj)
+        {
+            this.type = type;
+            this.obj = obj;
+        }
+        public oo(object obj)
+        {
+            this.obj = obj;
+            this.type = obj.GetType();
+        }
+
+        public Type type;
+        public object obj; 
+    }
+
+    static class Extensions2
+    {
+        public static object alloc(this Type type, params object[]values)
+        {
+            return Activator.CreateInstance(type, values);
+        }
+        public static oo o(this Type type)
+        {
+            return new oo(type);
+        }
+        public static oo o(this object obj)
+        {
+            return new oo(obj);
+        }
+        public static oo prop(this oo oo, string prop)
+        {
+            var value = oo.type.GetProperty(prop).GetValue(oo.obj, new object[0]);
+            return new oo(value);
+        }
+        public static T value<T>(this oo oo, string prop)
+        {
+            return (T)oo.prop(prop).obj;
+        }
+    }
     partial class XwtImpl
     {
         class XamMacXwt : RealXwt
@@ -70,27 +117,33 @@ namespace BaseLib.Xwt
                     var nswin = this.captureitem.ParentWindow.GetBackend().Window;
 
                     this.captureitemeventdoeventcnt++;
-               //     do
+                    //     do
                     {
-                        e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask });
+                        var e2 = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, false});
 
-                        if (this.captured != 0 && e != null)
+                        if (this.captured != 0 && e2 != null)
                         {
-                            var et = e.GetType().GetPropertyValue(e, "Type");
+                            e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask });
 
-                            if ((ulong)et == 6) // left mouse drag
+                            if ( e != null)
                             {
-                                var pt = MousePositionForWidget(this.captureitem);
-                                var args = new MouseMovedEventArgs(0, pt.X, pt.Y);
+                                Debug.Assert(this.captured != 0);
+                                var et = e.GetType().GetPropertyValue(e, "Type");
 
-                                this.captureitem.GetType().InvokePrivate(this.captureitem, "OnMouseMoved", new object[] { args });
-                            }
-                            else if ((ulong)et == 2) // left mouse ip
-                            {
-                                var pt = MousePositionForWidget(this.captureitem);
-                                var args = new ButtonEventArgs() { Button = PointerButton.Left, X = pt.X, Y = pt.Y, Handled = false };
+                                if ((ulong)et == 6) // left mouse drag
+                                {
+                                    var pt = MousePositionForWidget(this.captureitem);
+                                    var args = new MouseMovedEventArgs(0, pt.X, pt.Y);
 
-                                this.captureitem.GetType().InvokePrivate(this.captureitem, "OnButtonReleased", new object[] { args });
+                                    this.captureitem.GetType().InvokePrivate(this.captureitem, "OnMouseMoved", new object[] { args });
+                                }
+                                else if ((ulong)et == 2) // left mouse ip
+                                {
+                                    var pt = MousePositionForWidget(this.captureitem);
+                                    var args = new ButtonEventArgs() { Button = PointerButton.Left, X = pt.X, Y = pt.Y, Handled = false };
+
+                                    this.captureitem.GetType().InvokePrivate(this.captureitem, "OnButtonReleased", new object[] { args });
+                                }
                             }
                         }
                     }
@@ -142,6 +195,36 @@ namespace BaseLib.Xwt
                 my = Convert.ToInt32(desktopBounds.Bottom - (pos.GetType().GetPropertyValue(pos, "Y") as IConvertible).ToInt32(null));
                 buttons = (uint)(flags as IConvertible).ToInt32(null);
 
+            }
+
+         /*   void InitPasteboard(NSPasteboard pb, TransferDataSource data)
+            {
+                pb.ClearContents();
+                foreach (var t in data.DataTypes)
+                {
+                    if (t == TransferDataType.Text)
+                    {
+                        pb.AddTypes(new string[] { NSPasteboard.NSStringType }, null);
+                        pb.SetStringForType((string)data.GetValue(t), NSPasteboard.NSStringType);
+                    }
+                }
+            }*/
+            public override bool StartDrag(Widget source, DragOperation operation)
+            {
+                var startdata = (Xwt.Backends.DragStartData)operation.GetType().InvokePrivate(operation, "GetStartData");
+                 
+                typeof(Widget).InvokePrivate(source, "DragStart", new object[] { startdata });
+
+                    var eventDelegate = (Delegate)typeof(DragOperation).GetFieldValuePrivate(operation, "Finished"); 
+                    if (eventDelegate != null)
+                    {
+                        foreach (var handler in eventDelegate.GetInvocationList())
+                        {
+                            handler.Method.Invoke(handler.Target, new object[] { operation, new DragFinishedEventArgs(false) });
+                        }
+                    }
+                }
+                return true;
             }
         }
     }

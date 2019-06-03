@@ -27,10 +27,15 @@ namespace BaseLib.Xwt
 
             public abstract void SetParent(WindowFrame r, WindowFrame parentWindow);
             public abstract void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);
+
+            public virtual bool StartDrag(Widget widget, DragOperation operation)
+            {
+                return false;
+            }
         }
 
         private RealXwt Implementation;
-        
+
         protected XwtImpl()
         {
         }
@@ -54,7 +59,7 @@ namespace BaseLib.Xwt
                 {
                     this.Implementation = new GTK3Xwt();
                 }
-               else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+                else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                 {
                     this.Implementation = new XamMacXwt();
                 }
@@ -95,6 +100,13 @@ namespace BaseLib.Xwt
         public void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons)
         {
             CheckImpl().GetMouseInfo(window, out mx, out my, out buttons);
+        }
+        public void StartDrag(Widget widget, DragOperation operation)
+        {
+            if (!CheckImpl().StartDrag(widget, operation))
+            {
+                operation.Start();
+            }
         }
     }
 }
