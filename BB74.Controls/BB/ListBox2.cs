@@ -122,6 +122,13 @@ namespace BaseLib.Xwt.Controls
                // args.Handled = true;
             }
 
+
+            protected override void OnMouseScrolled(MouseScrolledEventArgs args)
+            {
+                //   base.OnMouseScrolled(args);
+                this.owner.Scroll(args.Direction == ScrollDirection.Up ? -1 : (args.Direction == ScrollDirection.Down ? 1 : 0));
+            }
+
             internal CellHandler.Cell HitTest(Point position)
             {
                 for (int row = 0; row < this.owner.rows.Count; row++)
@@ -157,7 +164,7 @@ namespace BaseLib.Xwt.Controls
             internal abstract class Cell
             {
                 public CellHandler Owner { get; }
-                public int Row { get; }
+                public int Row { get; set; }
                 internal Rectangle position;
                 private Widget widget;
 
@@ -222,7 +229,7 @@ namespace BaseLib.Xwt.Controls
 
             internal virtual void Draw(Context ctx, int row, Cell cell)
             {
-                ctx.SetColor(Colors.Yellow);
+                ctx.SetColor(this.owner.SelectedRows.Contains(row) ? Colors.LightBlue : Colors.White);
                 ctx.Rectangle(cell.position);
                 ctx.Fill();
             }
@@ -380,6 +387,12 @@ namespace BaseLib.Xwt.Controls
         Dictionary<CellView, CellHandler> handlers = new Dictionary<CellView, CellHandler>();
         List<CellHandler.Cell[]> rows = new List<CellHandler.Cell[]>();
 
+        private VBox2 vbox;
+        private VScrollbar vscroll;
+        private HBox2 hbox;
+        private List<int> selectedRows = new List<int>();
+
+        EventHandler selectionChanged;
         EventHandler<ListViewRowEventArgs> rowActivated;
         //   private HBox hbox;
 
@@ -426,6 +439,15 @@ namespace BaseLib.Xwt.Controls
         }
         private void sync_viewpos()
         {
+        }
+
+
+        private void Scroll(double delta)
+        {
+            this.vscroll.Value = Math.Max(0, Math.Min(this.vscroll.UpperValue,this.vscroll.Value+delta*16));
+            var r=this.scrollplace.GetChildBounds(this.viewplace);
+            r.Location = new Point(0, -this.vscroll.Value);
+            this.scrollplace.SetChildBounds(this.viewplace, r);
         }
 
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
@@ -667,10 +689,10 @@ namespace BaseLib.Xwt.Controls
         private void SetScroll(double[] ww,double[]rowh)
         {
             var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
-            this.scrollplace.SetChildBounds(this.viewplace, r);
             this.vscroll.PageSize = 1;
             this.vscroll.PageIncrement = this.scrollplace.Bounds.Height;
             this.vscroll.UpperValue = Math.Max(0, rowh.Sum() - this.scrollplace.Bounds.Height);
+            this.scrollplace.SetChildBounds(this.viewplace, r);
 
         }
 
@@ -735,23 +757,50 @@ namespace BaseLib.Xwt.Controls
 
         private void Source_RowDeleted(object sender, ListRowEventArgs e)
         {
-            int ind = this.rows.IndexOf(this.rows.FirstOrDefault(_r => _r.First().Row == e.Row));
-
-            for (int n = 0; n < this.views.Count; n++)
+            if (this.DataSource.RowCount == 0)
             {
-                if (this.rows[ind][n].Widget != null)
+                if (this.rows.Count > 0)
                 {
-                    this.viewplace.RemoveChild(this.rows[ind][n].Widget);
+                    for (int row = 0; row < this.rows.Count; row++)
+                    {
+                        for (int n = 0; n < this.views.Count; n++)
+                        {
+                            if (this.rows[row][n].Widget != null)
+                            {
+                                this.viewplace.RemoveChild(this.rows[row][n].Widget);
+                            }
+                        }
+                    }
+                    this.rows.Clear();
                 }
             }
-            rows.RemoveAt(ind);
-            if (this.selectedRows.Contains(ind))
+            else
             {
-                this.selectedRows.Remove(ind);
-            }
-            if (this.DataSource.RowCount > 0)
-            {
-                this.SyncRows();
+                int ind = this.rows.IndexOf(this.rows.FirstOrDefault(_r => _r.First().Row == e.Row));
+
+                for (int n = 0; n < this.views.Count; n++)
+                {
+                    if (this.rows[ind][n].Widget != null)
+                    {
+                        this.viewplace.RemoveChild(this.rows[ind][n].Widget);
+                    }
+                }
+                for (int nit = e.Row; nit < rows.Count; nit++)
+                {
+                    foreach (var c in this.rows[nit])
+                    {
+                        c.Row--;
+                    }
+                }
+                rows.RemoveAt(ind);
+                if (this.selectedRows.Contains(ind))
+                {
+                    this.selectedRows.Remove(ind);
+                }
+                if (this.DataSource.RowCount > 0)
+                {
+                    this.SyncRows();
+                }
             }
         }
 
@@ -899,8 +948,8 @@ namespace BaseLib.Xwt.Controls
             if (this.selectedRows.Contains(row))
             {
                 this.selectedRows.Remove(row);
-                OnSelectionChanged(EventArgs.Empty);
                 this.viewplace.SyncSelection();
+                OnSelectionChanged(EventArgs.Empty);
             }
         }
 
@@ -984,11 +1033,6 @@ namespace BaseLib.Xwt.Controls
             SyncRows();
             //      Backend.SetViews(views);
         }
-        EventHandler selectionChanged;
-        private VBox2 vbox;
-        private VScrollbar vscroll;
-        private HBox2 hbox;
-        private List<int> selectedRows=new List<int>();
 
         /// <summary>
         /// Occurs when selection changes

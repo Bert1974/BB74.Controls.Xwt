@@ -185,10 +185,10 @@ namespace BaseLib.Xwt.Controls
                 }
                 Backend.SetAllocation(widgets, rects);
             }
-            foreach (var w in visibleChildren.Select(bp => bp.Child))
+      /*      foreach (var w in visibleChildren.Select(bp => bp.Child))
             {
                 w.QueueForReallocate();
-            }
+            }*/
         }
         Dictionary<BoxPlacement, double> CalcDefaultSizes(SizeConstraint width, SizeConstraint height, bool allowShrink)
         {
