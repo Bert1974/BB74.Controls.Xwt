@@ -282,16 +282,7 @@ namespace BaseLib.Xwt.Controls
 
                     if (!handlers.Keys.Contains(cell))
                     {
-                        if (cell.GetType() == typeof(ImageCellView))
-                        {
-                            handlers[cell] = new ImageCellHandler(this, cell);
-                            handlers[cell].Initialize();
-                        }
-                        if (cell.GetType() == typeof(TextCellView))
-                        {
-                            handlers[cell] = new TextCellHandler(this, cell);
-                            handlers[cell].Initialize();
-                        }
+                        handlers[cell] = CellHandler.CreateFor(this, cell);
                     }
                 }
                 var old = handlers.Where(_c => !views.Contains(_c.Key)).ToArray();
@@ -810,11 +801,11 @@ namespace BaseLib.Xwt.Controls
 
         }
 
-        void OnCellChanged()
+      /*  void OnCellChanged()
         {
             SyncRows();
             //      Backend.SetViews(views);
-        }
+        }*/
 
         /// <summary>
         /// Occurs when selection changes

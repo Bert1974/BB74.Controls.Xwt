@@ -88,6 +88,21 @@ namespace BaseLib.Xwt.Controls
             ctx.Rectangle(cell.position);
             ctx.Fill();
         }
+
+        public static CellHandler CreateFor(ICellHandlerContainer owner, CellView cell)
+        {
+            CellHandler r = null;
+            if (cell.GetType() == typeof(ImageCellView))
+            {
+                r = new ImageCellHandler(owner, cell);
+            }
+            if (cell.GetType() == typeof(TextCellView))
+            {
+                r = new TextCellHandler(owner, cell);
+            }
+            r?.Initialize();
+            return r;
+        }
     }
 
     class ImageCellHandler : CellHandler
