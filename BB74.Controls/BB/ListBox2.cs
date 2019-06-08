@@ -24,7 +24,7 @@ namespace BaseLib.Xwt.Controls
     /// A list of selectable items
     /// </summary>
     //[BackendType(typeof(IListBoxBackend))]
-    public class ListBox2 : Canvas
+    public class ListBox2 : Canvas, ICellHandlerContainer
     {
         class ItemCanvas : Canvas
         {
@@ -159,226 +159,6 @@ namespace BaseLib.Xwt.Controls
                 }
             }
         }
-        abstract class CellHandler
-        {
-            internal abstract class Cell
-            {
-                public CellHandler Owner { get; }
-                public int Row { get; set; }
-                internal Rectangle position;
-                private Widget widget;
-
-                protected Cell(CellHandler owner, int row)
-                {
-                    this.Owner = owner;
-                    this.Row = row;
-                }
-                internal virtual Widget Widget
-                {
-                    get => this.widget;
-                    set
-                    {
-                        if (this.widget != null)
-                        {
-                            this.widget.ButtonPressed -= Widget_ButtonPressed;
-                        }
-                        this.widget = value;
-                        if (this.widget != null)
-                        {
-                            this.widget.ButtonPressed += Widget_ButtonPressed;
-                        }
-                    }
-                }
-
-                private void Widget_ButtonPressed(object sender, ButtonEventArgs e)
-                {
-                }
-
-                internal abstract bool NeedsPaint { get; }
-                internal virtual void SetPosition(ItemCanvas canvas, int row, CellHandler cellHandler, Rectangle rectangle)
-                {
-                    this.position = rectangle;
-
-                    if (this.widget != null)
-                    {
-                        canvas.SetChildBounds(this.widget, rectangle);
-                    }
-                }
-                internal virtual Size OnGetPreferredSize(SizeConstraint widthconstraints, SizeConstraint heightconstraints)
-                {
-                    return this.widget?.GetBackend().GetPreferredSize(widthconstraints, heightconstraints) ?? Size.Zero;
-                }
-            }
-
-            protected readonly ListBox2 owner;
-            protected readonly CellView target;
-
-            internal abstract void Initialize();
-            internal abstract void Remove();
-            internal abstract Cell CreateForRow(int row);
-            internal abstract void InitialzeForRow(int row, Cell cell);
-            internal abstract void DestroyForRow(int row, Cell cell);
-            internal abstract void Sync(int row, Cell cell);
-
-
-            protected CellHandler(ListBox2 owner, CellView cell)
-            {
-                this.owner = owner;
-                this.target = cell;
-            }
-
-            internal virtual void Draw(Context ctx, int row, Cell cell)
-            {
-                ctx.SetColor(this.owner.SelectedRows.Contains(row) ? Colors.LightBlue : Colors.White);
-                ctx.Rectangle(cell.position);
-                ctx.Fill();
-            }
-            /*    internal Size OnGetPreferredSize(SizeConstraint sizeConstraint, SizeConstraint unconstrained)
-                {
-                }
-                */
-        }
-        class ImageCellHandler : CellHandler
-        {
-            internal class ImageCell : Cell
-            {
-                internal override bool NeedsPaint => this.image != null;
-
-                private ImageCellHandler owner;
-                internal Image image;
-
-                public ImageCell(ImageCellHandler owner, int row)
-                    : base(owner, row)
-                {
-                    this.owner = owner;
-                }
-
-                internal override Size OnGetPreferredSize(SizeConstraint widthConstraints, SizeConstraint heightConstraints)
-                {
-                    return new Size(widthConstraints.CalculateFor(this.image?.Width ?? 0), heightConstraints.CalculateFor(this.image?.Height ?? 0));
-                }
-            }
-            public ImageCellHandler(ListBox2 owner, CellView cell)
-                : base(owner, cell)
-            {
-            }
-
-            internal override void Initialize()
-            {
-            }
-            internal override void Remove()
-            {
-            }
-            internal override Cell CreateForRow(int row)
-            {
-                return new ImageCell(this, row);
-            }
-            internal override void InitialzeForRow(int row, Cell cell)
-            {
-                Sync(row, cell);
-            }
-            internal override void DestroyForRow(int row, Cell cell)
-            {
-            }
-            internal override void Sync(int row, Cell cell)
-            {
-                var imagecell = cell as ImageCell;
-
-                if ((this.target.VisibleField?.Index ?? -1) != -1 ? (bool)owner.DataSource.GetValue(row, this.target.VisibleField.Index) : this.target.Visible)
-                {
-                    imagecell.image = (Image)this.owner.DataSource.GetValue(row, this.owner.views.IndexOf(this.target));
-                }
-            }
-            internal override void Draw(Context ctx, int row, Cell cell)
-            {
-                base.Draw(ctx, row, cell);
-                var imagecell = cell as ImageCell;
-
-                if (imagecell.image != null)
-                {
-                    ctx.DrawImage(imagecell.image, cell.position);
-                }
-            }
-        }
-        class TextCellHandler : CellHandler
-        {
-            internal class TextCell : Cell
-            {
-                internal override bool NeedsPaint => !this.editable;
-
-                private TextCellHandler owner;
-                internal bool editable = false;
-
-                public TextCell(TextCellHandler owner, int row)
-                    : base(owner, row)
-                {
-                    this.owner = owner;
-                }
-            }
-            public TextCellHandler(ListBox2 owner, CellView cell)
-                : base(owner, cell)
-            {
-            }
-            internal override void Initialize()
-            {
-            }
-            internal override void Remove()
-            {
-            }
-            internal override Cell CreateForRow(int row)
-            {
-                return new TextCell(this, row);
-            }
-            internal override void InitialzeForRow(int row, Cell cell)
-            {
-                if ((this.target.VisibleField?.Index ?? -1) != -1 ? (bool)owner.DataSource.GetValue(row, this.target.VisibleField.Index) : this.target.Visible)
-                {
-                    var txtcell = cell as TextCell;
-                    if ((target as TextCellView).EditableField != null)
-                    {
-                        txtcell.editable = (bool)this.owner.DataSource.GetValue(row, (target as TextCellView).EditableField.Index);
-                    }
-                    else
-                    {
-                        txtcell.editable = (target as TextCellView).Editable;
-                    }
-                    if (txtcell.editable)
-                    {
-                        txtcell.Widget = new TextEntry() { };
-                    }
-                    else
-                    {
-                        txtcell.Widget = new Label() { };
-                    }
-                }
-                Sync(row, cell);
-            }
-            internal override void DestroyForRow(int row, Cell cell)
-            {
-            }
-
-            internal override void Sync(int row, Cell cell)
-            {
-                // check visible change ??
-
-                var txtcell = cell as TextCell;
-
-                if ((this.target.VisibleField?.Index ?? -1) != -1 ? (bool)owner.DataSource.GetValue(row, this.target.VisibleField.Index) : this.target.Visible)
-                {
-                    var txt = (string)this.owner.DataSource.GetValue(row, this.owner.views.IndexOf(this.target));
-
-                    if (txtcell.Widget is TextEntry)
-                    {
-                        (txtcell.Widget as TextEntry).Text = txt;
-                    }
-                    else
-                    {
-                        (txtcell.Widget as Label).Text = txt;
-                    }
-                }
-            }
-        }
-
         CellViewCollection views;
         private readonly Canvas scrollplace;
         private ItemCanvas viewplace;
@@ -537,7 +317,7 @@ namespace BaseLib.Xwt.Controls
                     {
                         this.viewplace.RemoveChild(this.rows[row][nit].Widget);
                     }
-                    handlers[views[nit]].DestroyForRow(row, rows[row][nit]);
+                    handlers[views[nit]].DestroyForRow(rows[row][nit]);
                 }
             }
             rows.Clear();
@@ -551,11 +331,11 @@ namespace BaseLib.Xwt.Controls
             {
                 for (int row = 0; row < this.DataSource.RowCount; row++)
                 {
-                    rows.Add(this.views.Select(_v => handlers[_v].CreateForRow(row)).ToArray());
+                    rows.Add(this.views.Select((_v,_n) => handlers[_v].CreateForRow(row,_n)).ToArray());
 
                     for (int n = 0; n < this.views.Count; n++)
                     {
-                        handlers[views[n]].InitialzeForRow(row, rows[row][n]);
+                        handlers[views[n]].InitialzeForRow(rows[row][n]);
                     }
                 }
                 var ww = Enumerable.Repeat(0.0, this.views.Count).ToArray();
@@ -638,7 +418,7 @@ namespace BaseLib.Xwt.Controls
                     double h2 = 0;
                     for (int n = 0; n < this.views.Count; n++)
                     {
-                        handlers[this.views[n]].Sync(row, rows[row][n]);
+                        handlers[this.views[n]].Sync(rows[row][n]);
                         Size cellprefsize = rows[row][n].OnGetPreferredSize(SizeConstraint.Unconstrained, heightconstraints);
 
                         h2 = Math.Max(h2, cellprefsize.Height);
@@ -738,11 +518,11 @@ namespace BaseLib.Xwt.Controls
         {
             if (!SetViews())
             {
-                rows.Insert(e.Row, this.views.Select(_v => handlers[_v].CreateForRow(e.Row)).ToArray());
+                rows.Insert(e.Row, this.views.Select((_v,_n) => handlers[_v].CreateForRow(e.Row,_n)).ToArray());
 
                 for (int n = 0; n < this.views.Count; n++)
                 {
-                    handlers[views[n]].InitialzeForRow(e.Row, rows[e.Row][n]);
+                    handlers[views[n]].InitialzeForRow(rows[e.Row][n]);
                 }
                 for (int n = 0; n < this.views.Count; n++)
                 {
@@ -915,6 +695,8 @@ namespace BaseLib.Xwt.Controls
 
         public double ItemHeight { get; private set; } = -1;
 
+        IListDataSource ICellHandlerContainer.DataSource => throw new NotImplementedException();
+
         /// <summary>
         /// Selects a row.
         /// </summary>
@@ -1018,7 +800,7 @@ namespace BaseLib.Xwt.Controls
         {
             for (int nit = 0; nit < this.views.Count; nit++)
             {
-                this.handlers[this.views[nit]].Sync(e.Row, this.rows[e.Row][nit]);
+                this.handlers[this.views[nit]].Sync(this.rows[e.Row][nit]);
             }
         }
         void HandleModelChanged(object sender, ListRowEventArgs e)
@@ -1072,6 +854,12 @@ namespace BaseLib.Xwt.Controls
             if (rowActivated != null)
                 rowActivated(this, a);
         }
+
+        bool ICellHandlerContainer.Selected(int row)
+        {
+            return this.selectedRows.Contains(row);
+        }
+
         /// <summary>
         /// Occurs when the user double-clicks on a row
         /// </summary>
