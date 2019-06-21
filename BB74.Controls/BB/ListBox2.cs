@@ -686,8 +686,6 @@ namespace BaseLib.Xwt.Controls
 
         public double ItemHeight { get; private set; } = -1;
 
-        IListDataSource ICellHandlerContainer.DataSource => throw new NotImplementedException();
-
         /// <summary>
         /// Selects a row.
         /// </summary>

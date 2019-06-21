@@ -11,6 +11,7 @@ namespace BaseLib.Xwt
         void SetCapture(Widget widget);
         void ReleaseCapture(Widget widget);
         void DoEvents();
+        void DoEvents(Func<bool> cancelfunction);
         void SetParent(WindowFrame window, WindowFrame parentWindow);
         void QueueOnUI(Action method);
         void GetMouseInfo(WindowFrame window, out int mx, out int my, out uint buttons);

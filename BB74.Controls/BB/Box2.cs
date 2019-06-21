@@ -233,7 +233,10 @@ namespace BaseLib.Xwt.Controls
                     {
                         nextsize[bp] = minsize[bp];
                         if (ExpandsForOrientation(bp.Child))
+                        {
                             nextsize[bp] += expandRemaining.NextSizePart();
+                            // todo getprefsize
+                        }
                     }
                 }
                 else if (remaining2 < 0)
@@ -297,30 +300,30 @@ namespace BaseLib.Xwt.Controls
             return r;
         }
 
-        class SizeSplitter
+    }
+    class SizeSplitter
+    {
+        int rem;
+        int part;
+
+        public SizeSplitter(double total, int numParts)
         {
-            int rem;
-            int part;
-
-            public SizeSplitter(double total, int numParts)
+            if (numParts > 0)
             {
-                if (numParts > 0)
-                {
-                    part = ((int)total) / numParts;
-                    rem = ((int)total) % numParts;
-                }
+                part = ((int)total) / numParts;
+                rem = ((int)total) % numParts;
             }
+        }
 
-            public double NextSizePart()
+        public double NextSizePart()
+        {
+            if (rem > 0)
             {
-                if (rem > 0)
-                {
-                    rem--;
-                    return part + 1;
-                }
-                else
-                    return part;
+                rem--;
+                return part + 1;
             }
+            else
+                return part;
         }
     }
 }

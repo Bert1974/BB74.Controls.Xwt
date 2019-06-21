@@ -34,14 +34,14 @@ namespace BaseLib.Xwt
                 
                 Console.WriteLine($"gdk_grab={r}");*/
             }
-            public override void DoEvents()
+            public override void DoEvents(Func<bool> cancelfunc)
             {
                 var mi_iteration = Gtk.gtk_application.GetMethod("RunIteration", new Type[] { typeof(bool) });
 
                 Gdk.gdk_threads.InvokeStatic("Enter");
                 int n = 500;
 
-                while ((bool)Gtk.gtk_application.InvokeStatic("EventsPending") && n-- > 0)
+                while (!cancelfunc() && (bool)Gtk.gtk_application.InvokeStatic("EventsPending") && n-- > 0)
                 {
                     mi_iteration.Invoke(null, new object[] { false });
                 }

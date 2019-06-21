@@ -75,7 +75,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
         private bool capture;
         public IXwt xwt { get; }
 
-        private Window mainwindow;
+        protected Window mainwindow;
         public DockPanel MainDockPanel => this.FloatForm?.DockPanel ?? this;
         public IDockFloatWindow FloatForm { get; private set; } = null;
 
@@ -83,7 +83,8 @@ namespace BaseLib.Xwt.Controls.DockPanel
         private static IDockPane droptarget = null;
         private bool firedocschanged;
 
-        internal readonly List<IDockFloatWindow> floating = new List<IDockFloatWindow>();
+        protected readonly List<IDockFloatWindow> floating = new List<IDockFloatWindow>();
+        public List<IDockFloatWindow> Floating =>this.floating;
 
         internal bool onloadedfired = false;
 
@@ -256,7 +257,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
         }
         public bool Load(Stream stream, DeserializeDockContent deserializeDockContent = null)
         {
-            DockSave data= (DockSave)new BinaryFormatter().Deserialize(stream);
+            var data = LoadData(stream);
 
             /*  var xmlReader = XmlReader.Create(stream,
                   new XmlReaderSettings()
@@ -268,6 +269,10 @@ namespace BaseLib.Xwt.Controls.DockPanel
                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
                var data = (DockSave)serializer.Deserialize(xmlReader);*/
 
+            return Restore(data);
+        }
+        public bool Restore(DockSave data, DeserializeDockContent deserializeDockContent = null)
+        { 
             BeginLayout();
             Reset();
 
@@ -293,6 +298,11 @@ namespace BaseLib.Xwt.Controls.DockPanel
             return pane != null;
         }
 
+        private DockSave LoadData(Stream stream)
+        {
+            return (DockSave)new BinaryFormatter().Deserialize(stream);
+        }
+
         public void CloseDocument(IDockPane pane, IDockContent doc)
         {
             BeginLayout();
@@ -312,7 +322,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
         {
             Save(stream);
         }
-        public void Save(string filename, bool throwonerror = true)
+        public bool Save(string filename, bool throwonerror = true)
         {
             try
             {
@@ -329,9 +339,11 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 }
                 else
                 {
-                    MessageDialog.ShowError($"Error saving {Path.GetFileName(filename)}", $"{e.Message}"); 
+                    MessageDialog.ShowError($"Error saving {Path.GetFileName(filename)}", $"{e.Message}");
+                    return false;
                 }
             }
+            return true;
         }
         public void Save(Stream stream)
         {
@@ -976,7 +988,14 @@ namespace BaseLib.Xwt.Controls.DockPanel
                 {
                     this.ActiveDocument = value as IDockDocument;
 
-                    this.OnActiveDocumentChanged();
+                    if (this.busy != 0)
+                    {
+                        this.firedocschanged = true;
+                    }
+                    else
+                    {
+                        this.OnActiveDocumentChanged();
+                    }
                 }
                 this.ActiveContentChanged?.Invoke(this, EventArgs.Empty);
             }

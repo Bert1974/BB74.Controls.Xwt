@@ -14,12 +14,12 @@ namespace BaseLib.Xwt.Controls
     }
     public abstract class CellHandler
     {
-        internal abstract class Cell
+        public abstract class Cell
         {
             public CellHandler Owner { get; }
             public int Row { get; set; }
             public int Column { get; }
-            internal Rectangle position;
+            public Rectangle position;
             private Widget widget;
 
             protected Cell(CellHandler owner, int row, int cell)
@@ -28,7 +28,7 @@ namespace BaseLib.Xwt.Controls
                 this.Row = row;
                 this.Column = cell;
             }
-            internal virtual Widget Widget
+            public virtual Widget Widget
             {
                 get => this.widget;
                 set
@@ -49,8 +49,8 @@ namespace BaseLib.Xwt.Controls
             {
             }
 
-            internal abstract bool NeedsPaint { get; }
-            internal virtual void SetPosition(Canvas canvas, int row, CellHandler cellHandler, Rectangle rectangle)
+            public abstract bool NeedsPaint { get; }
+            public virtual void SetPosition(Canvas canvas, int row, CellHandler cellHandler, Rectangle rectangle)
             {
                 this.position = rectangle;
 
@@ -59,7 +59,7 @@ namespace BaseLib.Xwt.Controls
                     canvas.SetChildBounds(this.widget, rectangle);
                 }
             }
-            internal virtual Size OnGetPreferredSize(SizeConstraint widthconstraints, SizeConstraint heightconstraints)
+            public virtual Size OnGetPreferredSize(SizeConstraint widthconstraints, SizeConstraint heightconstraints)
             {
                 return this.widget?.GetBackend().GetPreferredSize(widthconstraints, heightconstraints) ?? Size.Zero;
             }
@@ -68,12 +68,12 @@ namespace BaseLib.Xwt.Controls
         protected readonly ICellHandlerContainer owner;
         protected readonly CellView target;
 
-        internal abstract void Initialize();
-        internal abstract void Remove();
-        internal abstract Cell CreateForRow(int row, int cell);
-        internal abstract void InitialzeForRow(Cell cell);
-        internal abstract void DestroyForRow(Cell cell);
-        internal abstract void Sync(Cell cell);
+        public abstract void Initialize();
+        public abstract void Remove();
+        public abstract Cell CreateForRow(int row, int cell);
+        public abstract void InitialzeForRow(Cell cell);
+        public abstract void DestroyForRow(Cell cell);
+        public abstract void Sync(Cell cell);
 
 
         protected CellHandler(ICellHandlerContainer owner, CellView cell)
@@ -82,7 +82,7 @@ namespace BaseLib.Xwt.Controls
             this.target = cell;
         }
 
-        internal virtual void Draw(Context ctx, int row, Cell cell)
+        public virtual void Draw(Context ctx, int row, Cell cell)
         {
             ctx.SetColor(this.owner.Selected(row) ? Colors.LightBlue : Colors.White);
             ctx.Rectangle(cell.position);
@@ -107,9 +107,9 @@ namespace BaseLib.Xwt.Controls
 
     class ImageCellHandler : CellHandler
     {
-        internal class ImageCell : Cell
+        public class ImageCell : Cell
         {
-            internal override bool NeedsPaint => this.image != null;
+            public override bool NeedsPaint => this.image != null;
 
             private ImageCellHandler owner;
             internal Image image;
@@ -120,7 +120,7 @@ namespace BaseLib.Xwt.Controls
                 this.owner = owner;
             }
 
-            internal override Size OnGetPreferredSize(SizeConstraint widthConstraints, SizeConstraint heightConstraints)
+            public override Size OnGetPreferredSize(SizeConstraint widthConstraints, SizeConstraint heightConstraints)
             {
                 return new Size(widthConstraints.CalculateFor(this.image?.Width ?? 0), heightConstraints.CalculateFor(this.image?.Height ?? 0));
             }
@@ -130,24 +130,24 @@ namespace BaseLib.Xwt.Controls
         {
         }
 
-        internal override void Initialize()
+        public override void Initialize()
         {
         }
-        internal override void Remove()
+        public override void Remove()
         {
         }
-        internal override Cell CreateForRow(int row, int cell)
+        public override Cell CreateForRow(int row, int cell)
         {
             return new ImageCell(this, row, cell);
         }
-        internal override void InitialzeForRow(Cell cell)
+        public override void InitialzeForRow(Cell cell)
         {
             Sync(cell);
         }
-        internal override void DestroyForRow(Cell cell)
+        public override void DestroyForRow(Cell cell)
         {
         }
-        internal override void Sync(Cell cell)
+        public override void Sync(Cell cell)
         {
             var imagecell = cell as ImageCell;
 
@@ -156,7 +156,7 @@ namespace BaseLib.Xwt.Controls
                 imagecell.image = (Image)this.owner.DataSource.GetValue(cell.Row, cell.Column);
             }
         }
-        internal override void Draw(Context ctx, int row, Cell cell)
+        public override void Draw(Context ctx, int row, Cell cell)
         {
             base.Draw(ctx, row, cell);
             var imagecell = cell as ImageCell;
@@ -169,9 +169,9 @@ namespace BaseLib.Xwt.Controls
     }
     class TextCellHandler : CellHandler
     {
-        internal class TextCell : Cell
+        public class TextCell : Cell
         {
-            internal override bool NeedsPaint => !this.editable;
+            public override bool NeedsPaint => !this.editable;
 
             private TextCellHandler owner;
             internal bool editable = false;
@@ -186,17 +186,17 @@ namespace BaseLib.Xwt.Controls
             : base(owner, cell)
         {
         }
-        internal override void Initialize()
+        public override void Initialize()
         {
         }
-        internal override void Remove()
+        public override void Remove()
         {
         }
-        internal override Cell CreateForRow(int row, int cell)
+        public override Cell CreateForRow(int row, int cell)
         {
             return new TextCell(this, row, cell);
         }
-        internal override void InitialzeForRow(Cell cell)
+        public override void InitialzeForRow(Cell cell)
         {
             if ((this.target.VisibleField?.Index ?? -1) != -1 ? (bool)owner.DataSource.GetValue(cell.Row, this.target.VisibleField.Index) : this.target.Visible)
             {
@@ -220,11 +220,11 @@ namespace BaseLib.Xwt.Controls
             }
             Sync(cell);
         }
-        internal override void DestroyForRow(Cell cell)
+        public override void DestroyForRow(Cell cell)
         {
         }
 
-        internal override void Sync(Cell cell)
+        public override void Sync(Cell cell)
         {
             // check visible change ??
 

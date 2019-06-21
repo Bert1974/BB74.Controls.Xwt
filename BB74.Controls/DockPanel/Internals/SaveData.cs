@@ -11,16 +11,16 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
     [Serializable()]
     public abstract class DockState
     {
-        internal static Type[] SerializeTypes = { typeof(DocumentsSave), typeof(PaneSave), typeof(PaneEmpty), typeof(FloatWindowSave) };
+        public static Type[] SerializeTypes => new Type[] {  typeof(DockState), typeof(DocumentsSave), typeof(PaneSave), typeof(PaneEmpty), typeof(FloatWindowSave) };
 
-        internal static DockSave SaveState(DockPanel dockPanel)
+        public static DockSave SaveState(DockPanel dockPanel)
         {
             var forms = BaseLib.Xwt.Platform.Instance.AllForms(dockPanel.ParentWindow).Where(_t=>_t.Item2!=null).Select(_t=>_t.Item2).ToArray(); // all open windows where framework element is found
 
             return new DockSave()
             {
                 state = dockPanel.Current != null ? Save(dockPanel.Current) : new PaneEmpty(),
-                floating = dockPanel.floating.OrderByDescending(_f => Array.IndexOf(forms, _f)).Select(_f => DockState.Save(_f)).ToArray()
+                floating = dockPanel.Floating.OrderByDescending(_f => Array.IndexOf(forms, _f)).Select(_f => DockState.Save(_f)).ToArray()
             };
         }
         private static DockState Save(object p)
@@ -145,7 +145,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
                     {
                         try
                         {
-                            return (IDockContent)Activator.CreateInstance(t);
+                            return deserializeDockContent(dockPanel, t, null) ?? (IDockContent)Activator.CreateInstance(t);
                         }
                         catch
                         {

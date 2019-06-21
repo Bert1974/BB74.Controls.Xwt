@@ -44,6 +44,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BB\CellHandler.cs" />
+    <Compile Include="BB\Toolbar.cs" />
     <Compile Include="DockPanel\BaseLib\Extensions.cs" />
     <Compile Include="DockPanel\Internals\DragDrop.cs" />
     <Compile Include="DockPanel\Internals\FloatWindow.cs" />
@@ -82,7 +84,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="build.bat" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
