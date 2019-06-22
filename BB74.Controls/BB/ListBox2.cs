@@ -205,7 +205,7 @@ namespace BaseLib.Xwt.Controls
                 this.scrollplace.SetChildBounds(this.viewplace, r);
             };
 
-            this.hbox = new HBox2() { ExpandHorizontal = true, ExpandVertical = true };
+            this.hbox = new HBox2() { ExpandHorizontal = true, ExpandVertical = true,Spacing=0 };
 
             this.hbox.PackStart(this.scrollplace, true, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
             this.hbox.PackStart(this.vscroll, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);

@@ -225,6 +225,10 @@ namespace BaseLib.Xwt.Controls
             // Get the natural size of each child
             foreach (var bp in visibleChildren)
             {
+                var s1 = bp.Child.Surface.GetPreferredSize();
+             //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                var s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
+                var s4 = bp.Child.Size;
                 var s =(Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint});
                 minsize[bp] = vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
                 nextsize[bp] = Math.Max(minsize[bp], vertical ? s.Height : s.Width);
