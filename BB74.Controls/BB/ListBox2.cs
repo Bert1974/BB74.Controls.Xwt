@@ -240,7 +240,7 @@ namespace BaseLib.Xwt.Controls
 
             this.SetChildBounds(this.vbox, new Rectangle(Point.Zero, this.Bounds.Size));
 
-            this.vbox.QueueForReallocate();
+         //   this.vbox.QueueForReallocate();
 
             //     var scrollsize = this.scroll.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
 

@@ -9,7 +9,7 @@ namespace BaseLib.Xwt
     {
         protected abstract class RealXwt
         {
-            public abstract void DoEvents();
+            public abstract void DoEvents(Func<bool> cancelfunc);
 
             public void QueueOnUI(Action method)
             {
@@ -80,7 +80,11 @@ namespace BaseLib.Xwt
         }
         public void /*IXwt.*/DoEvents()
         {
-            CheckImpl().DoEvents();
+            DoEvents(()=>true);
+        }
+        public void /*IXwt.*/DoEvents(Func<bool>cancelfunc)
+        {
+            CheckImpl().DoEvents(cancelfunc);
         }
         public void SetPos(WindowFrame window, Rectangle pos)
         {

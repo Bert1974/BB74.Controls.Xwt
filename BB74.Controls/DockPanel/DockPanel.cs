@@ -1090,7 +1090,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
 
                             panes[ind + 0].Layout(pt, new Size(s.Width + d, s.Height));
 
-                            pt.Offset(s.Width - d + SplitSize, 0);
+                            pt=pt.Offset(s.Width - d + SplitSize, 0);
                             s = panes[ind + 1].WidgetSize;
                             panes[ind + 1].Layout(pt, new Size(s.Width - d, s.Height));
                         }
@@ -1152,7 +1152,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
                         pt = panes[ind + 0].Location;
                         panes[ind + 0].Layout(pt, new Size(s.Width, s.Height + d));
 
-                        pt.Offset(0, s.Height - d + SplitSize);
+                      pt=  pt.Offset(0, s.Height - d + SplitSize);
                         s = panes[ind + 1].WidgetSize;
                         panes[ind + 1].Layout(pt, new Size(s.Width, s.Height - d));
                     }

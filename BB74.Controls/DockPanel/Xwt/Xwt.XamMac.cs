@@ -89,7 +89,7 @@ namespace BaseLib.Xwt
                       }
                       while (captured > 0)
                       {
-                          DoEvents();
+                          DoEvents(()=>true);
                       }
                   });
                 }
@@ -99,17 +99,21 @@ namespace BaseLib.Xwt
             {
                 var cgpoint = XamMac.appkit_nsevent.GetPropertyValueStatic("CurrentMouseLocation");
                 var pt = (Xwt.Point)XamMac.xwtmacbackend.InvokeStatic("ToDesktopPoint", cgpoint);
-                return pt.Offset(-widget.ScreenBounds.X, -widget.ScreenBounds.Y);
+                /*  for (var p = this.captureitem.Parent; p != null; p = p.Parent)
+                   {
+                       pt= pt.Offset(-p.ParentBounds.X, -p.ParentBounds.Y);
+                   }*/
+                return pt.Offset(-widget.ParentWindow.Location.X, -widget.ParentWindow.Location.Y);
             }
 
-            public override void DoEvents()
+            public override void DoEvents(Func<bool>cancelfunc)
             {
                 object e;
                 int cnt = 500;
                 if (this.captureitem != null)
                 {
-                    object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-                    object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
+                    object nsappinstance = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
+                    object mask = Enum.ToObject(XamMac.appkit_nseventmask, 0xfe/*"AnyEvent"*/);
                     //object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)0x44);
                     object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
@@ -117,52 +121,135 @@ namespace BaseLib.Xwt
                     var nswin = this.captureitem.ParentWindow.GetBackend().Window;
 
                     this.captureitemeventdoeventcnt++;
-                    //     do
+
+                    object e2;
+                    while (cancelfunc() && this.captured > 0 && --cnt >= 0)
                     {
-                        var e2 = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, false });
+                        e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, false }); // no dequeue
+
+                        bool handled = false;
 
                         if (this.captured != 0 && e2 != null)
                         {
-                            e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask });
+                            e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask }); // dequeues
 
                             if (e != null)
                             {
                                 Debug.Assert(this.captured != 0);
                                 var et = e.GetType().GetPropertyValue(e, "Type");
 
-                                if ((ulong)et == 6) // left mouse drag
+                                switch ((ulong)et)
                                 {
-                                    var pt = MousePositionForWidget(this.captureitem);
-                                    var args = new MouseMovedEventArgs(0, pt.X, pt.Y);
+                                    case 1: // left mouse down
+                                    case 3: // right mouse down
+                                        {
+                                            if (!HandleButtonEvent("OnButtonPressed", e))
+                                            {
+                                                Platform.GetType("AppKit.NSControl").GetMethod("MouseDown").Invoke(nswin, new object[] { e });
+                                            }
+                                            handled = true;
+                                        }
+                                        break;
+                                    case 2: // left mouse up
+                                    case 4: // right mouse up
+                                        {
+                                            if (!HandleButtonEvent("OnButtonReleased", e))
+                                            {
+                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseUp").Invoke(nswin, new object[] { e });
+                                            }
+                                            handled = true;
+                                        }
+                                        break;
+                                    case 5:// mouse move
+                                    case 6:// left mouse drag
+                                    case 7:// right mouse drag
+                                        {
+                                            var pt = MousePositionForWidget(this.captureitem);
+                                            var timestamp = (long)TimeSpan.FromSeconds((e.GetType().GetProperty("Timestamp").GetValue(e, new object[0]) as IConvertible).ToDouble(null)).TotalMilliseconds;
+                                            var args = new MouseMovedEventArgs(timestamp, pt.X, pt.Y) { Handled = false };
+                                            this.captureitem.GetType().InvokePrivate(this.captureitem, "OnMouseMoved", new object[] { args });
 
-                                    this.captureitem.GetType().InvokePrivate(this.captureitem, "OnMouseMoved", new object[] { args });
+                                            if (!args.Handled)
+                                            {
+                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseMoved", BindingFlags.Instance | BindingFlags.Public).Invoke(nswin, new object[] { e });
+                                            }
+                                            handled = true;
+                                        }
+                                        break;
                                 }
-                                else if ((ulong)et == 2) // left mouse ip
+                                if (!handled)
                                 {
-                                    var pt = MousePositionForWidget(this.captureitem);
-                                    var args = new ButtonEventArgs() { Button = PointerButton.Left, X = pt.X, Y = pt.Y, Handled = false };
-
-                                    this.captureitem.GetType().InvokePrivate(this.captureitem, "OnButtonReleased", new object[] { args });
+                                    XamMac.appkit_nswindow.GetMethod("SendEvent").Invoke(nswin, new object[] { e });
                                 }
                             }
+                            else
+                            {
+                                e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, true }); // deqeue
+                                XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(nsappinstance, new object[] { e2 });
+                            }
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
-                    //     while (e != null && this.captured > 0 && --cnt >= 0);
                     this.captureitemeventdoeventcnt--;
                 }
-                else
+                else // not captured
                 {
                     object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
                     object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
                     object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-                    //   do
+                     do
                     {
                         e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
                     }
-                    //    while (e != null && --cnt >= 0);
+                      while (cancelfunc() && e != null && --cnt >= 0);
                 }
             }
+
+            private bool HandleButtonEvent(string eventname, object e)
+            {
+                var pt = MousePositionForWidget(this.captureitem);
+                var clickcnt = e.GetType().GetProperty("ClickCount").GetValue(e, new object[0]);
+                var args = new ButtonEventArgs() { Button = GetPointerButton(e), X = pt.X, Y = pt.Y, Handled = false, MultiplePress = Convert.ToInt32(clickcnt), IsContextMenuTrigger= TriggersContextMenu(e) };
+                this.captureitem.GetType().InvokePrivate(this.captureitem, eventname, new object[] { args });
+                return args.Handled;
+            }
+            public static bool TriggersContextMenu(object theEvent)
+            {
+                var buttonnumber = (theEvent.GetType().GetProperty("ButtonNumber").GetValue(theEvent, new object[0]) as IConvertible).ToInt32(null);
+                var modifierflags = (theEvent.GetType().GetProperty("ModifierFlags").GetValue(theEvent, new object[0]) as IConvertible).ToInt32(null);
+                var currentbutton = (Platform.GetType("AppKit.NSEvent").GetProperty("CurrentPressedMouseButtons").GetValue(null,new object[0]) as IConvertible).ToInt32(null);
+
+                if (buttonnumber == 1 &&
+                        (currentbutton & 1 | currentbutton & 4) == 0)
+                {
+                    return true;
+                }
+
+                if (buttonnumber == 0 && (modifierflags & 0x40000L/*NSEventModifierMask.ControlKeyMask*/) != 0 &&
+                        (currentbutton & 2 | currentbutton & 4) == 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            public static PointerButton GetPointerButton(object theEvent)
+            {
+                switch ((theEvent.GetType().GetProperty("ButtonNumber").GetValue(theEvent,new object[0]) as IConvertible).ToInt32(null))
+                {
+                    case 0: return PointerButton.Left;
+                    case 1: return PointerButton.Right;
+                    case 2: return PointerButton.Middle;
+                    case 3: return PointerButton.ExtendedButton1;
+                    case 4: return PointerButton.ExtendedButton2;
+                }
+                return (PointerButton)0;
+            }
+
             public override void SetParent(WindowFrame r, WindowFrame parentWindow)
             {
                 Type et = Platform.GetType("AppKit.NSWindowLevel");

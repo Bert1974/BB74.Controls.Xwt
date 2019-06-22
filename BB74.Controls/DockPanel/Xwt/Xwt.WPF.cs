@@ -12,7 +12,7 @@ namespace BaseLib.Xwt
         class WPF : RealXwt
         {
             [SecurityPermissionAttribute(SecurityAction.Demand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-            public override void DoEvents()
+            public override void DoEvents(Func<bool> cancelfunc)
             {
                 var t1 = Platform.GetType("System.Windows.Threading.DispatcherFrame");
                 var frame = Activator.CreateInstance(t1);

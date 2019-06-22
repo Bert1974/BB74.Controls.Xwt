@@ -25,6 +25,11 @@ namespace BaseLib.Xwt.Controls
         {
             return this.box2.OnGetPreferredSize(widthConstraint, heightConstraint);
         }
+        protected override void OnBoundsChanged()
+        {
+            this.box2.BoundsChanged();
+            base.OnBoundsChanged();
+        }
     }
     public class HBox2 : HBox
     {
@@ -41,6 +46,11 @@ namespace BaseLib.Xwt.Controls
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
             return this.box2.OnGetPreferredSize(widthConstraint, heightConstraint);
+        }
+        protected override void OnBoundsChanged()
+        {
+            this.box2.BoundsChanged();
+            base.OnBoundsChanged();
         }
     }
     internal class Box2
@@ -73,7 +83,10 @@ namespace BaseLib.Xwt.Controls
             else
                 return w.ExpandHorizontal;
         }
-
+        public void BoundsChanged()
+        {
+            OnReallocate();
+        }
         public Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
             var children = (ChildrenCollection<BoxPlacement>)GetFieldValuePrivate(typeof(Box), owner, "children");
