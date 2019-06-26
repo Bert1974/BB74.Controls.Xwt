@@ -25,13 +25,13 @@ namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
             public override string ToString() => this.text;
         }
 
-        private readonly PropertyGrid owner;
+        private readonly PropertyTab owner;
         public readonly GridItem item;
         public bool isreadonly, editmode, highlight;
         private TextEntry txtinput;
         private ComboBox cbinput;
 
-        public EditCanvas(PropertyGrid owner, GridItem item)
+        public EditCanvas(PropertyTab owner, GridItem item)
         {
             this.owner = owner;
             this.item = item;
@@ -54,7 +54,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
 
                 if (this.item.TypeConverter.CanConvertTo(this.item as ITypeDescriptorContext, typeof(string)))
                 {
-                    txt = item.TypeConverter?.ConvertToString(this.item as ITypeDescriptorContext, value);
+                    txt = item.TypeConverter.ConvertToString(this.item as ITypeDescriptorContext, value);
                 }
                 else
                 {
@@ -62,7 +62,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
                 }
                 ctx.SetColor(Colors.Black);
 
-                var tl = new TextLayout(this.owner) { Text = txt, Font = this.owner.Font, Trimming = TextTrimming.WordElipsis, Width = this.Bounds.Width, Height = this.Bounds.Height, TextAlignment = Alignment.Start };
+                var tl = new TextLayout() { Text = txt, Font = this.owner.Font, Trimming = TextTrimming.WordElipsis, Width = this.Bounds.Width, Height = this.Bounds.Height, TextAlignment = Alignment.Start };
 
                 var ts = tl.GetSize();
                 var xy = new Point(0, (this.Bounds.Height - ts.Height) * .5);

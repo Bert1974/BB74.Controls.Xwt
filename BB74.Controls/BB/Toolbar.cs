@@ -42,10 +42,7 @@ namespace BaseLib.Xwt.Controls
         protected class ToolbarImpl
         {
             private readonly Toolbar owner;
-            private readonly Orientation direction;
             private readonly List<Widget> buttons = new List<Widget>();
-
-            private bool needslayout;
 
             public ToolbarImpl(Toolbar toolbar)
             {

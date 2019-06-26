@@ -398,62 +398,65 @@ namespace BaseLib.Xwt.Controls
         {
             if (!SetViews())
             {
-                var ww = Enumerable.Repeat(0.0, this.views.Count).ToArray();
-                var hh = 0.0;
+                if (this.DataSource != null)
+                {
+                    var ww = Enumerable.Repeat(0.0, this.views.Count).ToArray();
+                    var hh = 0.0;
 
-                SizeConstraint heightconstraints = this.ItemHeight <= 0 ? SizeConstraint.Unconstrained : SizeConstraint.WithSize(this.ItemHeight);
-                var rowh = new double[this.DataSource.RowCount];
+                    SizeConstraint heightconstraints = this.ItemHeight <= 0 ? SizeConstraint.Unconstrained : SizeConstraint.WithSize(this.ItemHeight);
+                    var rowh = new double[this.DataSource.RowCount];
 
-                for (int row = 0; row < this.DataSource.RowCount; row++)
-                {
-                    double h2 = 0;
-                    for (int n = 0; n < this.views.Count; n++)
+                    for (int row = 0; row < this.DataSource.RowCount; row++)
                     {
-                        handlers[this.views[n]].Sync(rows[row][n]);
-                        Size cellprefsize = rows[row][n].OnGetPreferredSize(SizeConstraint.Unconstrained, heightconstraints);
+                        double h2 = 0;
+                        for (int n = 0; n < this.views.Count; n++)
+                        {
+                            handlers[this.views[n]].Sync(rows[row][n]);
+                            Size cellprefsize = rows[row][n].OnGetPreferredSize(SizeConstraint.Unconstrained, heightconstraints);
 
-                        h2 = Math.Max(h2, cellprefsize.Height);
-                        ww[n] = Math.Max(ww[n], cellprefsize.Width);
-                    }
-                    if (this.ItemHeight <= 0)
-                    {
-                        rowh[row] = h2;
-                        hh += h2;
-                    }
-                    else
-                    {
-                        hh = Math.Max(hh, h2);
-                    }
-                }
-                if (this.ItemHeight <= 0)
-                {
-                    hh = 0;
-                }
-                else
-                {
-                    hh = Math.Min(this.ItemHeight, hh);
-                }
-                for (int row = 0; row < this.DataSource.RowCount; row++)
-                {
-                    for (int n = 0; n < this.views.Count; n++)
-                    {
+                            h2 = Math.Max(h2, cellprefsize.Height);
+                            ww[n] = Math.Max(ww[n], cellprefsize.Width);
+                        }
                         if (this.ItemHeight <= 0)
                         {
-                            this.rows[row][n].SetPosition(this.viewplace, row, this.handlers[this.views[n]], new Rectangle(ww.Take(n).Sum(), hh, ww[n], rowh[row]));
+                            rowh[row] = h2;
+                            hh += h2;
                         }
                         else
                         {
-                            rowh[row] = hh;
-                            this.rows[row][n].SetPosition(this.viewplace, row, this.handlers[this.views[n]], new Rectangle(ww.Take(n).Sum(), hh * row, ww[n], rowh[row]));
+                            hh = Math.Max(hh, h2);
                         }
                     }
                     if (this.ItemHeight <= 0)
                     {
-                        hh += rowh[row];
+                        hh = 0;
                     }
+                    else
+                    {
+                        hh = Math.Min(this.ItemHeight, hh);
+                    }
+                    for (int row = 0; row < this.DataSource.RowCount; row++)
+                    {
+                        for (int n = 0; n < this.views.Count; n++)
+                        {
+                            if (this.ItemHeight <= 0)
+                            {
+                                this.rows[row][n].SetPosition(this.viewplace, row, this.handlers[this.views[n]], new Rectangle(ww.Take(n).Sum(), hh, ww[n], rowh[row]));
+                            }
+                            else
+                            {
+                                rowh[row] = hh;
+                                this.rows[row][n].SetPosition(this.viewplace, row, this.handlers[this.views[n]], new Rectangle(ww.Take(n).Sum(), hh * row, ww[n], rowh[row]));
+                            }
+                        }
+                        if (this.ItemHeight <= 0)
+                        {
+                            hh += rowh[row];
+                        }
+                    }
+                    SetScroll(ww, rowh);
+                    sync_viewpos();
                 }
-                SetScroll(ww, rowh);
-                sync_viewpos();
             }
         }
 

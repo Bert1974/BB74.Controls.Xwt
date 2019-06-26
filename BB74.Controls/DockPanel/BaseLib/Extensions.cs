@@ -39,6 +39,14 @@ namespace BaseLib.Xwt
         {
             return (ICellViewBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
         }
+        public static bool IsDerived(this Type b, Type t)
+        {
+            while (b != null && !object.ReferenceEquals(b, t))
+            {
+                b = b.BaseType;
+            }
+            return b != null;
+        }
     }
 }
 namespace BaseLib

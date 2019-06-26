@@ -74,6 +74,7 @@
     <Compile Include="BB\ListBox2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyGrid\GridItem.cs" />
+    <Compile Include="PropertyGrid\PropertyTab.cs" />
     <Compile Include="PropertyGrid\PropertyGrid.cs" />
     <Compile Include="PropertyGrid\PropertyGrid.EditCanvas.cs" />
     <Compile Include="BB\Box2.cs" />

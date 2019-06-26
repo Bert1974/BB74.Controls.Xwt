@@ -14,9 +14,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
     {
         public PropertyGrid Owner { get; }
         PropertyGrid OwnerGrid { get; }
-        protected GridItem(PropertyGrid owner)
+        public PropertyTab Tab { get; }
+        protected GridItem(PropertyTab owner)
         {
-            this.OwnerGrid = this.Owner = owner;
+            this.Tab = owner;
+            this.OwnerGrid = this.Owner = owner.PropertyGrid;
         }
         public virtual bool Expandable { get; internal set; } = false;
         public virtual bool Expanded { get; set; }
@@ -37,14 +39,14 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         public override string Label => _label;
 
         IContainer ITypeDescriptorContext.Container => throw new NotImplementedException();
-        object ITypeDescriptorContext.Instance => this.Owner.GetValue(this.Parent);
+        object ITypeDescriptorContext.Instance => this.Tab.GetValue(this.Parent);
         PropertyDescriptor ITypeDescriptorContext.PropertyDescriptor => this.PropertyDescriptor;
 
-        private GridItemProperty(PropertyGrid owner)
+        private GridItemProperty(PropertyTab owner)
             : base(owner)
         {
         }
-        internal GridItemProperty(PropertyGrid owner, object value, bool expand)
+        internal GridItemProperty(PropertyTab owner, object value, bool expand)
             : this(owner)
         {
             this.Expanded = expand;
@@ -62,8 +64,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.displayvalue = this.TypeConverter?.ConvertToString(this, value) ?? value?.ToString();
             Initialize(value);
         }
-        internal GridItemProperty(GridItemProperty owner, object parentvalue, PropertyDescriptor pd)
-            : this(owner.Owner)//, pd.GetValue(value), true)
+        internal GridItemProperty(GridItem owner, object parentvalue, PropertyDescriptor pd)
+            : this(owner.Tab)//, pd.GetValue(value), true)
         {
             this.Parent = owner;
             this.PropertyDescriptor = pd;
@@ -102,7 +104,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
                 if (this.Expanded)
                 {
-                    var props = TypeConverter.GetProperties(this, value, this.Owner.filter);
+                    var props = TypeConverter.GetProperties(this, value, this.Tab.Filter);
 
                     if (this is GridItemRoot && Owner.SortCategorized)
                     {
@@ -122,7 +124,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                             if (cat != pd.Category)
                             {
                                 cat = pd.Category;
-                                l.Add(new GridItemCategory(Owner, cat));
+                                l.Add(new GridItemCategory(this.Tab, cat));
                             }
                             l.Add(new GridItemProperty(this, value, pd));
                         }
@@ -197,7 +199,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         internal override void RefreshProperties(object value)
         {
-            this.Items = TypeConverter.GetProperties(this, value, this.Owner.filter).Cast<PropertyDescriptor>().Select(_pd => new GridItemProperty(this, value, _pd)).ToArray();
+            this.Items = TypeConverter.GetProperties(this, value, this.Tab.Filter).Cast<PropertyDescriptor>().Select(_pd => new GridItemProperty(this, value, _pd)).ToArray();
         }
 
         void ITypeDescriptorContext.OnComponentChanged()
@@ -222,7 +224,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         public override string Label => this.category;
 
-        internal GridItemCategory(PropertyGrid owner, string category)
+        internal GridItemCategory(PropertyTab owner, string category)
             : base(owner)
         {
             this.Expandable = true;
@@ -232,7 +234,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
     }
     public class GridItemArrayValue : GridItem
     {
-        internal GridItemArrayValue(PropertyGrid owner)
+        internal GridItemArrayValue(PropertyTab owner)
             : base(owner)
         {
         }
@@ -243,7 +245,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
     {
         public object Value { get; }
 
-        internal GridItemRoot(PropertyGrid owner, object value)
+        internal GridItemRoot(PropertyTab owner, object value)
             : base(owner, value, true)
         {
             this.Value = value;
