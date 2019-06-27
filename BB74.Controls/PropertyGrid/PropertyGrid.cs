@@ -57,7 +57,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         private bool CheckEditMode(GridItem item) => ((item?.Widget?.Tag as EditCanvas)?.editmode ?? false) || (item?.Items?.Any(_subitem => CheckEditMode(_subitem)) ?? false);
 
         //ITypeDescriptorContext
-        private object[] selection=new object[0];
+        private object[] selection = new object[0];
         //    internal Attribute[] filter = new Attribute[] { new BrowsableAttribute(true) };
 
         protected PropertyTabCollection Tabs { get; } = new PropertyTabCollection();
@@ -81,7 +81,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             get => this.selection;
             set
             {
-                this.selection = value??new object[0];
+                this.selection = value ?? new object[0];
                 Fill();
             }
         }
@@ -101,11 +101,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             this.toolbar = new Toolbar() { BackgroundColor = Colors.LightGray };
 
-            base.PackStart(this.toolbar,false,true);
+            base.PackStart(this.toolbar, false, true);
 
-            this.viewtable = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement=WidgetPlacement.Fill,VerticalPlacement=WidgetPlacement.Fill,ExpandHorizontal=true,ExpandVertical=true};
+            this.viewtable = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, ExpandHorizontal = true, ExpandVertical = true };
 
-            base.PackStart(this.viewtable, true, WidgetPlacement.Fill,WidgetPlacement.Fill);
+            base.PackStart(this.viewtable, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
 
             this.Tabs.OnCollectionChanged += Tabs_OnCollectionChanged;
 
@@ -145,13 +145,13 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             }
             if ((this.curtab = tab) != null)
             {
-                this.viewtable.Add(tab, 0, 0,1,1,true,true,WidgetPlacement.Fill,WidgetPlacement.Fill);
+                this.viewtable.Add(tab, 0, 0, 1, 1, true, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
                 tab.Fill();
             }
         }
         protected override void OnBoundsChanged()
         {
-            this.viewtable.QueueForReallocate();
+            //  this.viewtable.QueueForReallocate();
             base.OnBoundsChanged();
         }
         public void Fill(bool first = true)
@@ -159,7 +159,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.curtab?.Fill(first);
         }
         public bool CancelEdit(bool apply)
-        { 
+        {
             return this.curtab?.CancelEdit(apply) ?? true;
         }
     }

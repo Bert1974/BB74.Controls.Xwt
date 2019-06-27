@@ -27,7 +27,7 @@ namespace BaseLib.Xwt.Controls
         }
         protected override void OnBoundsChanged()
         {
-            this.box2.BoundsChanged();
+         //   this.box2.BoundsChanged();
             base.OnBoundsChanged();
         }
     }
@@ -49,7 +49,7 @@ namespace BaseLib.Xwt.Controls
         }
         protected override void OnBoundsChanged()
         {
-            this.box2.BoundsChanged();
+       //     this.box2.BoundsChanged();
             base.OnBoundsChanged();
         }
     }

@@ -27,6 +27,15 @@ namespace BaseLib.Xwt.Controls
             this.impl.OnReallocate();
         }
 
+     /*   public new void Clear()
+        {
+            foreach (var b in this.Children.ToArray())
+            {
+                UnregisterChild(b);
+                (this.GetBackend() as IBoxBackend).Remove((IWidgetBackend)GetBackend(b));
+            }
+            base.OnPreferredSizeChanged();
+        }*/
         /*    public void AddButton(Command command)
             {
                 AddButton(NewButton(command.Label, command, null, null));
@@ -42,7 +51,7 @@ namespace BaseLib.Xwt.Controls
         protected class ToolbarImpl
         {
             private readonly Toolbar owner;
-            private readonly List<Widget> buttons = new List<Widget>();
+       //     private readonly List<Widget> buttons = new List<Widget>();
 
             public ToolbarImpl(Toolbar toolbar)
             {
@@ -55,7 +64,6 @@ namespace BaseLib.Xwt.Controls
             }
             public void AddControl(Widget button)
             {
-                this.buttons.Add(button);
                 this.owner.PackStart(button);
             }
 
@@ -73,10 +81,10 @@ namespace BaseLib.Xwt.Controls
                 {
                     nextsize = CalcDefaultSizes(widthConstraint, heightConstraint, false); // Calculates the width assigned to each child
                 }
-                for (var nit = 0; nit < this.buttons.Count; nit++)
+                for (var nit = 0; nit < this.owner.Placements.Count; nit++)
                 {
                     // Use the calculated width if available
-                    var wsize = this.buttons[nit].GetBackend().GetPreferredSize(widthConstraint.IsConstrained ? SizeConstraint.WithSize(nextsize[nit]) : SizeConstraint.Unconstrained, heightConstraint);
+                    var wsize = this.owner.Placements[nit].Child.GetBackend().GetPreferredSize(widthConstraint.IsConstrained ? SizeConstraint.WithSize(nextsize[nit]) : SizeConstraint.Unconstrained, heightConstraint);
                     s.Width += wsize.Width;
                     if (wsize.Height > s.Height)
                         s.Height = wsize.Height;
@@ -97,8 +105,8 @@ namespace BaseLib.Xwt.Controls
 
                 if (size.Width <= 0 || size.Height <= 0)
                 {
-                    var ws = this.buttons.Select(bp => bp.GetBackend()).ToArray();
-                    this.Backend.SetAllocation(ws, new Rectangle[this.buttons.Count]);
+                    var ws = this.owner.Placements.Select(bp => bp.Child.GetBackend()).ToArray();
+                    this.Backend.SetAllocation(ws, new Rectangle[this.owner.Placements.Count]);
                     return;
                 }
                 else
@@ -106,19 +114,22 @@ namespace BaseLib.Xwt.Controls
                     var nextsize = CalcDefaultSizes(size.Width, size.Height, true);
                     double xs = 0;
                     double xe = size.Width + spacing;
-                    for (int n = 0; n < this.buttons.Count; n++)
+                    for (int n = 0; n < this.owner.Placements.Count; n++)
                     {
+                        var w = this.owner.Placements[n].Child;
                         if (xs + nextsize[n] >= size.Width)
                         {
-                            this.buttons[n].Visible = false;
+                            //     this.buttons[n].Visible = false;
+                            widgets.Add(w.GetBackend());
+                            rects.Add(Rectangle.Zero);
                         }
                         else
                         {
-                            this.buttons[n].Visible = true;
-                            widgets.Add(this.buttons[n].GetBackend());
+                         //   this.buttons[n].Visible = true;
+                            widgets.Add(w.GetBackend());
                             double availableWidth = nextsize[n] >= 0 ? nextsize[n] : 0;
                             var slot = new Rectangle(xs, 0, availableWidth, size.Height);
-                            rects.Add(this.buttons[n].Surface.GetPlacementInRect(slot).Round().WithPositiveSize());
+                            rects.Add(w.Surface.GetPlacementInRect(slot).Round().WithPositiveSize());
 
                             xs += availableWidth + spacing;
                         }
@@ -137,16 +148,16 @@ namespace BaseLib.Xwt.Controls
 
                 //  var sizes = new Dictionary<BoxPlacement, double>();
 
-                var mw = new double[this.buttons.Count];
-                var ww = new double[this.buttons.Count];
+                var mw = new double[this.owner.Placements.Count];
+                var ww = new double[this.owner.Placements.Count];
                 var hh = 0.0;
 
                 int nexpands = 0;
 
                 // Get the natural size of each child
-                for (int nit = 0; nit < this.buttons.Count; nit++)
+                for (int nit = 0; nit < this.owner.Placements.Count; nit++)
                 {
-                    var b = this.buttons[nit];
+                    var b = this.owner.Placements[nit].Child;
                     var s = (Size)b.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
                     mw[nit] = MinWidth(b, s);
                     ww[nit] = s.Width;
@@ -157,17 +168,18 @@ namespace BaseLib.Xwt.Controls
                     if (b.ExpandHorizontal)
                         nexpands++;
                 }
-                double remaining = availableSize - totminsize - (spacing * (double)(this.buttons.Count - 1));
+                double remaining = availableSize - totminsize - (spacing * (double)(this.owner.Placements.Count - 1));
                 if (remaining > 0)
                 {
-                    var remaining2 = availableSize - requiredSize - (spacing * (double)(this.buttons.Count - 1));
+                    var remaining2 = availableSize - requiredSize - (spacing * (double)(this.owner.Placements.Count - 1));
                     if (remaining2 > 0)
                     {
                         var expandRemaining = new SizeSplitter(remaining2 - (requiredSize - totminsize), nexpands);
-                        for (int nit = 0; nit < this.buttons.Count; nit++)
+                        for (int nit = 0; nit < this.owner.Placements.Count; nit++)
                         {
+                            var b = this.owner.Placements[nit].Child;
                             ww[nit] = mw[nit];
-                            if (this.buttons[nit].ExpandHorizontal)
+                            if (b.ExpandHorizontal)
                             {
                                 ww[nit] += expandRemaining.NextSizePart();
                                 //todo getprefsize
@@ -177,11 +189,12 @@ namespace BaseLib.Xwt.Controls
                     else if (remaining2 < 0)
                     {
                         var dd = remaining - (requiredSize - totminsize);
-                        var expandRemaining = new SizeSplitter((requiredSize - totminsize), this.buttons.Count);
-                        for (int nit = 0; nit < this.buttons.Count; nit++)
+                        var expandRemaining = new SizeSplitter((requiredSize - totminsize), this.owner.Placements.Count);
+                        for (int nit = 0; nit < this.owner.Placements.Count; nit++)
                         {
+                            var b = this.owner.Placements[nit].Child;
                             ww[nit] = mw[nit] + dd * (ww[nit] - mw[nit]) / (requiredSize - totminsize);
-                            if (this.buttons[nit].ExpandHorizontal)
+                            if (b.ExpandHorizontal)
                             {
                                 ww[nit] += expandRemaining.NextSizePart();
                             }
@@ -192,7 +205,7 @@ namespace BaseLib.Xwt.Controls
                 }
                 else //if (/*allowShrink &&*/ remaining < 0)
                 {
-                    for (int nit = 0; nit < this.buttons.Count; nit++)
+                    for (int nit = 0; nit < this.owner.Placements.Count; nit++)
                     {
                         ww[nit] = mw[nit];
                     }
