@@ -36,7 +36,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
         public Size MinimumSize { get; private set; }
         public Size MaximumSize { get; private set; }
 
-        public Size WidgetSize { get; private set; }
+        public Size WidgetSize { get; internal set; }
 
         public DockPanel DockPanel { get; internal set; }
 

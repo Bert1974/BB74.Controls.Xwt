@@ -72,7 +72,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
         }
         private static DockState Save(IDockSplitter split)
         {
-            return new PaneSave() { panes = split.Layouts.Select(_p => Save(_p)).ToArray(), orientation = split.Orientation };
+            return new PaneSave() { panes = split.Layouts.Select(_p => Save((object)_p)).ToArray(), orientation = split.Orientation, clientsize = split.WidgetSize};
         }
 
         internal abstract object Restore(DockPanel dockPanel, DeserializeDockContent deserializeDockContent);
@@ -177,10 +177,13 @@ namespace BaseLib.Xwt.Controls.DockPanel.Serialization
     {
         public DockState[] panes;
         public Orientation orientation;
+        public Size clientsize;
 
         internal override object Restore(DockPanel dockPanel, DeserializeDockContent deserializeDockContent)
         {
             var r = new DockSplitter(dockPanel, this.orientation, this.panes.Select(_sd => _sd.Restore(dockPanel, deserializeDockContent) as IDockLayout).Where(_c => _c != null).ToArray());
+            r.WidgetSize = clientsize;
+            r.GetSize(false);
             return r;
         }
     }

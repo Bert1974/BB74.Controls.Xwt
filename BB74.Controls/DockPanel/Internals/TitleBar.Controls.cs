@@ -309,7 +309,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                 {
                     get
                     {
-                        Size s = this.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                        var s = this.buttons.GetChildBounds(this).Size;
+                    //    Size s = this.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
 
                         return new Rectangle(s.Width - closesize.Width, 0, closesize.Width, closesize.Height);
                     }
