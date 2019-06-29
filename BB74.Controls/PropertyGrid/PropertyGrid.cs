@@ -153,6 +153,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         {
             //  this.viewtable.QueueForReallocate();
             base.OnBoundsChanged();
+            this.viewtable.QueueForReallocate();
         }
         public void Fill(bool first = true)
         {

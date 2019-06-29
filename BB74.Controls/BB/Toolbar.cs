@@ -27,15 +27,15 @@ namespace BaseLib.Xwt.Controls
             this.impl.OnReallocate();
         }
 
-     /*   public new void Clear()
-        {
-            foreach (var b in this.Children.ToArray())
-            {
-                UnregisterChild(b);
-                (this.GetBackend() as IBoxBackend).Remove((IWidgetBackend)GetBackend(b));
-            }
-            base.OnPreferredSizeChanged();
-        }*/
+        /*   public new void Clear()
+           {
+               foreach (var b in this.Children.ToArray())
+               {
+                   UnregisterChild(b);
+                   (this.GetBackend() as IBoxBackend).Remove((IWidgetBackend)GetBackend(b));
+               }
+               base.OnPreferredSizeChanged();
+           }*/
         /*    public void AddButton(Command command)
             {
                 AddButton(NewButton(command.Label, command, null, null));
@@ -47,6 +47,17 @@ namespace BaseLib.Xwt.Controls
         public void Add(Widget widget)
         {
             this.impl.AddControl(widget);
+        }
+        public void Add(string label, EventHandler clicked)
+        {
+            var b = new Button(label);
+            b.Clicked += clicked;
+            this.Add(b);
+        }
+        public void Add(Command command)
+        {
+            var b = new Button(command.Label);
+            this.Add(b);
         }
         protected class ToolbarImpl
         {
@@ -65,6 +76,20 @@ namespace BaseLib.Xwt.Controls
             public void AddControl(Widget button)
             {
                 this.owner.PackStart(button);
+
+                CheckMinSize();
+            }
+
+            private void CheckMinSize()
+            {
+                Size ms = Size.Zero;
+                for (var nit = 0; nit < this.owner.Placements.Count; nit++)
+                {
+                    var ws=this.owner.Placements[nit].Child.Surface.GetPreferredSize();
+                    ms = new Size(ms.Width + ws.Width, Math.Max(ms.Height, ws.Height));
+                }
+                this.owner.MinWidth = Math.Max(10, Math.Min(100, ms.Width));
+                this.owner.MinHeight = Math.Max(10, ms.Height);
             }
 
             public Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)

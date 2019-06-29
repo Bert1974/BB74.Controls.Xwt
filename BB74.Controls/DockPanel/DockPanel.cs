@@ -67,7 +67,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
         }
 
         private IDockLayout _content;
-        private DocumentStyle _docstyle;
+        private DocumentStyle _docstyle= DocumentStyle.SDI;
         internal int busy;
         private IDockSplitter dragsplit;
         private Point dragpt;
@@ -959,7 +959,8 @@ namespace BaseLib.Xwt.Controls.DockPanel
 
                 if (this.firedocschanged)
                 {
-                    OnDocumentsChanged();
+                    this.OnDocumentsChanged();
+                    this.OnActiveDocumentChanged();
                 }
             }
         }
