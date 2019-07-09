@@ -87,6 +87,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         public PropertySort SortMode { get; set; } = PropertySort.CategorizedAlphabetical;
 
+        public void Refresh() => Fill();
 
         internal bool SortAlphabetical => this.SortMode == PropertySort.Alphabetical || this.SortMode == PropertySort.CategorizedAlphabetical;
         internal bool SortCategorized => this.SortMode == PropertySort.Categorized || this.SortMode == PropertySort.CategorizedAlphabetical;
@@ -148,6 +149,14 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 this.viewtable.Add(tab, 0, 0, 1, 1, true, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
                 tab.Fill();
             }
+            foreach (var b in this.toolbar.Children.OfType<Button>())
+            {
+                SetChecked(b, object.ReferenceEquals(b.Tag, this.curtab));
+            }
+        }
+        private void SetChecked(Button b, bool selected)
+        {
+            b.BackgroundColor = selected ? Colors.LightBlue : Colors.LightGray;
         }
         protected override void OnBoundsChanged()
         {

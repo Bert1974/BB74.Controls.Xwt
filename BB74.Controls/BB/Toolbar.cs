@@ -48,16 +48,18 @@ namespace BaseLib.Xwt.Controls
         {
             this.impl.AddControl(widget);
         }
-        public void Add(string label, EventHandler clicked)
+        public Button Add(string label, EventHandler clicked)
         {
             var b = new Button(label);
             b.Clicked += clicked;
             this.Add(b);
+            return b;
         }
-        public void Add(Command command)
+        public Button Add(Command command)
         {
             var b = new Button(command.Label);
             this.Add(b);
+            return b;
         }
         protected class ToolbarImpl
         {

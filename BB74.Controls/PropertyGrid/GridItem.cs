@@ -106,20 +106,22 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 {
                     var props = TypeConverter.GetProperties(this, value, this.Tab.Filter);
 
+                    var pp = props.OfType<PropertyDescriptor>().ToList();
+
                     if (this is GridItemRoot && Owner.SortCategorized)
                     {
                         if (Owner.SortAlphabetical)
                         {
-                            props.Sort(new sort(true, true));
+                            pp.Sort(new sort(true, true));
                         }
                         else
                         {
-                            props.Sort(new sort(false, true));
+                            pp.Sort(new sort(false, true));
                         }
                         string cat = null;
 
                         List<GridItem> l = new List<GridItem>();
-                        foreach (var pd in props.OfType<PropertyDescriptor>())
+                        foreach (var pd in pp)
                         {
                             if (cat != pd.Category)
                             {
@@ -133,9 +135,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                     }
                     else if (Owner.SortAlphabetical)
                     {
-                        props.Sort(new sort(true, false));
+                        pp.Sort(new sort(true, false));
                     }
-                    this.Items = props.Cast<PropertyDescriptor>().Select(_pd => new GridItemProperty(this, value, _pd)).ToArray();
+                    this.Items = pp.Select(_pd => new GridItemProperty(this, value, _pd)).ToArray();
                 }
             }
             else if (value is ICollection)
@@ -147,7 +149,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 this.Expanded = this.Expandable = false;
             }
         }
-        class sort : IComparer
+        class sort : IComparer<PropertyDescriptor>
         {
             bool abc, cat;
             public sort(bool abc, bool cat)
@@ -155,7 +157,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 this.abc = abc;
                 this.cat = cat;
             }
-            int IComparer.Compare(object x, object y)
+            int IComparer<PropertyDescriptor>.Compare(PropertyDescriptor x, PropertyDescriptor y)
             {
                 if (cat)
                 {

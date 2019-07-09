@@ -26,7 +26,7 @@ namespace BaseLib.Xwt
                 var callback = Delegate.CreateDelegate(t4, typeof(WPF), "ExitFrame");
 
                 var mi = current.GetType().GetMethod("BeginInvoke", new Type[] { typeof(Delegate), t3, typeof(object[]) });
-                mi.Invoke(current, new object[] { (Delegate)callback, Enum.Parse(t3, "Background"), new object[] { frame } });
+                mi.Invoke(current, new object[] { (Delegate)callback, Enum.Parse(t3, "ApplicationIdle"/*Background"*/), new object[] { frame } });
 
                 mi = t.GetMethod("PushFrame", BindingFlags.Static | BindingFlags.Public, null, new Type[] { frame.GetType() }, new ParameterModifier[] { new ParameterModifier(1) });
                 mi.Invoke(null, new object[] { frame });

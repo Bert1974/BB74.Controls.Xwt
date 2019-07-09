@@ -274,7 +274,7 @@ namespace BaseLib.Xwt.Controls
                                     }
                               /*      break;
                             }*/
-                            Debug.Assert(nextsize[bp] > 0);
+                          //  Debug.Assert(nextsize[bp] > 0);
                         }
                     }
                 }
@@ -300,7 +300,7 @@ namespace BaseLib.Xwt.Controls
                                     /*    break;
                                     }
                             }*/
-                            Debug.Assert(nextsize[bp] > 0);
+                       //     Debug.Assert(nextsize[bp] > 0);
                         }
                         //if (ExpandsForOrientation(bp.Child))
                         //    nextsize[bp] = minsize[bp]+expandRemaining.NextSizePart();

@@ -284,11 +284,12 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
 
                     if (captured)
                     {
+                        var pt = args.Position;
                         ClrCapture();
 
-                        if (this.closebutton != null && this.CloseRectangle.Contains(this.dragpt))
+                        if (this.closebutton != null && this.CloseRectangle.Contains(pt))
                         {
-                            if (this.CloseRectangle.Contains(args.X, args.Y))
+                            if (this.CloseRectangle.Contains(pt))
                             {
                                 Closebutton_Clicked(null, null);
                             }

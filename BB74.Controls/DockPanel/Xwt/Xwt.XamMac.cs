@@ -103,7 +103,10 @@ namespace BaseLib.Xwt
                    {
                        pt= pt.Offset(-p.ParentBounds.X, -p.ParentBounds.Y);
                    }*/
-                return pt.Offset(-widget.ParentWindow.Location.X, -widget.ParentWindow.Location.Y);
+
+                var scrpt = widget.ConvertToScreenCoordinates(Point.Zero);
+
+                return pt.Offset(-scrpt.X, -scrpt.Y);
             }
 
             public override void DoEvents(Func<bool>cancelfunc)
