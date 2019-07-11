@@ -8,15 +8,15 @@ using Xwt.Backends;
 using Xwt.Drawing;
 
 namespace BaseLib.Xwt.Controls
-{
+{ 
     public class Toolbar : HBox
     {
         private readonly ToolbarImpl impl;
-        private float spacing = 6;
 
         public Toolbar()
         {
             this.impl = new ToolbarImpl(this);
+            this.Spacing = 2;
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
@@ -186,6 +186,7 @@ namespace BaseLib.Xwt.Controls
                 {
                     var b = this.owner.Placements[nit].Child;
                     var s = (Size)b.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                    var s2 = b.Surface.GetPreferredSize(widthConstraint, heightConstraint,false);
                     mw[nit] = MinWidth(b, s);
                     ww[nit] = s.Width;
                     hh = Math.Max(s.Height, hh);
