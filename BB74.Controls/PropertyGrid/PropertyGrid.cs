@@ -64,9 +64,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         CancellationTokenSource worker2cancel = new CancellationTokenSource();
         private Toolbar toolbar;
-        private Canvas viewtable;
+        private Table viewtable;
         private PropertyTab curtab;
-        private PropertyTab[] curtabs;
 
         public object SelectedObject
         {
@@ -93,13 +92,6 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         internal bool SortAlphabetical => this.SortMode == PropertySort.Alphabetical || this.SortMode == PropertySort.CategorizedAlphabetical;
         internal bool SortCategorized => this.SortMode == PropertySort.Categorized || this.SortMode == PropertySort.CategorizedAlphabetical;
 
-        public Rectangle TabPosition
-        {
-            get
-            {
-                return new Rectangle(Point.Zero, this.viewtable.Size);
-            }
-        }
         public PropertyGrid()
         {
             this.BackgroundColor = Colors.White;
@@ -112,7 +104,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             base.PackStart(this.toolbar, false, true);
 
-            this.viewtable = new Canvas() { HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, ExpandHorizontal = false, ExpandVertical = false };
+            this.viewtable = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, ExpandHorizontal = true, ExpandVertical = true };
 
             base.PackStart(this.viewtable, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
 
@@ -123,48 +115,16 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         private void Tabs_OnCollectionChanged(object sender, EventArgs e)
         {
-            PropertyTab[] otab = new PropertyTab[0], ntab;
-
-            if (this.curtabs != null)
+            if (this.curtab == null)
             {
-                otab = this.curtabs.Where(_t => !this.Tabs.Contains(_t)).ToArray();
-                ntab = this.Tabs.Where(_t => !this.curtabs.Contains(_t)).ToArray();
+                ShowTab(this.Tabs.FirstOrDefault());
             }
-            else
-            {
-                ntab = this.Tabs.ToArray();
-            }
-            this.curtabs = this.Tabs.ToArray();
-
-            foreach (var t in otab)
-            {
-                this.viewtable.RemoveChild(t);
-
-                if (object.ReferenceEquals(this.curtab, t))
-                {
-                    this.curtab = null;
-                }
-            }
-            this.curtab = this.curtab ?? this.Tabs.FirstOrDefault();
-
-            foreach (var t in this.Tabs.Where(_t => !ntab.Contains(_t)))
-            {
-                t.Visible = object.ReferenceEquals(this.curtab, t);
-            }
-            foreach (var t in ntab)
-            {
-                t.Visible = object.ReferenceEquals(this.curtab, t);
-                this.viewtable.AddChild(t, TabPosition);
-             //  this.viewtable.Add(t, 0, 0, 1, 1, true, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
-            }
-            this.curtab?.Fill();
-
             this.toolbar.Clear();
+
             foreach (var tab in this.Tabs)
             {
                 this.toolbar.Add(NewButton(tab));
             }
-            this.viewtable.QueueForReallocate();
         }
         private Button NewButton(PropertyTab tab)
         {
@@ -172,30 +132,23 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             r.Clicked += select_tab;
             r.Label = tab.TabText;
             r.Tag = tab;
-            SetChecked(r, object.ReferenceEquals(tab,this.curtab));
             return r;
         }
         private void select_tab(object sender, EventArgs e)
         {
-            var ntab = (sender as Widget).Tag as PropertyTab;
-
-            ShowTab(ntab);
+            ShowTab((sender as Widget).Tag as PropertyTab);
         }
         public void ShowTab(PropertyTab tab)
         {
-            if (!object.ReferenceEquals(this.curtab, tab))
+            if (this.curtab != null)
             {
-                if (this.curtab != null)
-                {
-                    this.curtab.Visible = false;
-                }
-                if ((this.curtab = tab) != null)
-                {
-                    this.curtab.Visible = true;
-                    this.viewtable.SetChildBounds(this.curtab,TabPosition);
-                }
+                this.viewtable.Remove(this.curtab);
             }
-            this.curtab?.Fill();
+            if ((this.curtab = tab) != null)
+            {
+                this.viewtable.Add(tab, 0, 0, 1, 1, true, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
+                tab.Fill();
+            }
             foreach (var b in this.toolbar.Children.OfType<Button>())
             {
                 SetChecked(b, object.ReferenceEquals(b.Tag, this.curtab));
@@ -207,13 +160,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         protected override void OnBoundsChanged()
         {
-            foreach(var tab in this.Tabs)
-            { 
-                this.viewtable.SetChildBounds(tab, TabPosition);
-            }
             //  this.viewtable.QueueForReallocate();
             base.OnBoundsChanged();
-         //   this.viewtable.QueueForReallocate();
+            this.viewtable.QueueForReallocate();
         }
         public void Fill(bool first = true)
         {
