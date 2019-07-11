@@ -18,6 +18,93 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
     public class PropertyTab : VBox2
     {
+        class SplitHeader : HPaned
+        {
+            public event EventHandler CheckValue;
+
+            private double position = -1;
+            private bool needsresize = false;
+
+            public SplitHeader()
+            {
+                this.Panel1.Content = new Label() { MinWidth = 3 * PropertyGrid.spacedx };
+                this.Panel2.Content = new Label() { MinWidth = 3 * PropertyGrid.spacedx };
+
+                SetPosition(.5);
+            }
+            protected override void OnBoundsChanged()
+            {
+                SetPosition(this.position);
+                base.OnBoundsChanged();
+            }
+            protected override void OnPositionChanged()
+            {
+                base.OnPositionChanged();
+                this.CheckValue?.Invoke(this, EventArgs.Empty);
+            }
+            public double GetPosition()
+            {
+                var ww = this.Size.Width;
+                if (ww <= 0.0)
+                {
+                    ww = this.Panel1.Content.MinWidth + this.Panel2.Content.MinWidth;
+                }
+                if (ww > 0.0)
+                {
+                    double value;
+                    if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+                    {
+                        value = this.Panel1.Content.Size.Width;
+                    }
+                    else
+                    {
+                        value = this.Position;
+                    }
+                    return Math.Max(0, Math.Min(1, value / ww));
+                }
+                return .5;
+            }
+            public void SetPosition(double value)
+            {
+                if (this.needsresize || this.position != value)
+                {
+                    this.position = value;
+
+                    try
+                    {
+                        //   if (Toolkit.CurrentEngine.Type != ToolkitType.XamMac)
+
+                        /*if (paned.Size.Width <= 0)
+                        {
+                            Debug.Assert(false);
+                        }
+                        else*/
+                        {
+                            value *= this.Size.Width;
+                        }
+                        if (this.Size.Width > 0)
+                        {
+                            this.Position = value;
+
+                            if (this.needsresize)
+                            {
+                                this.needsresize = false;
+                                this.CheckValue?.Invoke(this, EventArgs.Empty);
+                            }
+                        }
+                        else
+                        {
+                            this.needsresize = true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.ToString());
+                        this.needsresize = true;
+                    }
+                }
+            }
+        }
         public bool EditMode => CheckEditMode(this.tree);
 
         private bool CheckEditMode(GridItem item) => ((item?.Widget?.Tag as EditCanvas)?.editmode ?? false) || (item?.Items?.Any(_subitem => CheckEditMode(_subitem)) ?? false);
@@ -28,7 +115,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         private readonly Scrollbar scrollbar;
         private readonly Canvas scrollcanvas;
         private readonly VBox2 vboxlist;
-        private readonly HPaned splitheader;
+        private readonly SplitHeader splitheader;
         CancellationTokenSource worker2cancel = new CancellationTokenSource();
         private int updating = 0;
         private PropertyGrid owner;
@@ -72,13 +159,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.MinWidth = PropertyGrid.spacedx * 6;
             this.MinHeight = PropertyGrid.lineheight * 2 + PropertyGrid.splitheight;
 
-            this.splitheader = new HPaned() { };
-
-            this.splitheader.Panel1.Content = new Label() { MinWidth = 3 * PropertyGrid.spacedx };
-            this.splitheader.Panel2.Content = new Label() { MinWidth = 3 * PropertyGrid.spacedx };
+            this.splitheader = new SplitHeader() { };
+            this.splitheader.SetPosition(.5);
+            this.splitheader.CheckValue += Splitheader_CheckValue;
 
             //  this.PackStart(splitheader, true, false);
-            this.splitheader.PositionChanged += Splitheader_PositionChanged;
 
             base.PackStart(this.splitheader, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
 
@@ -88,8 +173,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             hbox.PackStart(this.scrollbar, false, false);
 
             base.PackStart(hbox, true, true);
+        }
 
-            QueueOnUI(() => { this.splitheader.SetPosition(.5); SetWidth(this.tree); });
+        private void Splitheader_CheckValue(object sender, EventArgs e)
+        {
+            SetWidth(this.tree);
         }
 
         private void Scroll_MouseScrolled(object sender, MouseScrolledEventArgs e)
@@ -122,13 +210,6 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             CancelEdit(true);
         }
 
-        private void Splitheader_PositionChanged(object sender, EventArgs e)
-        {
-            if (this.updating == 0)
-            {
-                SetWidth(this.tree);
-            }
-        }
         public void Fill(bool first = false)
         {
             Clear();

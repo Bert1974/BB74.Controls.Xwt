@@ -47,22 +47,26 @@ namespace DockExample
                     Application.Initialize(ToolkitType.XamMac);
                 }
 #else
-            if (System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-            {
-                BaseLib.Xwt.Platform.Initialize(args.Contains("gtk3")? ToolkitType.Gtk3 : ToolkitType.Gtk);
-            }
-            else
-            {
-                if (args.Contains("gtk"))
+                if (BaseLib.Xwt.Platform.OSPlatform == PlatformID.MacOSX)
                 {
-                    try { Application.Initialize(ToolkitType.Gtk); }
-                    catch { Application.Initialize(ToolkitType.Wpf); }
+                    BaseLib.Xwt.Platform.Initialize(args.Contains("-gtk") ? ToolkitType.Gtk : ToolkitType.XamMac);
+                }
+                else if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    BaseLib.Xwt.Platform.Initialize(args.Contains("-gtk3") ? ToolkitType.Gtk3 : ToolkitType.Gtk);
                 }
                 else
                 {
-                    Application.Initialize(ToolkitType.Wpf);
+                    if (args.Contains("-gtk"))
+                    {
+                        try { Application.Initialize(ToolkitType.Gtk); }
+                        catch { Application.Initialize(ToolkitType.Wpf); }
+                    }
+                    else
+                    {
+                        Application.Initialize(ToolkitType.Wpf);
+                    }
                 }
-            }
 #endif
                 Program.Xwt = (IXwt)XwtImpl.Create();
 

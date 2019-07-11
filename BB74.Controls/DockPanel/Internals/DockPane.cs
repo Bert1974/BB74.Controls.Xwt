@@ -147,7 +147,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
 
             SetOwner(docs);
 
-            this._docs.AddRange(docs);
+         //   this.Add(docs);
+           this._docs.AddRange(docs);
            // GetSize(true);
         }
         internal void MoveWindows()
@@ -373,6 +374,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
             AddDrop(0, r.Top + (r.Height - wh) / 2, DockPosition.Left);
             AddDrop(r.Right - wh, r.Top + (r.Height - wh) / 2, DockPosition.Right);
             AddDrop((r.Width - wh) / 2, r.Top + (r.Height - wh) / 2, DockPosition.Center);
+
+     //       this.QueueForReallocate();
 
             Console.WriteLine($"added drops");
         }
