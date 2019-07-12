@@ -216,6 +216,7 @@ namespace BaseLib.Xwt.Controls
                 else
                 {
                     txtcell.Widget = new Label() { };
+                    txtcell.Widget.Font = BaseLib.Xwt.Controls.PropertyGrid.PropertyGrid.PropertyFont;
                 }
             }
             Sync(cell);

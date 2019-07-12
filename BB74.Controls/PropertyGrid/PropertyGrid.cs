@@ -48,7 +48,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
     }
     public class PropertyGrid : VBox2
     {
-        public static readonly Font PropertyFont = Font.SystemFont.WithSize(13);
+        public static readonly Font PropertyFont = Font.SystemFont.WithSize(11);
         public static readonly Font CategoryFont = PropertyFont.WithWeight(FontWeight.Heavy);
         public static readonly Font ButtonFont = Font.SystemFont.WithSize(13).WithWeight(FontWeight.Heavy);
         public static readonly int spacedx = 12, splitheight = 12, lineheight = 22;
