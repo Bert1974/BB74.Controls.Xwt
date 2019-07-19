@@ -109,16 +109,18 @@ namespace BaseLib.Xwt
                 return pt.Offset(-scrpt.X, -scrpt.Y);
             }
 
-            public override void DoEvents(Func<bool>cancelfunc)
+            public override void DoEvents(Func<bool> cancelfunc)
             {
+                object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
+                //  object mask = Enum.ToObject(XamMac.appkit_nseventmask, 0xfe/*"AnyEvent"*/);
+                object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
+
                 object e;
                 int cnt = 500;
                 if (this.captureitem != null)
                 {
                     object nsappinstance = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-                    object mask = Enum.ToObject(XamMac.appkit_nseventmask, 0xfe/*"AnyEvent"*/);
                     //object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)0x44);
-                    object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
 
                     var nswin = this.captureitem.ParentWindow.GetBackend().Window;
@@ -201,17 +203,31 @@ namespace BaseLib.Xwt
                 else // not captured
                 {
                     object o = XamMac.appkit_nsapplication.GetPropertyValueStatic("SharedApplication");
-                    object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
-                    object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
-                    object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
-                     do
+                    //   object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
+                    //  object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
+                    object mode = Enum.Parse(XamMac.found_nsrunloopmode, "Default");
+                    now = XamMac.found_nsdate.GetPropertyValueStatic("Now");
+                    do
                     {
                         e = XamMac.mi_nsapp_nextevent.Invoke(o, new object[] { mask, now, mode, true });
+
+                        if (e != null)
+                        {
+                            var nswin = e.GetType().GetPropertyValue(e, "Window");
+
+                            if (nswin != null)
+                            {
+                                XamMac.appkit_nswindow.GetMethod("SendEvent").Invoke(nswin, new object[] { e });
+                            }
+                            else
+                            {
+                                XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(o, new object[] { e });
+                            }
+                        }
                     }
-                      while (cancelfunc() && e != null && --cnt >= 0);
+                    while (cancelfunc() && e != null && --cnt >= 0);
                 }
             }
-
             private bool HandleButtonEvent(string eventname, object e)
             {
                 var pt = MousePositionForWidget(this.captureitem);
