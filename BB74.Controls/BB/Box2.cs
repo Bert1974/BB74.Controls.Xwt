@@ -254,10 +254,10 @@ namespace BaseLib.Xwt.Controls
                 var remaining2 = availableSize - requiredSize - (spacing * (double)(visibleChildren.Length - 1));
                 if (remaining2 > 0) // more space as getpreffered
                 {
-                    var expandRemaining = new SizeSplitter(remaining2 - (requiredSize - totminsize), nexpands);
+                    var expandRemaining = new SizeSplitter(remaining2, nexpands);
                     foreach (var bp in visibleChildren)
                     {
-                        nextsize[bp] = minsize[bp];
+                      //  nextsize[bp] = minsize[bp];
                         if (ExpandsForOrientation(bp.Child))
                         {
                             nextsize[bp] += expandRemaining.NextSizePart();
@@ -284,10 +284,10 @@ namespace BaseLib.Xwt.Controls
                     var expandRemaining = new SizeSplitter((requiredSize - totminsize), nexpands);
                     foreach (var bp in visibleChildren)
                     {
-                        nextsize[bp] = minsize[bp] + dd * (nextsize[bp] - minsize[bp]) / (requiredSize - totminsize);
+                        nextsize[bp] += remaining2 * (nextsize[bp] - minsize[bp]) / (requiredSize-totminsize);
                         if (ExpandsForOrientation(bp.Child))
                         {
-                            nextsize[bp] += expandRemaining.NextSizePart();
+                      //      nextsize[bp] += expandRemaining.NextSizePart();
 
                         /*    switch (AlligmMent(bp.Child))
                             {
