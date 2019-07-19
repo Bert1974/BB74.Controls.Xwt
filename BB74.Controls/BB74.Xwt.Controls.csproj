@@ -39,12 +39,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Xwt">
-      <HintPath>..\..\MovieEdit.Xwt\packages\Xwt.0.2.171\lib\net40\Xwt.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BB\CellHandler.cs" />
+    <Compile Include="BB\Spacer.cs" />
     <Compile Include="BB\Toolbar.cs" />
     <Compile Include="DockPanel\BaseLib\Extensions.cs" />
     <Compile Include="DockPanel\Internals\DragDrop.cs" />
@@ -79,13 +77,22 @@
     <Compile Include="PropertyGrid\PropertyGrid.EditCanvas.cs" />
     <Compile Include="BB\Box2.cs" />
     <Compile Include="DockPanel\BaseLib\definitions.cs" />
+    <Compile Include="BB\FrameBox2.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="build.bat" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\xwt\Xwt\Xwt.csproj">
+      <Project>{92494904-35fa-4dc9-bde9-3a3e87ac49d3}</Project>
+      <Name>Xwt</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
