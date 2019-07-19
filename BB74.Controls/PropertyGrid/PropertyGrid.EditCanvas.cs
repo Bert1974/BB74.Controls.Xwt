@@ -62,7 +62,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
                 }
                 ctx.SetColor(Colors.Black);
 
-                var tl = new TextLayout() { Text = txt, Font = this.owner.Font, Trimming = TextTrimming.WordElipsis, Width = this.Bounds.Width, Height = this.Bounds.Height, TextAlignment = Alignment.Start };
+                var tl = new TextLayout() { Text = txt, Font = PropertyGrid.PropertyFont, Trimming = TextTrimming.WordElipsis, Width = this.Bounds.Width, Height = this.Bounds.Height, TextAlignment = Alignment.Start };
 
                 var ts = tl.GetSize();
                 var xy = new Point(0, (this.Bounds.Height - ts.Height) * .5);
@@ -108,27 +108,29 @@ namespace BaseLib.Xwt.Controls.PropertyGrid.Internals
 
                         if (this.item.TypeConverter.GetStandardValuesSupported(this.item as ITypeDescriptorContext))
                         {
-                            this.cbinput = this.isreadonly ? new ComboBox() : new ComboBoxEntry();
+                            bool stdvaluesexclusive = this.item.TypeConverter.GetStandardValuesExclusive();
+                            this.cbinput = this.isreadonly|| stdvaluesexclusive ? new ComboBox() : new ComboBoxEntry();
 
                             var stdvalues = this.item.TypeConverter.GetStandardValues(this.item as ITypeDescriptorContext).Cast<object>().ToArray();
                             foreach (var stdvalue in stdvalues)
                             {
-                                var stdtxt = item.PropertyDescriptor.Attributes.OfType<DisplayNameAttribute>().FirstOrDefault()?.DisplayName ??
+                                var stdtxt = (stdvalue.GetType().GetCustomAttributes(typeof(DisplayNameAttribute),true).FirstOrDefault() as DisplayNameAttribute)?.DisplayName ??
                                              item.TypeConverter.ConvertToString(item as ITypeDescriptorContext, stdvalue);
                                 this.cbinput.Items.Add(new comboitem(stdvalue, stdtxt));
                             }
                             var sel = this.cbinput.Items.Cast<comboitem>().FirstOrDefault(_i => object.Equals(value, _i.value));
                             this.cbinput.SelectedItem = sel;
-                            this.AddChild(this.cbinput);
-                            this.SetChildBounds(this.cbinput, this.Bounds);
 
-                            if (!this.isreadonly)
+                            if (this.cbinput is ComboBoxEntry)
                             {
                                 (this.cbinput as ComboBoxEntry).TextEntry.TextAlignment = Alignment.Start;
                                 (this.cbinput as ComboBoxEntry).TextEntry.Text = sel?.text ?? "";
                                 (this.cbinput as ComboBoxEntry).TextEntry.Changed += cbinput_textchanged;
                             }
                             cbinput.SelectionChanged += Cbinput_SelectionChanged;
+
+                            this.AddChild(this.cbinput);
+                            this.SetChildBounds(this.cbinput, this.Bounds);
                         }
                         else
                         {

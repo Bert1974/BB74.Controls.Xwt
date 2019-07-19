@@ -116,6 +116,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         private readonly Canvas scrollcanvas;
         private readonly VBox2 vboxlist;
         private readonly SplitHeader splitheader;
+        private readonly HBox2 hbox;
         CancellationTokenSource worker2cancel = new CancellationTokenSource();
         private int updating = 0;
         private PropertyGrid owner;
@@ -153,26 +154,98 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.scrollcanvas.AddChild(this.vboxlist);
 
             this.scrollcanvas.MouseScrolled += Scroll_MouseScrolled;
+     //       this.scrollcanvas.BoundsChanged += Scrollcanvas_BoundsChanged;
 
             this.scrollcanvas.ClipToBounds();
 
             this.MinWidth = PropertyGrid.spacedx * 6;
             this.MinHeight = PropertyGrid.lineheight * 2 + PropertyGrid.splitheight;
 
+            var hbox2 = new HBox2();
             this.splitheader = new SplitHeader() { };
             this.splitheader.SetPosition(.5);
             this.splitheader.CheckValue += Splitheader_CheckValue;
 
+            hbox2.PackStart(this.splitheader, true, true);
+            hbox2.PackStart(new Spacer(this.scrollbar, Orientation.Horizontal));
+
             //  this.PackStart(splitheader, true, false);
 
-            base.PackStart(this.splitheader, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
+            base.PackStart(hbox2, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
 
-            var hbox = new HBox2();
+            this.hbox = new HBox2();
 
-            hbox.PackStart(this.scrollcanvas, true, true);
-            hbox.PackStart(this.scrollbar, false, false);
+            this.hbox.PackStart(this.scrollcanvas, true, true);
+            this.hbox.PackStart(this.scrollbar, false, false);
 
-            base.PackStart(hbox, true, true);
+            base.PackStart(this.hbox, true, true);
+        }
+
+        private void Scrollcanvas_BoundsChanged(object sender, EventArgs e)
+        {
+      //      CheckSize();
+        }
+        void CheckSize()
+        { 
+            if (this.WindowBounds.Width >= this.scrollbar.Size.Width && this.scrollcanvas.Size.Height >= PropertyGrid.splitheight)
+            {
+                this.updating++;
+                /*
+                                this.SetChildBounds(this.splitheader, new Rectangle(0, 0, this.Bounds.Width - scrollw, PropertyGrid.splitheight));
+                                this.SetChildBounds(this.scrollcanvas, new Rectangle(0, PropertyGrid.splitheight, this.Bounds.Width - scrollw, this.Bounds.Height - PropertyGrid.splitheight));
+                                this.SetChildBounds(this.scrollbar, new Rectangle(this.Bounds.Width - scrollw, PropertyGrid.splitheight, scrollw, this.Bounds.Height - PropertyGrid.splitheight));
+
+                                *///base.OnBoundsChanged();
+
+                UpdateScroll();
+
+                var listsize = this.ListHeight;
+
+                //this.scrollbar.ClampPage(0, listsize);
+
+                this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.WindowBounds.Width-this.scrollbar.Size.Width, listsize));
+
+                SetWidth(this.tree);
+
+                //  this.QueueForReallocate();
+
+                this.updating--;
+            }
+        }
+
+        public virtual void Refresh()
+        {
+            if (this.SelectedObjects.Length > 0)
+            {
+                if (this.tree != null)
+                {
+                    var newtree = new GridItemRoot(this, this.SelectedObjects.SingleOrDefault());
+                    (this.tree as GridItemRoot).Refresh(newtree);
+
+                    Clear();
+                    this.tree = newtree;
+                    CreateList(this.tree);
+                    CheckSize();
+                }
+                else
+                {
+                    Fill(false);
+                }
+            }
+            else
+            {
+                Clear();
+            }
+        }
+
+        private void UpdateScroll()
+        {
+            var listsize = this.ListHeight;
+            var pagsize = this.Size.Height - PropertyGrid.splitheight;
+            this.scrollbar.StepIncrement = 1;
+            this.scrollbar.UpperValue = Math.Max(0, listsize - pagsize);
+            this.scrollbar.PageSize = 1;
+            this.scrollbar.Value = Math.Max(0, Math.Min(this.scrollbar.Value, this.scrollbar.UpperValue));
         }
 
         private void Splitheader_CheckValue(object sender, EventArgs e)
@@ -195,7 +268,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             var listsize = this.ListHeight;
             var pagsize = this.scrollcanvas.Size.Height;// - PropertyGrid.splitheight;
 
-            this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
+          //  this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
         }
 
 
@@ -210,6 +283,23 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             CancelEdit(true);
         }
 
+     /*   public void Refresh()
+        {
+            var tree = new GridItemRoot(this, this.SelectedObjects.SingleOrDefault());
+
+            if (this.tree != null)
+            {
+                this.tree.Refresh(tree)
+            }
+            else
+            {
+                Clear();
+                CreateList(this.tree);
+                CheckSize();
+            }
+          //  CreateList(this.tree);
+          //  CheckSize();
+        }*/
         public void Fill(bool first = false)
         {
             Clear();
@@ -224,7 +314,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 {
                     this.tree = new GridItemRoot(this, this.SelectedObjects.SingleOrDefault());
                     CreateList(this.tree);
-                    OnBoundsChanged();
+                    CheckSize();
                 }
             }
         }
@@ -235,35 +325,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         protected override void OnBoundsChanged()
         {
-            if (this.Size.Width > 1 && this.Size.Height > PropertyGrid.splitheight)
             {
-                this.updating++;
-/*
-                this.SetChildBounds(this.splitheader, new Rectangle(0, 0, this.Bounds.Width - scrollw, PropertyGrid.splitheight));
-                this.SetChildBounds(this.scrollcanvas, new Rectangle(0, PropertyGrid.splitheight, this.Bounds.Width - scrollw, this.Bounds.Height - PropertyGrid.splitheight));
-                this.SetChildBounds(this.scrollbar, new Rectangle(this.Bounds.Width - scrollw, PropertyGrid.splitheight, scrollw, this.Bounds.Height - PropertyGrid.splitheight));
-
-                *///base.OnBoundsChanged();
-
-                var listsize = this.ListHeight;
-                var pagsize = this.Size.Height - PropertyGrid.splitheight;
-
-                this.scrollbar.StepIncrement = 1;
-                this.scrollbar.UpperValue = Math.Max(0, listsize - pagsize);
-                this.scrollbar.PageSize = 1;
-                this.scrollbar.Value = Math.Max(0, Math.Min(this.scrollbar.Value, this.scrollbar.UpperValue));
-                //this.scrollbar.ClampPage(0, listsize);
-
-                this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
-
-                SetWidth(this.tree);
-
-              //  this.QueueForReallocate();
-
-                this.updating--;
-            }
-            else
-            {
+                CheckSize();
                 base.OnBoundsChanged();
             }
         }
@@ -445,7 +508,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 ClearWidgets(this.tree);
 
                 CreateList(this.tree);
-                OnBoundsChanged();
+                CheckSize();
             }
         }
         private void ClearWidgets(GridItem item)
@@ -543,12 +606,14 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                       (item.Parent.Widget.Tag as EditCanvas).Refresh();
                   }
               }*/
-            if (item.Parent?.Widget?.Tag is EditCanvas)
-            {
-                (item.Parent.Widget.Tag as EditCanvas).Refresh();
+            /*   if (item.Parent?.Widget?.Tag is EditCanvas)
+               {
+                   (item.Parent.Widget.Tag as EditCanvas).Refresh();
 
-                CheckParentNotify(item.Parent);
-            }
+                   CheckParentNotify(item.Parent);
+               }*/
+            this.Refresh();
+           // item.RefreshProperties(this.GetValue(item));
         }
 
         public object GetValue(GridItem item)

@@ -1,4 +1,4 @@
-﻿using BaseLib.Xwt.Design;
+﻿    using BaseLib.Xwt.Design;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +31,42 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         internal Widget Widget { get; set; }
         internal virtual void RefreshProperties(object value) { }
+
+        public virtual void Refresh(GridItem newitem, object newvalue)
+        {
+            if (newitem.GetType() == this.GetType() && newitem.Label==this.Label)
+            {
+                newitem.Expanded = this.Expanded;
+
+                if (this.Expanded && this.Items!=null)
+                {
+                    if (newitem.Items == null)
+                    {
+                        newitem.RefreshProperties(newvalue);
+                    }
+                    foreach (var i in newitem.Items)
+                    {
+                        var o = this.Items.Where(_i => _i.GetType() == i.GetType() &&
+                                                       _i.Label == i.Label &&
+                                                       _i.PropertyDescriptor?.PropertyType == i.PropertyDescriptor?.PropertyType).FirstOrDefault();
+
+                        if (o != null)
+                        {
+                            var v = i.PropertyDescriptor?.GetValue(newvalue);
+                            o.Refresh(i, v);
+                        }
+                        else
+                        {
+                            i.Expanded = false;
+                        }
+                    }
+                }
+                else
+                {
+                    newitem.Expanded = false;
+                }
+            }
+        }
     }
     public class GridItemProperty : GridItem, ITypeDescriptorContext
     {
@@ -203,7 +239,6 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         {
             this.Items = TypeConverter.GetProperties(this, value, this.Tab.Filter).Cast<PropertyDescriptor>().Select(_pd => new GridItemProperty(this, value, _pd)).ToArray();
         }
-
         void ITypeDescriptorContext.OnComponentChanged()
         {
         }
@@ -251,6 +286,17 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             : base(owner, value, true)
         {
             this.Value = value;
+        }
+        public override void Refresh(GridItem newitem, object newvalue)
+        {
+            if ((newitem as GridItemRoot).Value.GetType() == this.Value.GetType())
+            {
+                base.Refresh(newitem, newvalue);
+            }
+        }
+        public void Refresh(GridItemRoot newitem)
+        {
+            this.Refresh(newitem, newitem.Value);
         }
     }
 }

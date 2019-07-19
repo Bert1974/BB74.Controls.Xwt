@@ -64,7 +64,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         CancellationTokenSource worker2cancel = new CancellationTokenSource();
         private Toolbar toolbar;
-        private Canvas viewtable;
+//        private Canvas viewtable;
         private PropertyTab curtab;
         private PropertyTab[] curtabs;
 
@@ -88,18 +88,16 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         public PropertySort SortMode { get; set; } = PropertySort.CategorizedAlphabetical;
 
-        public void Refresh() => Fill();
-
         internal bool SortAlphabetical => this.SortMode == PropertySort.Alphabetical || this.SortMode == PropertySort.CategorizedAlphabetical;
         internal bool SortCategorized => this.SortMode == PropertySort.Categorized || this.SortMode == PropertySort.CategorizedAlphabetical;
 
-        public Rectangle TabPosition
+    /*    public Rectangle TabPosition
         {
             get
             {
                 return new Rectangle(Point.Zero, this.viewtable.Size);
             }
-        }
+        }*/
         public PropertyGrid()
         {
             this.BackgroundColor = Colors.White;
@@ -112,9 +110,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             base.PackStart(this.toolbar, false, true);
 
-            this.viewtable = new Canvas() { HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, ExpandHorizontal = false, ExpandVertical = false };
+  //          this.viewtable = new Canvas() { HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, ExpandHorizontal = false, ExpandVertical = false };
 
-            base.PackStart(this.viewtable, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
+   //         base.PackStart(this.viewtable, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
 
             this.Tabs.OnCollectionChanged += Tabs_OnCollectionChanged;
 
@@ -138,7 +136,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             foreach (var t in otab)
             {
-                this.viewtable.RemoveChild(t);
+                base.Remove(t);
 
                 if (object.ReferenceEquals(this.curtab, t))
                 {
@@ -154,7 +152,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             foreach (var t in ntab)
             {
                 t.Visible = object.ReferenceEquals(this.curtab, t);
-                this.viewtable.AddChild(t, TabPosition);
+                base.PackStart(t, true, true);
+                //this.viewtable.AddChild(t, TabPosition);
              //  this.viewtable.Add(t, 0, 0, 1, 1, true, true, WidgetPlacement.Fill, WidgetPlacement.Fill);
             }
             this.curtab?.Fill();
@@ -164,7 +163,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             {
                 this.toolbar.Add(NewButton(tab));
             }
-            this.viewtable.QueueForReallocate();
+       //     this.viewtable.QueueForReallocate();
         }
         private Button NewButton(PropertyTab tab)
         {
@@ -192,7 +191,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 if ((this.curtab = tab) != null)
                 {
                     this.curtab.Visible = true;
-                    this.viewtable.SetChildBounds(this.curtab,TabPosition);
+                 //   this.viewtable.SetChildBounds(this.curtab,TabPosition);
                 }
             }
             this.curtab?.Fill();
@@ -207,10 +206,10 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         protected override void OnBoundsChanged()
         {
-            foreach(var tab in this.Tabs)
+           /* foreach(var tab in this.Tabs)
             { 
                 this.viewtable.SetChildBounds(tab, TabPosition);
-            }
+            }*/
             //  this.viewtable.QueueForReallocate();
             base.OnBoundsChanged();
          //   this.viewtable.QueueForReallocate();
@@ -219,6 +218,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         {
             this.curtab?.Fill(first);
         }
+        public void Refresh() => this.curtab?.Refresh();
         public bool CancelEdit(bool apply)
         {
             return this.curtab?.CancelEdit(apply) ?? true;
