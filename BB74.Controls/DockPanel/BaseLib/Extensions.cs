@@ -23,6 +23,14 @@ namespace BaseLib.Xwt
                 nativectl.GetType().SetPropertyValue(nativectl, "ClipToBounds", true);
             }
         }
+        public static void Active(this Window window)
+        {
+            if (BaseLib.Xwt.Platform.OSPlatform == PlatformID.MacOSX)
+            {
+                var nswin = window.GetBackend().Window;
+                nswin.GetType().Invoke(nswin, "MakeKeyWindow", new object[0]);
+            }
+        }
         public static IWidgetBackend GetBackend(this Widget o)
         {
             return (IWidgetBackend)global::Xwt.Toolkit.CurrentEngine.GetSafeBackend(o);
