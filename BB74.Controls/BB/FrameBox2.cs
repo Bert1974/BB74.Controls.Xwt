@@ -27,234 +27,272 @@ using System;
 using Xwt.Backends;
 using System.ComponentModel;
 using Xwt.Drawing;
-using System.Windows.Markup;
+using Xwt;
 
-namespace Xwt
+namespace BaseLib.Xwt.Controls
 {
-	[ContentProperty("Content")]
-	public class FrameBox: Widget
-	{
-		WidgetSpacing borderWidth;
-		WidgetSpacing padding;
-		FrameCanvas canvas;
-		Color borderColor = Colors.Black;
+    //	[ContentProperty("Content")]
+    public class FrameBox2 : Widget
+    {
+        WidgetSpacing borderWidth;
+        WidgetSpacing padding;
+        FrameCanvas canvas;
+        Color borderColor = Colors.Black;
 
-		class FrameCanvas: Canvas
-		{
-			Widget child;
+        class FrameCanvas : Canvas
+        {
+            Widget child;
 
-			public void Resize ()
-			{
-				OnPreferredSizeChanged ();
-				QueueDraw ();
-			}
+            public void Resize()
+            {
+                OnPreferredSizeChanged();
+                QueueDraw();
+            }
 
-			public Widget Child {
-				get { return child; }
-				set {
-					if (child != null)
-						RemoveChild (child);
-					child = value;
-					if (child != null)
-						AddChild (child);
-					Resize ();
-					QueueForReallocate ();
-				}
-			}
+            public Widget Child
+            {
+                get { return child; }
+                set
+                {
+                    if (child != null)
+                        RemoveChild(child);
+                    child = value;
+                    if (child != null)
+                        AddChild(child);
+                    Resize();
+                    QueueForReallocate();
+                }
+            }
 
-			protected override Size OnGetPreferredSize (SizeConstraint widthConstraint, SizeConstraint heightConstraint)
-			{
-				FrameBox parent = (FrameBox)Parent;
-				Size s = new Size (parent.Padding.HorizontalSpacing + parent.BorderWidth.HorizontalSpacing, parent.Padding.VerticalSpacing + parent.BorderWidth.VerticalSpacing);
-				if (child != null)
-					s += child.Surface.GetPreferredSize (widthConstraint - s.Width, heightConstraint - s.Height, true);
-				return s;
-			}
+            protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+            {
+                FrameBox2 parent = (FrameBox2)Parent;
+                Size s = new Size(parent.Padding.HorizontalSpacing + parent.BorderWidth.HorizontalSpacing, parent.Padding.VerticalSpacing + parent.BorderWidth.VerticalSpacing);
+                if (child != null)
+                    s += child.Surface.GetPreferredSize(widthConstraint - s.Width, heightConstraint - s.Height, true);
+                return s;
+            }
 
-			protected override void OnReallocate ()
-			{
-				if (child != null) {
-					FrameBox parent = (FrameBox)Parent;
-					Rectangle rect = Bounds;
-					var padding = parent.padding;
-					var border = parent.borderWidth;
-					rect.X += padding.Left + border.Left;
-					rect.Y += padding.Top + border.Top;
-					rect.Width -= padding.HorizontalSpacing + border.HorizontalSpacing;
-					rect.Height -= padding.VerticalSpacing + border.VerticalSpacing;
-					rect = child.Surface.GetPlacementInRect (rect);
-					SetChildBounds (child, rect);
-				}
-			}
+            protected override void OnReallocate()
+            {
+                if (child != null)
+                {
+                    FrameBox2 parent = (FrameBox2)Parent;
+                    Rectangle rect = Bounds;
+                    var padding = parent.padding;
+                    var border = parent.borderWidth;
+                    rect.X += padding.Left + border.Left;
+                    rect.Y += padding.Top + border.Top;
+                    rect.Width -= padding.HorizontalSpacing + border.HorizontalSpacing;
+                    rect.Height -= padding.VerticalSpacing + border.VerticalSpacing;
+                    rect = child.Surface.GetPlacementInRect(rect);
+                    SetChildBounds(child, rect);
+                }
+            }
 
-			protected override void OnDraw (Context ctx, Rectangle dirtyRect)
-			{
-				base.OnDraw (ctx, dirtyRect);
+            protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+            {
+                base.OnDraw(ctx, dirtyRect);
 
-				FrameBox parent = (FrameBox)Parent;
-				var border = parent.borderWidth;
-				var r = Bounds;
+                FrameBox2 parent = (FrameBox2)Parent;
+                var border = parent.borderWidth;
+                var r = Bounds;
 
-				//ctx.SetLineDash (0);
-				ctx.SetColor (parent.borderColor);
+                //ctx.SetLineDash (0);
+                ctx.SetColor(parent.borderColor);
 
-				if (border.Top > 0) {
-					ctx.MoveTo (r.X, r.Y + border.Top / 2);
-					ctx.RelLineTo (r.Width, 0);
-					ctx.SetLineWidth (border.Top);
-					ctx.Stroke ();
-				}
-				if (border.Bottom > 0) {
-					ctx.MoveTo (r.X, r.Bottom - border.Bottom / 2);
-					ctx.RelLineTo (r.Width, 0);
-					ctx.SetLineWidth (border.Bottom);
-					ctx.Stroke ();
-				}
-				if (border.Left > 0) {
-					ctx.MoveTo (r.X + border.Left / 2, r.Y + border.Top);
-					ctx.RelLineTo (0, r.Height - border.Top - border.Bottom);
-					ctx.SetLineWidth (border.Left);
-					ctx.Stroke ();
-				}
-				if (border.Right > 0) {
-					ctx.MoveTo (r.Right - border.Right / 2, r.Y + border.Top);
-					ctx.RelLineTo (0, r.Height - border.Top - border.Bottom);
-					ctx.SetLineWidth (border.Right);
-					ctx.Stroke ();
-				}
-			}
-		}
+                if (border.Top > 0)
+                {
+                    ctx.MoveTo(r.X, r.Y + border.Top / 2);
+                    ctx.RelLineTo(r.Width, 0);
+                    ctx.SetLineWidth(border.Top);
+                    ctx.Stroke();
+                }
+                if (border.Bottom > 0)
+                {
+                    ctx.MoveTo(r.X, r.Bottom - border.Bottom / 2);
+                    ctx.RelLineTo(r.Width, 0);
+                    ctx.SetLineWidth(border.Bottom);
+                    ctx.Stroke();
+                }
+                if (border.Left > 0)
+                {
+                    ctx.MoveTo(r.X + border.Left / 2, r.Y + border.Top);
+                    ctx.RelLineTo(0, r.Height - border.Top - border.Bottom);
+                    ctx.SetLineWidth(border.Left);
+                    ctx.Stroke();
+                }
+                if (border.Right > 0)
+                {
+                    ctx.MoveTo(r.Right - border.Right / 2, r.Y + border.Top);
+                    ctx.RelLineTo(0, r.Height - border.Top - border.Bottom);
+                    ctx.SetLineWidth(border.Right);
+                    ctx.Stroke();
+                }
+            }
+        }
 
-		public FrameBox ()
-		{
-			canvas = SetInternalChild (new FrameCanvas ());
-			base.Content = canvas;
-		}
+        public FrameBox2()
+        {
+            canvas = SetInternalChild(new FrameCanvas());
+            base.Content = canvas;
+        }
 
-		public FrameBox (Widget content): this ()
-		{
-			VerifyConstructorCall (this);
-			Content = content;
-		}
+        public FrameBox2(Widget content) : this()
+        {
+            //	VerifyConstructorCall (this);
+            Content = content;
 
-		public WidgetSpacing Padding {
-			get { return padding; }
-			set {
-				padding = value;
-				canvas.Resize ();
-			}
-		}
+            BorderWidth = 2;
+        }
 
-		[DefaultValue (0d)]
-		public double PaddingLeft {
-			get { return padding.Left; }
-			set {
-				padding.Left = value;
-				canvas.Resize ();
-			}
-		}
+        public WidgetSpacing Padding
+        {
+            get { return padding; }
+            set
+            {
+                padding = value;
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double PaddingRight {
-			get { return padding.Right; }
-			set {
-				padding.Right = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double PaddingLeft
+        {
+            get { return padding.Left; }
+            set
+            {
+                padding.GetType().SetPropertyValue(padding, "Left", value);
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double PaddingTop {
-			get { return padding.Top; }
-			set {
-				padding.Top = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double PaddingRight
+        {
+            get { return padding.Right; }
+            set
+            {
+                padding.GetType().SetPropertyValue(padding, "Right", value);
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double PaddingBottom {
-			get { return padding.Bottom; }
-			set {
-				padding.Bottom = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double PaddingTop
+        {
+            get { return padding.Top; }
+            set
+            {
+                padding.GetType().SetPropertyValue(padding, "Top", value);
+                canvas.Resize();
+            }
+        }
 
-		public WidgetSpacing BorderWidth {
-			get { return borderWidth; }
-			set {
-				borderWidth = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double PaddingBottom
+        {
+            get { return padding.Bottom; }
+            set
+            {
+                padding.GetType().SetPropertyValue(padding, "Bottom", value);
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double BorderWidthLeft {
-			get { return borderWidth.Left; }
-			set {
-				borderWidth.Left = value;
-				canvas.Resize ();
-			}
-		}
+        public WidgetSpacing BorderWidth
+        {
+            get { return borderWidth; }
+            set
+            {
+                borderWidth = value;
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double BorderWidthRight {
-			get { return borderWidth.Right; }
-			set {
-				borderWidth.Right = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double BorderWidthLeft
+        {
+            get { return borderWidth.Left; }
+            set
+            {
+                borderWidth.GetType().SetPropertyValue(borderWidth, "Left", value);
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double BorderWidthTop {
-			get { return borderWidth.Top; }
-			set {
-				borderWidth.Top = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double BorderWidthRight
+        {
+            get { return borderWidth.Right; }
+            set
+            {
+                borderWidth.GetType().SetPropertyValue(borderWidth, "Right", value);
+                canvas.Resize();
+            }
+        }
 
-		[DefaultValue (0d)]
-		public double BorderWidthBottom {
-			get { return borderWidth.Bottom; }
-			set {
-				borderWidth.Bottom = value;
-				canvas.Resize ();
-			}
-		}
+        [DefaultValue(0d)]
+        public double BorderWidthTop
+        {
+            get { return borderWidth.Top; }
+            set
+            {
+                borderWidth.GetType().SetPropertyValue(borderWidth, "Top", value);
+                canvas.Resize();
+            }
+        }
 
-		public Color BorderColor {
-			get { return borderColor; }
-			set { borderColor = value; canvas.QueueDraw (); }
-		}
+        [DefaultValue(0d)]
+        public double BorderWidthBottom
+        {
+            get { return borderWidth.Bottom; }
+            set
+            {
+                borderWidth.GetType().SetPropertyValue(borderWidth, "Bottom", value);
+                canvas.Resize();
+            }
+        }
 
-		/// <summary>
-		/// Removes all children of the Frame
-		/// </summary>
-		public void Clear ()
-		{
-			Content = null;
-		}
+        public Color BorderColor
+        {
+            get { return borderColor; }
+            set { borderColor = value; canvas.QueueDraw(); }
+        }
 
-		[DefaultValue (null)]
-		public new Widget Content {
-			get { return canvas.Child; }
-			set {
- 				var current = canvas.Child;
-				canvas.Child = null;
-				UnregisterChild (current);
- 				RegisterChild (value);
-				canvas.Child = value; 
-			}
-		}
+        /// <summary>
+        /// Removes all children of the Frame
+        /// </summary>
+        public void Clear()
+        {
+            Content = null;
+        }
 
-		protected Widget InternalContent {
-			get {
-				return canvas;
-			}
-		}
-	}
+        [DefaultValue(null)]
+        public new Widget Content
+        {
+            get { return canvas.Child; }
+            set
+            {
+                var current = canvas.Child;
+                canvas.Child = null;
+                UnregisterChild(current);
+                RegisterChild(value);
+                canvas.Child = value;
+            }
+        }
+
+        protected Widget InternalContent
+        {
+            get
+            {
+                return canvas;
+            }
+        }
+        protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+        {
+            return canvas.Surface.GetPreferredSize(widthConstraint, heightConstraint);
+        }
+    }
 }
 
