@@ -73,7 +73,7 @@ namespace BaseLib.Xwt.Controls
             }
             protected override void OnButtonPressed(ButtonEventArgs args)
             {
-            //    base.OnButtonPressed(args);
+                //    base.OnButtonPressed(args);
 
                 var hit = HitTest(args.Position);
 
@@ -91,7 +91,7 @@ namespace BaseLib.Xwt.Controls
                             this.lastrowhit = hit.Row;
                         }
                     }
-                    else  if ((Keyboard.CurrentModifiers & ModifierKeys.Control) != 0)
+                    else if ((Keyboard.CurrentModifiers & ModifierKeys.Control) != 0)
                     {
                         if (this.owner.selectedRows.Contains(hit.Row))
                         {
@@ -106,20 +106,20 @@ namespace BaseLib.Xwt.Controls
                     }
                     else
                     {
-                     /*   if (this.lastrowhit == hit.Row && args.MultiplePress == 2 && this.lastclick + .25f * 10000000 > DateTime.Now.Ticks)
-                        {
-                            abc
-                        }
-                        else
-                        {
-                            this.lastclick = DateTime.Now.Ticks;*/
-                            this.lastrowhit = hit.Row;
-                            this.owner.UnselectAll();
-                            this.owner.SelectRow(hit.Row);
-                      //  }
+                        /*   if (this.lastrowhit == hit.Row && args.MultiplePress == 2 && this.lastclick + .25f * 10000000 > DateTime.Now.Ticks)
+                           {
+                               abc
+                           }
+                           else
+                           {
+                               this.lastclick = DateTime.Now.Ticks;*/
+                        this.lastrowhit = hit.Row;
+                        this.owner.UnselectAll();
+                        this.owner.SelectRow(hit.Row);
+                        //  }
                     }
                 }
-               // args.Handled = true;
+                // args.Handled = true;
             }
 
 
@@ -159,6 +159,7 @@ namespace BaseLib.Xwt.Controls
                 }
             }
         }
+
         CellViewCollection views;
         private readonly Canvas scrollplace;
         private ItemCanvas viewplace;
@@ -174,6 +175,9 @@ namespace BaseLib.Xwt.Controls
 
         EventHandler selectionChanged;
         EventHandler<ListViewRowEventArgs> rowActivated;
+        private int busy;
+        private bool dirty;
+
         //   private HBox hbox;
 
         public ListBox2()
@@ -205,7 +209,7 @@ namespace BaseLib.Xwt.Controls
                 this.scrollplace.SetChildBounds(this.viewplace, r);
             };
 
-            this.hbox = new HBox2() { ExpandHorizontal = true, ExpandVertical = true,Spacing=0 };
+            this.hbox = new HBox2() { ExpandHorizontal = true, ExpandVertical = true, Spacing = 0 };
 
             this.hbox.PackStart(this.scrollplace, true, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
             this.hbox.PackStart(this.vscroll, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
@@ -224,8 +228,8 @@ namespace BaseLib.Xwt.Controls
 
         private void Scroll(double delta)
         {
-            this.vscroll.Value = Math.Max(0, Math.Min(this.vscroll.UpperValue,this.vscroll.Value+delta*16));
-            var r=this.scrollplace.GetChildBounds(this.viewplace);
+            this.vscroll.Value = Math.Max(0, Math.Min(this.vscroll.UpperValue, this.vscroll.Value + delta * 16));
+            var r = this.scrollplace.GetChildBounds(this.viewplace);
             r.Location = new Point(0, -this.vscroll.Value);
             this.scrollplace.SetChildBounds(this.viewplace, r);
         }
@@ -240,7 +244,7 @@ namespace BaseLib.Xwt.Controls
 
             this.SetChildBounds(this.vbox, new Rectangle(Point.Zero, this.Bounds.Size));
 
-         //   this.vbox.QueueForReallocate();
+            //   this.vbox.QueueForReallocate();
 
             //     var scrollsize = this.scroll.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
 
@@ -322,7 +326,7 @@ namespace BaseLib.Xwt.Controls
             {
                 for (int row = 0; row < this.DataSource.RowCount; row++)
                 {
-                    rows.Add(this.views.Select((_v,_n) => handlers[_v].CreateForRow(row,_n)).ToArray());
+                    rows.Add(this.views.Select((_v, _n) => handlers[_v].CreateForRow(row, _n)).ToArray());
 
                     for (int n = 0; n < this.views.Count; n++)
                     {
@@ -389,9 +393,10 @@ namespace BaseLib.Xwt.Controls
                     }
                 }
                 SetScroll(ww, rowh);
-  
+
                 sync_viewpos();
             }
+            this.viewplace.QueueDraw();
         }
 
         private void SyncRows()
@@ -460,7 +465,7 @@ namespace BaseLib.Xwt.Controls
             }
         }
 
-        private void SetScroll(double[] ww,double[]rowh)
+        private void SetScroll(double[] ww, double[] rowh)
         {
             var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
             this.vscroll.PageSize = 1;
@@ -508,8 +513,42 @@ namespace BaseLib.Xwt.Controls
             }
         }
 
+        public void SuspendLayout()
+        {
+            this.busy++;
+        }
+        public void ResumeLayout()
+        {
+            if (--this.busy == 0)
+            {
+                if (this.dirty)
+                {
+                    FillRows();
+                    this.viewplace.lastrowhit = -1;
+                }
+                this.dirty = false;
+            }
+        }
+        void Source_RowChanged(object sender, ListRowEventArgs e)
+        {
+            if (this.busy > 0)
+            {
+                this.dirty = true;
+                return;
+            }
+            for (int nit = 0; nit < this.views.Count; nit++)
+            {
+                this.handlers[this.views[nit]].Sync(this.rows[e.Row][nit]);
+            }
+            this.viewplace.QueueDraw();
+        }
         private void Source_RowInserted(object sender, ListRowEventArgs e)
         {
+            if (this.busy > 0)
+            {
+                this.dirty = true;
+                return;
+            }
             if (!SetViews())
             {
                 rows.Insert(e.Row, this.views.Select((_v,_n) => handlers[_v].CreateForRow(e.Row,_n)).ToArray());
@@ -527,10 +566,16 @@ namespace BaseLib.Xwt.Controls
                 }
                 this.SyncRows();
             }
+            this.viewplace.QueueDraw();
         }
 
         private void Source_RowDeleted(object sender, ListRowEventArgs e)
         {
+            if (this.busy > 0)
+            {
+                this.dirty = true;
+                return;
+            }
             if (this.DataSource.RowCount == 0)
             {
                 if (this.rows.Count > 0)
@@ -576,6 +621,7 @@ namespace BaseLib.Xwt.Controls
                     this.SyncRows();
                 }
             }
+            this.viewplace.QueueDraw();
         }
 
         /*     /// <summary>
@@ -788,15 +834,13 @@ namespace BaseLib.Xwt.Controls
             //      return Backend.GetRowBounds(row, includeMargin);
         }
         */
-        void Source_RowChanged(object sender, ListRowEventArgs e)
-        {
-            for (int nit = 0; nit < this.views.Count; nit++)
-            {
-                this.handlers[this.views[nit]].Sync(this.rows[e.Row][nit]);
-            }
-        }
         void HandleModelChanged(object sender, ListRowEventArgs e)
         {
+            if (this.busy > 0)
+            {
+                this.dirty = true;
+                return;
+            }
             FillRows();
             this.viewplace.lastrowhit = -1;
 
