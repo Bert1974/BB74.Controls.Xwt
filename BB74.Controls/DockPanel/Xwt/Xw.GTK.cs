@@ -1,5 +1,6 @@
 ﻿using BaseLib.Xwt.Interop;
 using System;
+using System.Runtime.InteropServices;
 using Xwt;
 
 namespace BaseLib.Xwt
@@ -8,31 +9,37 @@ namespace BaseLib.Xwt
     {
         class GTKXwt : RealXwt
         {
-         /*   [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
+            [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_grab")]
             private static extern int x11_gdk_pointer_grab(IntPtr gdkwindow, bool owner_events, int mask, IntPtr confine_to_gdkwin, IntPtr cursor, int time);
 
             [DllImport("libgdk-win32-2.0-0.dll", EntryPoint = "gdk_pointer_ungrab")]
-            private static extern void x11_gdk_pointer_ungrab(int time);*/
+            private static extern void x11_gdk_pointer_ungrab(int time);
 
             public override void ReleaseCapture(Widget widget)
             {
-              //  x11_gdk_pointer_ungrab(0);
+                Platform.GetType("Gdk.Pointer").InvokeStatic("Ungrab", new object[] { (uint)0 });
+             //   x11_gdk_pointer_ungrab(0);
 
-                var gtkwin = widget.GetBackend().NativeWidget;
-                Gtk.gtk_grab.InvokeStatic("Remove", gtkwin);
+                //   var gtkwin = widget.GetBackend().NativeWidget;
+                //   Gtk.gtk_grab.InvokeStatic("Remove", gtkwin);
             }
             public override void SetCapture(XwtImpl xwt, Widget widget)
             {
                 var gtkwin = widget.GetBackend().NativeWidget;
-                Gtk.gtk_grab.InvokeStatic("Add", gtkwin);
+              //  Gtk.gtk_grab.InvokeStatic("Add", gtkwin);
 
                 //  var gtk = widget.GetBackend().NativeWidget;
-            /*    var gdk = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
-                var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
+                var gdkwin = gtkwin.GetType().GetPropertyValue(gtkwin, "GdkWindow");
+                //  var h = (IntPtr)gdk.GetType().GetPropertyValue(gdk, "Handle");
 
-                int r = x11_gdk_pointer_grab(h, true, (1 << 5)//|(1<<9)|(1<10////0x3ffffe, IntPtr.Zero, IntPtr.Zero, 0);
-                
-                Console.WriteLine($"gdk_grab={r}");*/
+                //     int r = x11_gdk_pointer_grab(h, true, , IntPtr.Zero, IntPtr.Zero, 0);
+
+                var et = Platform.GetType("Gdk.EventMask");
+                var em = Enum.ToObject(et, 0x3f0/*0x33fb*/);
+
+                var r=    Platform.GetType("Gdk.Pointer").InvokeStatic("Grab", new object[] { gdkwin, true, em, null, null, (uint)0 });
+
+                Console.WriteLine($"gdk_grab={r}");
             }
             public override void DoEvents(Func<bool> cancelfunc)
             {
@@ -41,7 +48,7 @@ namespace BaseLib.Xwt
                 Gdk.gdk_threads.InvokeStatic("Enter");
                 int n = 500;
 
-                while (!cancelfunc() && (bool)Gtk.gtk_application.InvokeStatic("EventsPending") && n-- > 0)
+                while (cancelfunc() && (bool)Gtk.gtk_application.InvokeStatic("EventsPending") && n-- > 0)
                 {
                     mi_iteration.Invoke(null, new object[] { false });
                 }

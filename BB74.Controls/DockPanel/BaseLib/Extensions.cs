@@ -30,6 +30,11 @@ namespace BaseLib.Xwt
                 var nswin = window.GetBackend().Window;
                 nswin.GetType().Invoke(nswin, "MakeKeyWindow", new object[0]);
             }
+            else if (BaseLib.Xwt.Platform.OSPlatform == PlatformID.Unix)
+            {
+                var gtkwin = window.GetBackend().Window;
+                gtkwin.GetType().Invoke(gtkwin, "ActivateDefault");
+            }
         }
         public static IWidgetBackend GetBackend(this Widget o)
         {

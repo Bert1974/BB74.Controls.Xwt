@@ -27,8 +27,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
 
                 while (!this.doexit)
                 {
-                    this.xwt.DoEvents(() =>
-                    {
+                    this.xwt.DoEvents();/*() =>
+                    {*/
                         if (this.checkmouse)
                         {
                             this.xwt.GetMouseInfo(this, out int mx, out int my, out uint buttons);
@@ -42,8 +42,8 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                                 this.CheckMove(new Point(mx, my), true);
                             }
                         }
-                        return !this.doexit;
-                    });
+                    /*  return !this.doexit;
+                  });*/
                 }
                 this.xwt.ReleaseCapture(this.Content);
                 DockPanel.ClrHightlight();
