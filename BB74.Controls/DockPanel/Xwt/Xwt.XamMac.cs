@@ -108,12 +108,12 @@ namespace BaseLib.Xwt
 
                 return pt.Offset(-scrpt.X, -scrpt.Y);
             }
-
+            
             public override void DoEvents(Func<bool> cancelfunc)
             {
                 object mask = Enum.Parse(XamMac.appkit_nseventmask, "AnyEvent");
                 //  object mask = Enum.ToObject(XamMac.appkit_nseventmask, 0xfe/*"AnyEvent"*/);
-                object now = XamMac.found_nsdate.GetPropertyValueStatic("DistantFuture");
+                object now = XamMac.found_nsdate.GetPropertyValueStatic("Now");
 
                 object e;
                 int cnt = 500;
@@ -123,34 +123,62 @@ namespace BaseLib.Xwt
                     //object mask = Enum.ToObject(XamMac.appkit_nseventmask, (ulong)0x44);
                     object mode = Enum.Parse(XamMac.found_nsrunloopmode, "EventTracking");
 
-                    var nswin = this.captureitem.ParentWindow.GetBackend().Window;
 
                     this.captureitemeventdoeventcnt++;
 
                     object e2;
                     while (cancelfunc() && this.captured > 0 && --cnt >= 0)
                     {
-                        e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, false }); // no dequeue
+                        var nswin = this.captureitem.ParentWindow.GetBackend().Window;
+                        e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, true }); // no dequeue
 
                         bool handled = false;
 
                         if (this.captured != 0 && e2 != null)
                         {
-                            e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask }); // dequeues
+                      //      e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, true }); // dequeue
+                            //e = XamMac.mi_nswindow_nextevent.Invoke(nswin, new object[] { mask }); // dequeues
 
-                            if (e != null)
+                            var nswin2 = e2.GetType().GetPropertyValue(e2, "Window");
+
+                            if (!object.ReferenceEquals(nswin, nswin2)) // click through window??
                             {
+                                nswin2 = nswin;
+                            }
+                            if (nswin2 != null && object.ReferenceEquals(nswin,nswin2))
+                            {
+                             //   if (e != null)
                                 Debug.Assert(this.captured != 0);
-                                var et = e.GetType().GetPropertyValue(e, "Type");
+                                var et = e2.GetType().GetPropertyValue(e2, "Type");
 
                                 switch ((ulong)et)
                                 {
+#if (false)
+                                    case 10://key down
+                                        {
+                                            nswin.GetType().GetMethod("KeyDown").Invoke(nswin, new object[] { e });
+                                          /*  var t = Platform.GetType("Xwt.Mac.IViewObjectExtensions");
+                                            t.InvokeStatic("HandleKeyDown", new object[] { this.captureitem, e });
+                                            Console.WriteLine("key");*/
+                                            handled = true;
+                                        }
+                                        break;
+                                    case 11://key up
+                                        {
+                                            nswin.GetType().GetMethod("KeyUp").Invoke(nswin, new object[] { e });
+                                          /* var t = Platform.GetType("Xwt.Mac.IViewObjectExtensions");
+                                            t.InvokeStatic("HandleKeyUp", new object[] { this.captureitem, e });
+                                            Console.WriteLine("key");*/
+                                            handled = true;
+                                        }
+                                        break;
+#endif
                                     case 1: // left mouse down
                                     case 3: // right mouse down
                                         {
-                                            if (!HandleButtonEvent("OnButtonPressed", e))
+                                            if (!HandleButtonEvent("OnButtonPressed", e2))
                                             {
-                                                Platform.GetType("AppKit.NSControl").GetMethod("MouseDown").Invoke(nswin, new object[] { e });
+                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseDown").Invoke(nswin, new object[] { e2 });
                                             }
                                             handled = true;
                                         }
@@ -158,9 +186,9 @@ namespace BaseLib.Xwt
                                     case 2: // left mouse up
                                     case 4: // right mouse up
                                         {
-                                            if (!HandleButtonEvent("OnButtonReleased", e))
+                                            if (!HandleButtonEvent("OnButtonReleased", e2))
                                             {
-                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseUp").Invoke(nswin, new object[] { e });
+                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseUp").Invoke(nswin, new object[] { e2 });
                                             }
                                             handled = true;
                                         }
@@ -170,27 +198,36 @@ namespace BaseLib.Xwt
                                     case 7:// right mouse drag
                                         {
                                             var pt = MousePositionForWidget(this.captureitem);
-                                            var timestamp = (long)TimeSpan.FromSeconds((e.GetType().GetProperty("Timestamp").GetValue(e, new object[0]) as IConvertible).ToDouble(null)).TotalMilliseconds;
+                                            var timestamp = (long)TimeSpan.FromSeconds((e2.GetType().GetProperty("Timestamp").GetValue(e2, new object[0]) as IConvertible).ToDouble(null)).TotalMilliseconds;
                                             var args = new MouseMovedEventArgs(timestamp, pt.X, pt.Y) { Handled = false };
                                             this.captureitem.GetType().InvokePrivate(this.captureitem, "OnMouseMoved", new object[] { args });
 
                                             if (!args.Handled)
                                             {
-                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseMoved", BindingFlags.Instance | BindingFlags.Public).Invoke(nswin, new object[] { e });
+                                                Platform.GetType("AppKit.NSResponder").GetMethod("MouseMoved", BindingFlags.Instance | BindingFlags.Public).Invoke(nswin, new object[] { e2 });
                                             }
                                             handled = true;
                                         }
                                         break;
                                 }
-                                if (!handled)
+                              /*  if (!handled)
                                 {
                                     XamMac.appkit_nswindow.GetMethod("SendEvent").Invoke(nswin, new object[] { e });
-                                }
+                                }*/
                             }
-                            else
+                            if (e2 != null && !handled)
+                            //  else
                             {
-                                e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, true }); // deqeue
-                                XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(nsappinstance, new object[] { e2 });
+                           /*     if (nswin2 != null)
+                                {
+                                    XamMac.appkit_nswindow.GetMethod("SendEvent").Invoke(nswin2, new object[] { e2 });
+                                }
+                                else*/
+                                {
+                                    XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(nsappinstance, new object[] { e2 });
+                                }
+                                //  e2 = XamMac.mi_nsapp_nextevent.Invoke(nsappinstance, new object[] { mask, now, mode, true }); // deqeue
+                             //   XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(nsappinstance, new object[] { e2 });
                             }
                         }
                         else
@@ -213,13 +250,13 @@ namespace BaseLib.Xwt
 
                         if (e != null)
                         {
-                            var nswin = e.GetType().GetPropertyValue(e, "Window");
+                         /*   var nswin = e.GetType().GetPropertyValue(e, "Window");
 
                             if (nswin != null)
                             {
                                 XamMac.appkit_nswindow.GetMethod("SendEvent").Invoke(nswin, new object[] { e });
                             }
-                            else
+                            else*/
                             {
                                 XamMac.appkit_nsapplication.GetMethod("SendEvent").Invoke(o, new object[] { e });
                             }
@@ -227,7 +264,7 @@ namespace BaseLib.Xwt
                     }
                     while (cancelfunc() && e != null && --cnt >= 0);
                 }
-            }
+            }   
             private bool HandleButtonEvent(string eventname, object e)
             {
                 var pt = MousePositionForWidget(this.captureitem);
