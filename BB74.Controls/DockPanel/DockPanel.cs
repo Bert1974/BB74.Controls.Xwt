@@ -1480,6 +1480,10 @@ namespace BaseLib.Xwt.Controls.DockPanel
                         {
                             this.RemovePane(pane);
                         }
+                        else if (this.AllLayouts.OfType<IDockPane>().Where(_t => !object.ReferenceEquals(pane, _t) && _t.Documents.Count()==0).Count() > 0)
+                        {
+                            this.RemovePane(pane);
+                        }
                     }
                 }
                 else
