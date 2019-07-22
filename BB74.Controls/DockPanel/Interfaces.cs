@@ -33,6 +33,10 @@ namespace BaseLib.Xwt.Controls.DockPanel
         void OnLoaded(IDockPane pane);
         void OnUnloading();
     }
+    public interface IDockTooltip // optional for IDockContent
+    {
+        string TooltipText { get; }
+    }
     public interface IDockCustomize // optional for IDockContent
     {
         bool CanClose { get; }

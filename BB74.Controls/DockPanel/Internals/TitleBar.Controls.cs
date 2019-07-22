@@ -129,6 +129,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                     {
                         this.Active = false;
                     }
+                    SetTooltipText();
                 }
 
                 private void Closebutton_ButtonPressed(object sender, ButtonEventArgs e)
@@ -183,6 +184,17 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                     this.OnMouseMoved(ee);
                     e.Handled = ee.Handled;
                 }
+                protected override void OnMouseEntered(EventArgs args)
+                {
+                    base.OnMouseEntered(args);
+                    SetTooltipText();
+                }
+
+                private void SetTooltipText()
+                {
+                    this.TooltipText = (this.doc as IDockTooltip)?.TooltipText;
+                }
+
                 protected override void OnMouseMoved(MouseMovedEventArgs args)
                 {
                     args.Handled = true;
