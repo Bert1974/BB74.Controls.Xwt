@@ -66,7 +66,10 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         private Toolbar toolbar;
 //        private Canvas viewtable;
         private PropertyTab curtab;
-        private PropertyTab[] curtabs;
+        internal PropertyTab[] curtabs { get; private set; }
+
+        public delegate void PropertyValueChangedHandler(object sender, PropertyGridValueChangedArgs args);
+        public event PropertyValueChangedHandler ValueChanged;
 
         public object SelectedObject
         {
@@ -222,6 +225,15 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         public bool CancelEdit(bool apply)
         {
             return this.curtab?.CancelEdit(apply) ?? true;
+        }
+
+        internal void fire_OnPropertyValueChanged(PropertyTab tab, PropertyDescriptor pd, object value)
+        {
+            this.OnPropertyValueChanged(tab, pd, value);
+        }
+        protected virtual void OnPropertyValueChanged(PropertyTab tab, PropertyDescriptor pd, object value)
+        {
+            this.ValueChanged?.Invoke(this, new PropertyGridValueChangedArgs(pd, value));
         }
     }
     namespace Internals

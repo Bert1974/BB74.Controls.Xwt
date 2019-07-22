@@ -16,6 +16,18 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 {
     using Internals;
 
+    public class PropertyGridValueChangedArgs : EventArgs
+    {
+        public PropertyDescriptor PropertyDescriptor { get; }
+        public object NewValue { get; }
+
+        public PropertyGridValueChangedArgs(PropertyDescriptor pd, object newvalue)
+        {
+            this.PropertyDescriptor = pd;
+            this.NewValue = newvalue;
+        }
+    }
+
     public class PropertyTab : VBox2
     {
         class SplitHeader : HPaned
@@ -105,7 +117,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 }
             }
         }
+        public event PropertyGrid.PropertyValueChangedHandler ValueChanged;
+
         public bool EditMode => CheckEditMode(this.tree);
+
+        public int Index => Array.IndexOf(this.owner.curtabs, this);
 
         private bool CheckEditMode(GridItem item) => ((item?.Widget?.Tag as EditCanvas)?.editmode ?? false) || (item?.Items?.Any(_subitem => CheckEditMode(_subitem)) ?? false);
 
@@ -126,6 +142,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         public virtual object[] SelectedObjects
         {
             get => this.owner.SelectedObjects;
+            set => this.owner.SelectedObjects = value;
         }
         public PropertySort SortMode { get; set; } = PropertySort.CategorizedAlphabetical;
 
@@ -150,11 +167,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             this.vboxlist = new VBox2() { Spacing = 0 };
 
-            this.scrollcanvas = new Canvas() { HorizontalPlacement=WidgetPlacement.Fill,VerticalPlacement=WidgetPlacement.Fill};
+            this.scrollcanvas = new Canvas() { HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill };
             this.scrollcanvas.AddChild(this.vboxlist);
 
             this.scrollcanvas.MouseScrolled += Scroll_MouseScrolled;
-     //       this.scrollcanvas.BoundsChanged += Scrollcanvas_BoundsChanged;
+            //       this.scrollcanvas.BoundsChanged += Scrollcanvas_BoundsChanged;
 
             this.scrollcanvas.ClipToBounds();
 
@@ -183,10 +200,10 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         private void Scrollcanvas_BoundsChanged(object sender, EventArgs e)
         {
-      //      CheckSize();
+            //      CheckSize();
         }
         void CheckSize()
-        { 
+        {
             if (this.WindowBounds.Width >= this.scrollbar.Size.Width && this.scrollcanvas.Size.Height >= PropertyGrid.splitheight)
             {
                 this.updating++;
@@ -203,7 +220,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
                 //this.scrollbar.ClampPage(0, listsize);
 
-                this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.WindowBounds.Width-this.scrollbar.Size.Width, listsize));
+                this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.WindowBounds.Width - this.scrollbar.Size.Width, listsize));
 
                 SetWidth(this.tree);
 
@@ -268,7 +285,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             var listsize = this.ListHeight;
             var pagsize = this.scrollcanvas.Size.Height;// - PropertyGrid.splitheight;
 
-          //  this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
+            //  this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
         }
 
 
@@ -283,23 +300,23 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             CancelEdit(true);
         }
 
-     /*   public void Refresh()
-        {
-            var tree = new GridItemRoot(this, this.SelectedObjects.SingleOrDefault());
+        /*   public void Refresh()
+           {
+               var tree = new GridItemRoot(this, this.SelectedObjects.SingleOrDefault());
 
-            if (this.tree != null)
-            {
-                this.tree.Refresh(tree)
-            }
-            else
-            {
-                Clear();
-                CreateList(this.tree);
-                CheckSize();
-            }
-          //  CreateList(this.tree);
-          //  CheckSize();
-        }*/
+               if (this.tree != null)
+               {
+                   this.tree.Refresh(tree)
+               }
+               else
+               {
+                   Clear();
+                   CreateList(this.tree);
+                   CheckSize();
+               }
+             //  CreateList(this.tree);
+             //  CheckSize();
+           }*/
         public void Fill(bool first = false)
         {
             Clear();
@@ -395,9 +412,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                         MinWidth = 64,
                         Font = PropertyGrid.PropertyFont
                     };
-                       var ww = this.scrollcanvas.Size.Width > 0 && this.Size.Height > 0 ? (this.scrollcanvas.Size.Width * this.splitheader.GetPosition()) : this.scrollcanvas.Size.Width/2;
+                    var ww = this.scrollcanvas.Size.Width > 0 && this.Size.Height > 0 ? (this.scrollcanvas.Size.Width * this.splitheader.GetPosition()) : this.scrollcanvas.Size.Width / 2;
                     var left = new Table() { WidthRequest = ww, HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
-                    var right = new Table() { WidthRequest = Math.Max(0, this.scrollcanvas.Size.Width -  ww), HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
+                    var right = new Table() { WidthRequest = Math.Max(0, this.scrollcanvas.Size.Width - ww), HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
 
                     // spacing
                     left.Add(new Label() { WidthRequest = level * PropertyGrid.spacedx, HeightRequest = PropertyGrid.lineheight, MinWidth = level * PropertyGrid.spacedx }, 0, 0, 1, 1, vexpand: true);
@@ -576,6 +593,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             if (item is GridItemRoot)
             {
                 //this.SelectedObject = value;
+                Debug.Assert(false);
                 Debug.Assert(object.ReferenceEquals(this.SelectedObjects.Single(), value));
                 Debug.Assert(object.ReferenceEquals((item as GridItemRoot).Value, value));
                 return;
@@ -584,17 +602,49 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             {
                 item.PropertyDescriptor.SetValue((item.Parent as GridItemRoot).Value/*this.SelectedObject*/, value);
                 CheckParentNotify(item);
+
+                this.OnPropertyValueChanged(item.PropertyDescriptor, value);
+                this.owner.fire_OnPropertyValueChanged(this, item.PropertyDescriptor, value);
                 return;
             }
-            var parentvalue = this.GetValue(item.Parent);
+
+            _SetValue(item, value);
+       /*     var parentvalue = this.GetValue(item.Parent);
             item.PropertyDescriptor.SetValue(parentvalue, value);
 
             if (item.Parent.PropertyDescriptor.PropertyType.IsValueType)
             {
                 var parentobj = GetValue(item.Parent.Parent);
                 item.Parent.PropertyDescriptor.SetValue(parentobj, parentvalue);
-            }
+            }*/
             CheckParentNotify(item);
+
+            this.OnPropertyValueChanged(item.PropertyDescriptor, value);
+            this.owner.fire_OnPropertyValueChanged(this, item.PropertyDescriptor, value);
+        }
+        void _SetValue(GridItem item, object value)
+        {
+            var parentvalue = this.GetValue(item.Parent);
+            item.PropertyDescriptor.SetValue(parentvalue, value);
+
+            if (item.Parent.PropertyDescriptor.PropertyType.IsValueType)
+            {
+                if (item.Parent == null)
+                {
+         //       Debug.Assert(item.Parent != null); // no struct at root right now
+                    this.SelectedObjects = new object[] { parentvalue };
+                }
+                else
+                {
+                    _SetValue(item.Parent, parentvalue);
+                }
+              //  var parentobj = GetValue(item.Parent.Parent);
+            //item.Parent.PropertyDescriptor.SetValue(parentobj, parentvalue);
+            }
+}
+        protected virtual void OnPropertyValueChanged(PropertyDescriptor pd, object value)
+        {
+            this.ValueChanged?.Invoke(this, new PropertyGridValueChangedArgs(pd, value));
         }
 
         private void CheckParentNotify(GridItem item)

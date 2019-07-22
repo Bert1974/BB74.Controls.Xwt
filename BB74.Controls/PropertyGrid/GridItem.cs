@@ -34,30 +34,33 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         public virtual void Refresh(GridItem newitem, object newvalue)
         {
-            if (newitem.GetType() == this.GetType() && newitem.Label==this.Label)
+            if (newitem.GetType() == this.GetType() /*&& newitem.Label==this.Label*/)
             {
-                newitem.Expanded = this.Expanded;
-
-                if (this.Expanded && this.Items!=null)
+                if (newitem.Expandable == this.Expandable)
                 {
-                    if (newitem.Items == null)
-                    {
-                        newitem.RefreshProperties(newvalue);
-                    }
-                    foreach (var i in newitem.Items)
-                    {
-                        var o = this.Items.Where(_i => _i.GetType() == i.GetType() &&
-                                                       _i.Label == i.Label &&
-                                                       _i.PropertyDescriptor?.PropertyType == i.PropertyDescriptor?.PropertyType).FirstOrDefault();
+                    newitem.Expanded = newitem.Expandable ? this.Expanded : false;
 
-                        if (o != null)
+                    if (newitem.Expanded && this.Items != null)
+                    {
+                        if (newitem.Items == null)
                         {
-                            var v = i.PropertyDescriptor?.GetValue(newvalue);
-                            o.Refresh(i, v);
+                            newitem.RefreshProperties(newvalue);
                         }
-                        else
+                        foreach (var i in newitem.Items)
                         {
-                            i.Expanded = false;
+                            var o = this.Items.Where(_i => _i.GetType() == i.GetType() &&
+                                                           _i.Label == i.Label &&
+                                                           _i.PropertyDescriptor?.PropertyType == i.PropertyDescriptor?.PropertyType).FirstOrDefault();
+
+                            if (o != null)
+                            {
+                                var v = i.PropertyDescriptor?.GetValue(newvalue);
+                                o.Refresh(i, v);
+                            }
+                            else
+                            {
+                                i.Expanded = false;
+                            }
                         }
                     }
                 }
