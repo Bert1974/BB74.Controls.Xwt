@@ -374,7 +374,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
             this.MinWidth = this.MinHeight = 0;
             base.BackgroundColor = DockPanel.ColorSplitter;
             base.ExpandHorizontal = base.ExpandVertical = true;
-            base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
+         //   base.SetDragDropTarget(new TransferDataType[] { TransferDataType.Text });
 
             this.Current = new DockPane(this, new IDockContent[0]);
             this.Current.AddWidget();
