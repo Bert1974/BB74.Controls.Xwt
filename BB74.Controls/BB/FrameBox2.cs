@@ -85,7 +85,7 @@ namespace BaseLib.Xwt.Controls
                     rect.Y += padding.Top + border.Top;
                     rect.Width -= padding.HorizontalSpacing + border.HorizontalSpacing;
                     rect.Height -= padding.VerticalSpacing + border.VerticalSpacing;
-                    rect = child.Surface.GetPlacementInRect(rect);
+                    rect = child.Surface.GetPlacementInRect(rect).Round().WithPositiveSize();
                     SetChildBounds(child, rect);
                 }
             }
