@@ -92,6 +92,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
     public interface IDockLayout : IDisposable
     {
         void Layout(Point zero, Size size);
+        void QueueForReallocate();
         void GetSize(bool setsize);
         Point Location { get; }
         Size MinimumSize { get; }

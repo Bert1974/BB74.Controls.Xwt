@@ -329,5 +329,13 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
             }
             this._dock.Clear();
         }
+
+        void IDockLayout.QueueForReallocate()
+        {
+            foreach (var l in this._dock)
+            {
+                l.QueueForReallocate();
+            }
+        }
     }
 }
