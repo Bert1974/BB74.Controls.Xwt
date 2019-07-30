@@ -146,7 +146,19 @@ namespace BaseLib.Xwt.Controls.DockPanel
         public IDockLayout Current
         {
             get => this._content;
-            private set => this._content = value;
+            set
+            {
+                if (!object.ReferenceEquals(this._content, value))
+                {
+                    if (value == null)
+                    {
+                        this._content?.RemoveWidget();
+                        this._content?.OnHidden();
+                    }
+                    this._content = value;
+
+                }
+            }
         }
 
         public IEnumerable<IDockContent> AllContent
