@@ -16,7 +16,8 @@ namespace BaseLib.Xwt.Controls
         public Toolbar()
         {
             this.impl = new ToolbarImpl(this);
-            this.Spacing = 2;
+            this.Spacing = 0;
+            this.Margin = 0;
         }
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
@@ -77,6 +78,7 @@ namespace BaseLib.Xwt.Controls
             }
             public void AddControl(Widget button)
             {
+                button.Margin = 0;
                 this.owner.PackStart(button);
 
                 CheckMinSize();
@@ -87,7 +89,7 @@ namespace BaseLib.Xwt.Controls
                 Size ms = Size.Zero;
                 for (var nit = 0; nit < this.owner.Placements.Count; nit++)
                 {
-                    var ws=this.owner.Placements[nit].Child.Surface.GetPreferredSize();
+                    var ws = this.owner.Placements[nit].Child.Surface.GetPreferredSize();
                     ms = new Size(ms.Width + ws.Width, Math.Max(ms.Height, ws.Height));
                 }
                 this.owner.MinWidth = Math.Max(10, Math.Min(100, ms.Width));
@@ -186,7 +188,6 @@ namespace BaseLib.Xwt.Controls
                 {
                     var b = this.owner.Placements[nit].Child;
                     var s = (Size)b.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
-                    var s2 = b.Surface.GetPreferredSize(widthConstraint, heightConstraint,false);
                     mw[nit] = MinWidth(b, s);
                     ww[nit] = s.Width;
                     hh = Math.Max(s.Height, hh);
