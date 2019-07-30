@@ -42,7 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BB\CellHandler.cs" />
+    <Compile Include="BB\ScrollControl2.cs" />
     <Compile Include="BB\Spacer.cs" />
+    <Compile Include="BB\StatusBar.cs" />
     <Compile Include="BB\Toolbar.cs" />
     <Compile Include="DockPanel\BaseLib\Extensions.cs" />
     <Compile Include="DockPanel\Internals\DragDrop.cs" />
