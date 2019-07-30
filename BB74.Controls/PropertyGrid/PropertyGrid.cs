@@ -76,8 +76,15 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             get => this.selection.SingleOrDefault();
             set
             {
-                this.selection = new object[] { value };
-                Fill();
+                if (!object.ReferenceEquals(value, this.selection.FirstOrDefault()))
+                {
+                    this.selection = new object[] { value };
+                    Fill();
+                }
+                else
+                {
+                    this.Refresh();
+                }
             }
         }
         public object[] SelectedObjects
@@ -93,6 +100,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
         internal bool SortAlphabetical => this.SortMode == PropertySort.Alphabetical || this.SortMode == PropertySort.CategorizedAlphabetical;
         internal bool SortCategorized => this.SortMode == PropertySort.Categorized || this.SortMode == PropertySort.CategorizedAlphabetical;
+
+        public PropertyTab Tab => this.curtab;
 
     /*    public Rectangle TabPosition
         {
