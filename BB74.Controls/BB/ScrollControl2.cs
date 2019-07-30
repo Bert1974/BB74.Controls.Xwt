@@ -6,7 +6,7 @@ using Xwt;
 using Xwt.Backends;
 using Xwt.Drawing;
 
-namespace BaseLib.Xwt.Controls.BB
+namespace BaseLib.Xwt.Controls
 {
     public class ScrollControl2
     {
@@ -52,6 +52,8 @@ namespace BaseLib.Xwt.Controls.BB
             public ScrollCanvas(ScrollControl2 owner)
             {
                 this.owner = owner;
+                this.ExpandVertical = this.ExpandHorizontal = true;
+                this.HorizontalPlacement = this.VerticalPlacement = WidgetPlacement.Fill;
                 this.ClipToBounds();
             }
             protected override void Dispose(bool disposing)
@@ -64,10 +66,15 @@ namespace BaseLib.Xwt.Controls.BB
                 base.OnChildPreferredSizeChanged();
                 this.QueueForReallocate();
             }
-            protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
-            {
-                return new Size(0, 0);
-            }
+            /*  protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+              {
+                  var s = this.content?.Size ?? new Size(0, 0);
+
+                  var w = widthConstraint.IsConstrained ? Math.Min(widthConstraint.AvailableSize, s.Width):s.Width;
+                  var h = heightConstraint.IsConstrained ? Math.Min(heightConstraint.AvailableSize, s.Height):s.Height;
+
+                  return new Size(0, 0);
+              }*/
             protected override void OnReallocate()
             {
                 base.OnReallocate();
@@ -81,7 +88,8 @@ namespace BaseLib.Xwt.Controls.BB
             internal void MoveContent()
             {
                 var s = (Size)this.content.GetType().InvokePrivate(this.content, "OnGetPreferredSize", new object[] { (SizeConstraint)this.Size.Width, (SizeConstraint)this.Size.Height });
-                var r = new Rectangle(new Point(-this.owner.HScroll.Scrollbar.Value, -this.owner.VScroll.Scrollbar.Value), s);
+                // var r = this.content.Surface.GetPlacementInRect(new Rectangle(Point.Zero, s)).Round().WithPositiveSize();
+                var r = new Rectangle(-this.owner.HScroll.Scrollbar.Value, -this.owner.VScroll.Scrollbar.Value, s.Width, s.Height);
                 this.SetChildBounds(this.content, r);
             }
         }
@@ -180,7 +188,7 @@ namespace BaseLib.Xwt.Controls.BB
             this.VScroll = new VScrollInfo(this, new VScrollbar());
             this.container = new ScrollCanvas(this) { BackgroundColor = Colors.Red };
 
-            this.Table = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0 };
+            this.Table = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, Margin = 0 };
             this.Table.Add(this.container, 0, 0, hexpand: true, vexpand: true);
             this.Table.Add(this.HScroll, 0, 1, hexpand: true, vexpand: false);
             this.Table.Add(this.VScroll, 1, 0, hexpand: false, vexpand: true);
