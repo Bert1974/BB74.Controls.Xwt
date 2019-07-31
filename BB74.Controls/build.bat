@@ -26,7 +26,7 @@ if "%DevEnvDir%"=="" goto Error
 :devenvok
 
 if "%BB74_VERSIONONLY%"=="TRUE" goto _noinc
-incversion -inc revision
+incversion -inc build
 IF ERRORLEVEL 1 GOTO Error
 :_noinc
 
