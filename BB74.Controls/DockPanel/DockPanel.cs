@@ -641,7 +641,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
 
             if (object.ReferenceEquals(destination, this.Current)) // single pane?
             {
-                this.Current = null;
+                this._content = null;
 
                 if (pos == DockPosition.Center)
                 {
@@ -1286,9 +1286,9 @@ namespace BaseLib.Xwt.Controls.DockPanel
         }
         protected void ClearContent()
         {
-            this.Current?.RemoveWidget();
-            this.Current?.OnHidden();
-            this.Current = null;
+            this._content?.RemoveWidget();
+            this._content?.OnHidden();
+            this._content = null;
         }
         internal void RemovePane(IDockSplitter split, IDockLayout panesrc)
         {
@@ -1395,7 +1395,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
                     {
                         srcsplit.RemoveWidget();
 
-                        window.DockPanel.Current = null;
+                        window.DockPanel._content = null;
                         srcsplit.NewDockPanel(panedst.DockPanel);
 
                         result = panedst.DockPanel.Dock(srcsplit, dockat, panedst);
