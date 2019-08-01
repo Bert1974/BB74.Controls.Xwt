@@ -340,6 +340,7 @@ namespace BaseLib.Xwt.Controls
                 }
             }
             rows.Clear();
+            selectedRows.Clear();
             this.viewplace.Clear();
         }
 
@@ -611,6 +612,7 @@ namespace BaseLib.Xwt.Controls
                         }
                     }
                     this.rows.Clear();
+                    this.selectedRows.Clear();
                 }
             }
             else
