@@ -66,6 +66,16 @@ namespace BaseLib
 {
     internal static class Extensions
     {
+        public static Size GetMaxSize(this Canvas canvas)
+        {
+            var r = Rectangle.Zero;
+            bool f = true;
+            foreach (var c in canvas.Children)
+            {
+                r= r.Union(c.ParentBounds);
+            }
+            return r.Size;
+        }
         public static double CalculateFor(this SizeConstraint constraint, double value)
         {
             if (value < 0)

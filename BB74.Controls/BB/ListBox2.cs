@@ -121,14 +121,6 @@ namespace BaseLib.Xwt.Controls
                 }
                 // args.Handled = true;
             }
-
-
-            protected override void OnMouseScrolled(MouseScrolledEventArgs args)
-            {
-                //   base.OnMouseScrolled(args);
-                this.owner.Scroll(args.Direction == ScrollDirection.Up ? -1 : (args.Direction == ScrollDirection.Down ? 1 : 0));
-            }
-
             internal CellHandler.Cell HitTest(Point position)
             {
                 for (int row = 0; row < this.owner.rows.Count; row++)
@@ -158,19 +150,30 @@ namespace BaseLib.Xwt.Controls
                     }
                 }
             }
+
+            protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+            {
+                var s= this.GetMaxSize();
+
+                if (widthConstraint.IsConstrained)
+                {
+                    s.Width = Math.Max(s.Width, widthConstraint.AvailableSize);
+                }
+                if (heightConstraint.IsConstrained)
+                {
+                    s.Height = Math.Max(s.Height, heightConstraint.AvailableSize);
+                }
+                return s;
+            }
         }
 
         CellViewCollection views;
-        private readonly Canvas scrollplace;
+        private readonly ScrollControl2 scroller;
         private ItemCanvas viewplace;
         IListDataSource source;
         SelectionMode mode;
         Dictionary<CellView, CellHandler> handlers = new Dictionary<CellView, CellHandler>();
         List<CellHandler.Cell[]> rows = new List<CellHandler.Cell[]>();
-
-        private VBox2 vbox;
-        private VScrollbar vscroll;
-        private HBox2 hbox;
         private List<int> selectedRows = new List<int>();
 
         EventHandler selectionChanged;
@@ -187,52 +190,29 @@ namespace BaseLib.Xwt.Controls
             views = (CellViewCollection)Activator.CreateInstance(t, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { null }, null);
             //  views = new CellViewCollection(null/*BackendHost*/);
 
-            this.scrollplace = new Canvas()
-            {
-                ExpandHorizontal = true,
-                ExpandVertical = true,
-                HorizontalPlacement = WidgetPlacement.Fill,
-                VerticalPlacement = WidgetPlacement.Fill,
-                BackgroundColor = Colors.Red
-            };
+            this.scroller = new ScrollControl2();
+            this.scroller.Widget.ExpandHorizontal = true;
+            this.scroller.Widget.ExpandVertical = true;
+            this.scroller.Widget.HorizontalPlacement = WidgetPlacement.Fill;
+            this.scroller.Widget.VerticalPlacement = WidgetPlacement.Fill;
+            this.scroller.Widget.BackgroundColor = Colors.Red;
+
             this.viewplace = new ItemCanvas(this);
 
-            this.scrollplace.BoundsChanged += (s, a) => SyncRows();
+            this.scroller.Content = this.viewplace;
 
-            this.scrollplace.AddChild(this.viewplace);
+    //        this.scroller.BoundsChanged += (s, a) => SyncRows();
 
-            this.vscroll = new VScrollbar() { ExpandHorizontal = false, ExpandVertical = true };
 
-            this.vscroll.ValueChanged += (s, a) =>
-            {
-                var r = new Rectangle(0, -this.vscroll.Value, this.viewplace.Bounds.Width, this.viewplace.Bounds.Height);
-                this.scrollplace.SetChildBounds(this.viewplace, r);
-            };
+            base.AddChild(this.scroller);
 
-            this.hbox = new HBox2() { ExpandHorizontal = true, ExpandVertical = true, Spacing = 0 };
-
-            this.hbox.PackStart(this.scrollplace, true, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
-            this.hbox.PackStart(this.vscroll, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
-
-            this.vbox = new VBox2() { ExpandHorizontal = true, ExpandVertical = true };
-            this.vbox.PackStart(this.hbox, true);
-
-            base.AddChild(this.vbox);
-
-            this.scrollplace.ClipToBounds();
+            //   this.scrollplace.ClipToBounds();
         }
         private void sync_viewpos()
         {
         }
 
 
-        private void Scroll(double delta)
-        {
-            this.vscroll.Value = Math.Max(0, Math.Min(this.vscroll.UpperValue, this.vscroll.Value + delta * 16));
-            var r = this.scrollplace.GetChildBounds(this.viewplace);
-            r.Location = new Point(0, -this.vscroll.Value);
-            this.scrollplace.SetChildBounds(this.viewplace, r);
-        }
 
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
@@ -242,7 +222,7 @@ namespace BaseLib.Xwt.Controls
         {
             base.OnBoundsChanged();
 
-            this.SetChildBounds(this.vbox, new Rectangle(Point.Zero, this.Bounds.Size));
+            this.SetChildBounds(this.scroller, new Rectangle(Point.Zero, this.Bounds.Size));
 
             //   this.vbox.QueueForReallocate();
 
@@ -467,11 +447,7 @@ namespace BaseLib.Xwt.Controls
 
         private void SetScroll(double[] ww, double[] rowh)
         {
-            var r = new Rectangle(0, -this.vscroll.Value, Math.Max(this.scrollplace.Bounds.Width, ww.Sum()), Math.Max(this.scrollplace.Bounds.Height, rowh.Sum()));
-            this.vscroll.PageSize = 1;
-            this.vscroll.PageIncrement = this.scrollplace.Bounds.Height;
-            this.vscroll.UpperValue = Math.Max(0, rowh.Sum() - this.scrollplace.Bounds.Height);
-            this.scrollplace.SetChildBounds(this.viewplace, r);
+            //this.viewplace.SetSizeChanged();
 
         }
 
