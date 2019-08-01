@@ -128,11 +128,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         //ITypeDescriptorContext
         private GridItem tree;
         public virtual Attribute[] Filter => new Attribute[] { new BrowsableAttribute(true) };
-        private readonly Scrollbar scrollbar;
-        private readonly Canvas scrollcanvas;
         private readonly VBox2 vboxlist;
+        private readonly ScrollControl2 scroller;
         private readonly SplitHeader splitheader;
-        private readonly HBox2 hbox;
         CancellationTokenSource worker2cancel = new CancellationTokenSource();
         private int updating = 0;
         private PropertyGrid owner;
@@ -159,21 +157,12 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
             this.BackgroundColor = Colors.White;
             this.HorizontalPlacement = this.VerticalPlacement = WidgetPlacement.Fill;
-
-            this.scrollbar = new VScrollbar() { ExpandVertical = true, VerticalPlacement = WidgetPlacement.Fill };
-            this.scrollbar.ValueChanged += Scrollbar_ValueChanged;
-            this.scrollbar.MouseScrolled += Scroll_MouseScrolled;
-
-
+            
             this.vboxlist = new VBox2() { Spacing = 0 };
 
-            this.scrollcanvas = new Canvas() { HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill };
-            this.scrollcanvas.AddChild(this.vboxlist);
+            this.scroller = new ScrollControl2() {  HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill };
 
-            this.scrollcanvas.MouseScrolled += Scroll_MouseScrolled;
-            //       this.scrollcanvas.BoundsChanged += Scrollcanvas_BoundsChanged;
-
-            this.scrollcanvas.ClipToBounds();
+            this.scroller.Content = this.vboxlist;
 
             this.MinWidth = PropertyGrid.spacedx * 6;
             this.MinHeight = PropertyGrid.lineheight * 2 + PropertyGrid.splitheight;
@@ -184,18 +173,13 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.splitheader.CheckValue += Splitheader_CheckValue;
 
             hbox2.PackStart(this.splitheader, true, true);
-            hbox2.PackStart(new Spacer(this.scrollbar, Orientation.Horizontal));
-
-            //  this.PackStart(splitheader, true, false);
-
+            hbox2.PackStart(new Spacer(()=>this.scroller.VScroll.Scrollbar.Size.Width, Orientation.Horizontal));
+            
             base.PackStart(hbox2, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
+            
+            base.PackStart(this.scroller, true, true);
 
-            this.hbox = new HBox2();
-
-            this.hbox.PackStart(this.scrollcanvas, true, true);
-            this.hbox.PackStart(this.scrollbar, false, false);
-
-            base.PackStart(this.hbox, true, true);
+            this.scroller.BoundsChanged += (s, a) => hbox2.QueueForReallocate();
         }
 
         private void Scrollcanvas_BoundsChanged(object sender, EventArgs e)
@@ -204,7 +188,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         }
         void CheckSize()
         {
-            if (this.WindowBounds.Width >= this.scrollbar.Size.Width && this.scrollcanvas.Size.Height >= PropertyGrid.splitheight)
+            if (this.WindowBounds.Width >= this.scroller.VScroll.Scrollbar.Size.Width && this.scroller.Size.Height >= PropertyGrid.splitheight)
             {
                 this.updating++;
                 /*
@@ -214,13 +198,13 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
 
                                 *///base.OnBoundsChanged();
 
-                UpdateScroll();
+        //        UpdateScroll();
 
                 var listsize = this.ListHeight;
 
                 //this.scrollbar.ClampPage(0, listsize);
 
-                this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.WindowBounds.Width - this.scrollbar.Size.Width, listsize));
+              //  this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.WindowBounds.Width - this.scrollbar.Size.Width, listsize));
 
                 SetWidth(this.tree);
 
@@ -254,39 +238,13 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                 Clear();
             }
         }
-
-        private void UpdateScroll()
-        {
-            var listsize = this.ListHeight;
-            var pagsize = this.Size.Height - PropertyGrid.splitheight;
-            this.scrollbar.StepIncrement = 1;
-            this.scrollbar.UpperValue = Math.Max(0, listsize - pagsize);
-            this.scrollbar.PageSize = 1;
-            this.scrollbar.Value = Math.Max(0, Math.Min(this.scrollbar.Value, this.scrollbar.UpperValue));
-        }
+        
 
         private void Splitheader_CheckValue(object sender, EventArgs e)
         {
             SetWidth(this.tree);
         }
-
-        private void Scroll_MouseScrolled(object sender, MouseScrolledEventArgs e)
-        {
-            ScrollDelta((e.Direction == ScrollDirection.Down ? 1 : -1) * 10);
-        }
-        private void ScrollDelta(double v)
-        {
-            this.scrollbar.Value = Math.Max(this.scrollbar.LowerValue, Math.Min(this.scrollbar.UpperValue, this.scrollbar.Value + v));
-            Scrollbar_ValueChanged(null, EventArgs.Empty);
-        }
-
-        private void Scrollbar_ValueChanged(object sender, EventArgs e)
-        {
-            var listsize = this.ListHeight;
-            var pagsize = this.scrollcanvas.Size.Height;// - PropertyGrid.splitheight;
-
-            //  this.scrollcanvas.SetChildBounds(this.vboxlist, new Rectangle(0, -this.scrollbar.Value, this.scrollcanvas.Size.Width, listsize));
-        }
+        
 
 
         private void QueueOnUI(Action m)
@@ -356,7 +314,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                     var hbox = item.Widget as HBox;
                     var pos = this.splitheader.GetPosition();
 
-                    var ww = Math.Max(0, this.scrollcanvas.Size.Width);
+                    var ww = Math.Max(0, this.scroller.ViewSize.Width);
 
                     hbox.Children.First().WidthRequest = Math.Floor(ww * pos);
                     hbox.Children.Skip(1).First().WidthRequest = Math.Floor(ww * (1 - pos));
@@ -412,9 +370,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                         MinWidth = 64,
                         Font = PropertyGrid.PropertyFont
                     };
-                    var ww = this.scrollcanvas.Size.Width > 0 && this.Size.Height > 0 ? (this.scrollcanvas.Size.Width * this.splitheader.GetPosition()) : this.scrollcanvas.Size.Width / 2;
+                    var ww = this.scroller.ViewSize.Width > 0 && this.Size.Height > 0 ? (this.scroller.ViewSize.Width * this.splitheader.GetPosition()) : this.scroller.ViewSize.Width / 2;
                     var left = new Table() { WidthRequest = ww, HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
-                    var right = new Table() { WidthRequest = Math.Max(0, this.scrollcanvas.Size.Width - ww), HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
+                    var right = new Table() { WidthRequest = Math.Max(0, this.scroller.ViewSize.Width - ww), HeightRequest = PropertyGrid.lineheight, ExpandHorizontal = true };
 
                     // spacing
                     left.Add(new Label() { WidthRequest = level * PropertyGrid.spacedx, HeightRequest = PropertyGrid.lineheight, MinWidth = level * PropertyGrid.spacedx }, 0, 0, 1, 1, vexpand: true);
