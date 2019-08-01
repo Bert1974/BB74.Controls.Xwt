@@ -50,10 +50,19 @@ namespace BaseLib.Xwt.Controls
                 {
                     for (int row = 0; row < this.owner.DataSource.RowCount; row++)
                     {
+                        Rectangle? painted = null;
                         for (int n = 0; n < this.owner.views.Count; n++)
                         {
                             if (this.owner.rows[row][n].NeedsPaint)
                             {
+                                if (!painted.HasValue)
+                                {
+                                    painted = this.owner.rows[row][n].position;
+                                }
+                                else
+                                {
+                                    painted = painted.Value.Union(this.owner.rows[row][n].position);
+                                }
                                 if (dirtyRect.IntersectsWith(this.owner.rows[row][n].position))
                                 {
                                     ctx.Save();
@@ -64,9 +73,25 @@ namespace BaseLib.Xwt.Controls
                                 }
                             }
                         }
+                        if (painted.HasValue && this.owner.FullRowSelect)
+                        {
+                            var linerec = RowFromCellRect(painted);
+                            if (linerec.Width > 0)
+                            {
+                                ctx.SetColor((this.owner as ICellHandlerContainer).Selected(row) ? Colors.LightBlue : Colors.White);
+                                ctx.Rectangle(linerec);
+                                ctx.Fill();
+                            }
+                        }
                     }
                 }
             }
+
+            private Rectangle RowFromCellRect(Rectangle? painted)
+            {
+                return new Rectangle(painted.Value.Right, painted.Value.Top, this.Size.Width - painted.Value.Right, painted.Value.Height).WithPositiveSize();
+            }
+
             internal void SetSize(Size size)
             {
                 this.reqsize = size;
@@ -75,64 +100,83 @@ namespace BaseLib.Xwt.Controls
             {
                 //    base.OnButtonPressed(args);
 
-                var hit = HitTest(args.Position);
+                var hit = HitTest(args.Position,out int hitrow);
 
-                if (hit != null)
+                if (hitrow != -1)
                 {
                     if (this.lastrowhit != -1 && (Keyboard.CurrentModifiers & ModifierKeys.Shift) != 0) // range select
                     {
-                        if (this.lastrowhit != hit.Row)
+                        if (this.lastrowhit != hitrow)
                         {
                             this.owner.UnselectAll();
-                            for (int nit = Math.Min(this.lastrowhit, hit.Row); nit <= Math.Max(this.lastrowhit, hit.Row); nit++)
+                            for (int nit = Math.Min(this.lastrowhit, hitrow); nit <= Math.Max(this.lastrowhit, hitrow); nit++)
                             {
                                 this.owner.SelectRow(nit);
                             }
-                            this.lastrowhit = hit.Row;
+                            this.lastrowhit = hitrow;
                         }
                     }
                     else if ((Keyboard.CurrentModifiers & ModifierKeys.Control) != 0)
                     {
-                        if (this.owner.selectedRows.Contains(hit.Row))
+                        if (this.owner.selectedRows.Contains(hitrow))
                         {
-                            this.owner.UnselectRow(hit.Row);
+                            this.owner.UnselectRow(hitrow);
                             this.lastrowhit = -1;
                         }
                         else
                         {
-                            this.owner.SelectRow(hit.Row);
-                            this.lastrowhit = hit.Row;
+                            this.owner.SelectRow(hitrow);
+                            this.lastrowhit = hitrow;
                         }
                     }
                     else
                     {
-                        /*   if (this.lastrowhit == hit.Row && args.MultiplePress == 2 && this.lastclick + .25f * 10000000 > DateTime.Now.Ticks)
+                        /*   if (this.lastrowhit == hitrow && args.MultiplePress == 2 && this.lastclick + .25f * 10000000 > DateTime.Now.Ticks)
                            {
                                abc
                            }
                            else
                            {
                                this.lastclick = DateTime.Now.Ticks;*/
-                        this.lastrowhit = hit.Row;
+                        this.lastrowhit = hitrow;
                         this.owner.UnselectAll();
-                        this.owner.SelectRow(hit.Row);
+                        this.owner.SelectRow(hitrow);
                         //  }
                     }
                 }
                 // args.Handled = true;
             }
-            internal CellHandler.Cell HitTest(Point position)
+            internal CellHandler.Cell HitTest(Point position, out int hitrow)
             {
                 for (int row = 0; row < this.owner.rows.Count; row++)
                 {
+                    Rectangle? painted = null;
                     for (int n = 0; n < this.owner.views.Count; n++)
                     {
+                        if (!painted.HasValue)
+                        {
+                            painted = this.owner.rows[row][n].position;
+                        }
+                        else
+                        {
+                            painted = painted.Value.Union(this.owner.rows[row][n].position);
+                        }
                         if (this.owner.rows[row][n].position.Contains(position))
                         {
+                            hitrow = row;
                             return this.owner.rows[row][n];
                         }
                     }
+                    if (this.owner.FullRowSelect && painted.HasValue)
+                    {
+                        if (RowFromCellRect(painted.Value).Contains(position))
+                        {
+                            hitrow = row;
+                            return null;
+                        }
+                    }
                 }
+                hitrow = -1;
                 return null;
             }
 
@@ -149,6 +193,7 @@ namespace BaseLib.Xwt.Controls
                         }
                     }
                 }
+                base.QueueDraw();
             }
 
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
@@ -195,7 +240,6 @@ namespace BaseLib.Xwt.Controls
             this.scroller.Widget.ExpandVertical = true;
             this.scroller.Widget.HorizontalPlacement = WidgetPlacement.Fill;
             this.scroller.Widget.VerticalPlacement = WidgetPlacement.Fill;
-            this.scroller.Widget.BackgroundColor = Colors.Red;
 
             this.viewplace = new ItemCanvas(this);
 
@@ -709,7 +753,10 @@ namespace BaseLib.Xwt.Controls
             }
         }
 
+        private bool fullrowselect = false;
+
         public double ItemHeight { get; private set; } = -1;
+        public bool FullRowSelect { get => fullrowselect; set { this.fullrowselect = value; this.viewplace.QueueDraw(); } }
 
         /// <summary>
         /// Selects a row.
@@ -794,8 +841,8 @@ namespace BaseLib.Xwt.Controls
         /// <param name="p">A position, in widget coordinates</param>
         public int GetRowAtPosition(Point p)
         {
-            return this.viewplace.HitTest(p.Offset(-this.viewplace.ParentBounds.Location.X,-this.viewplace.ParentBounds.Location.Y))?.Row ?? -1;
-
+            this.viewplace.HitTest(p.Offset(-this.viewplace.ParentBounds.Location.X,-this.viewplace.ParentBounds.Location.Y),out int hitrow);
+            return hitrow;
         }
 
    /*     /// <summary>
