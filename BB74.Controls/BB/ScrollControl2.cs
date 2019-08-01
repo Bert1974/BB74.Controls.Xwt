@@ -190,7 +190,7 @@ namespace BaseLib.Xwt.Controls
         {
             this.HScroll = new HScrollInfo(this, new HScrollbar());
             this.VScroll = new VScrollInfo(this, new VScrollbar());
-            this.container = new ScrollCanvas(this) { BackgroundColor = Colors.Red };
+            this.container = new ScrollCanvas(this);
 
             this.Table = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, Margin = 0 };
             this.Table.Add(this.container, 0, 0, hexpand: true, vexpand: true);
