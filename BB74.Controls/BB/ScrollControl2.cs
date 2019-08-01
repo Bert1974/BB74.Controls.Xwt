@@ -48,7 +48,6 @@ namespace BaseLib.Xwt.Controls
             {
                 CheckContentPos();
             }
-
             public ScrollCanvas(ScrollControl2 owner)
             {
                 this.owner = owner;
