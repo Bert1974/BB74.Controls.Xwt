@@ -192,7 +192,7 @@ namespace BaseLib.Xwt.Controls
 
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                var s = this.Size;// GetMaxSize();
+                var s = this.GetMaxSize();
 
                 if (widthConstraint.IsConstrained)
                 {
@@ -232,10 +232,10 @@ namespace BaseLib.Xwt.Controls
             this.BorderWidth = this.Padding = 0;
 
             this.scroller = new ScrollControl2();
-            this.scroller.Widget.ExpandHorizontal = true;
-            this.scroller.Widget.ExpandVertical = true;
-            this.scroller.Widget.HorizontalPlacement = WidgetPlacement.Fill;
-            this.scroller.Widget.VerticalPlacement = WidgetPlacement.Fill;
+            this.scroller.ExpandHorizontal = true;
+            this.scroller.ExpandVertical = true;
+            this.scroller.HorizontalPlacement = WidgetPlacement.Fill;
+            this.scroller.VerticalPlacement = WidgetPlacement.Fill;
 
             this.viewplace = new ItemCanvas(this);
 
@@ -372,9 +372,9 @@ namespace BaseLib.Xwt.Controls
                         hh += rowh[row];
                     }
                 }
-                SetScroll(ww, rowh);
+                //     SetScroll(ww, rowh);
 
-             //   sync_viewpos();
+                //   sync_viewpos();
             }
             this.viewplace.QueueDraw();
         }
@@ -439,17 +439,12 @@ namespace BaseLib.Xwt.Controls
                             hh += rowh[row];
                         }
                     }
-                    SetScroll(ww, rowh);
-          //          sync_viewpos();
+                    //       SetScroll(ww, rowh);
+                    //          sync_viewpos();
                 }
             }
         }
-
-        private void SetScroll(double[] ww, double[] rowh)
-        {
-            //this.viewplace.SetSizeChanged();
-
-        }
+        
 
         /// <summary>
         /// Gets or sets the data source from which to get the data of the items

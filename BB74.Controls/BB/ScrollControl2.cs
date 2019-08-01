@@ -8,7 +8,7 @@ using Xwt.Drawing;
 
 namespace BaseLib.Xwt.Controls
 {
-    public class ScrollControl2
+    public class ScrollControl2 : Table
     {
         protected sealed class ScrollCanvas : Canvas
         {
@@ -158,50 +158,54 @@ namespace BaseLib.Xwt.Controls
 
         public sealed class VScrollInfo : ScrollInfo
         {
-            public VScrollInfo(ScrollControl2 owner, Scrollbar scrollbar)
-                : base(owner, scrollbar)
+            public VScrollInfo(ScrollControl2 owner)
+                : base(owner, new VScrollbar())
             {
             }
             public override Orientation Directon => Orientation.Vertical;
         }
         public sealed class HScrollInfo : ScrollInfo
         {
-            public HScrollInfo(ScrollControl2 owner, Scrollbar scrollbar)
-                : base(owner, scrollbar)
+            public HScrollInfo(ScrollControl2 owner)
+                : base(owner, new HScrollbar())
             {
             }
             public override Orientation Directon => Orientation.Horizontal;
 
         }
 
-        public Widget Widget => this;
-        public Widget Content
+        public new Widget Content
         {
             get => this.container.Content;
             set => this.container.Content = value;
         }
+
+        public Size ViewSize => this.container.Size;
+
         public HScrollInfo HScroll { get; }
         public VScrollInfo VScroll { get; }
-        private Table Table { get; }
         private ScrollCanvas container;
 
         public ScrollControl2()
         {
-            this.HScroll = new HScrollInfo(this, new HScrollbar());
-            this.VScroll = new VScrollInfo(this, new VScrollbar());
+            this.HScroll = new HScrollInfo(this);
+            this.VScroll = new VScrollInfo(this);
             this.container = new ScrollCanvas(this);
 
-            this.Table = new Table() { DefaultColumnSpacing = 0, DefaultRowSpacing = 0, HorizontalPlacement = WidgetPlacement.Fill, VerticalPlacement = WidgetPlacement.Fill, Margin = 0 };
-            this.Table.Add(this.container, 0, 0, hexpand: true, vexpand: true);
-            this.Table.Add(this.HScroll, 0, 1, hexpand: true, vexpand: false);
-            this.Table.Add(this.VScroll, 1, 0, hexpand: false, vexpand: true);
+            this.DefaultColumnSpacing = this.DefaultRowSpacing = 0;
+            this.HorizontalPlacement = this.VerticalPlacement = WidgetPlacement.Fill;
+            this.Margin = 0;
+
+            this.Add(this.container, 0, 0, hexpand: true, vexpand: true);
+            this.Add(this.HScroll, 0, 1, hexpand: true, vexpand: false);
+            this.Add(this.VScroll, 1, 0, hexpand: false, vexpand: true);
         }
         protected void CheckScroll()
         {
             this.HScroll.Update(this.container.Content?.Size.Width ?? 0, this.container.Size.Width);
             this.VScroll.Update(this.container.Content?.Size.Height ?? 0, this.container.Size.Height);
 
-            this.Table.QueueForReallocate();
+            this.QueueForReallocate();
         }
         protected void MoveContent()
         {
@@ -226,6 +230,5 @@ namespace BaseLib.Xwt.Controls
             }
             this.container.MoveContent();
         }
-        public static implicit operator Widget(ScrollControl2 scroll) => scroll.Table;
     }
 }

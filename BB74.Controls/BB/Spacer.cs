@@ -11,17 +11,17 @@ namespace BaseLib.Xwt.Controls
     public class Spacer : Label
     {
         private readonly Widget ctl;
+        private readonly Func<double> func;
         private readonly Orientation direction;
         private double size;
 
-        private double Width => (this.ctl?.Size.Width ?? this.size);
-        private double Height => (this.ctl?.Size.Height ?? this.size);
+        private double Width => (this.ctl?.Size.Width ?? this.func?.Invoke() ?? this.size);
+        private double Height => (this.ctl?.Size.Height ?? this.func?.Invoke() ?? this.size);
 
         public Spacer(Widget match, Orientation direction)
         {
             this.ctl = match;
             this.direction = direction;
-            this.ctl.BoundsChanged += Ctl_BoundsChanged;
             base.BackgroundColor = Colors.Transparent;
             base.HorizontalPlacement = base.VerticalPlacement = WidgetPlacement.Fill;
         }
@@ -29,17 +29,23 @@ namespace BaseLib.Xwt.Controls
         {
             this.size = size;
             this.direction = direction;
-            this.ctl.BoundsChanged += Ctl_BoundsChanged;
             base.BackgroundColor = Colors.Transparent;
             base.HorizontalPlacement = base.VerticalPlacement = WidgetPlacement.Fill;
         }
-
-        private void Ctl_BoundsChanged(object sender, EventArgs e)
+        public Spacer(Func<double> func, Orientation direction)
+        {
+            this.func = func;
+            this.direction = direction;
+            base.BackgroundColor = Colors.Transparent;
+            base.HorizontalPlacement = base.VerticalPlacement = WidgetPlacement.Fill;
+        }
+        protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
             switch (this.direction)
             {
-                case Orientation.Horizontal: this.WidthRequest = this.Width; break;
-                case Orientation.Vertical: this.HeightRequest = this.Height; break;
+                case Orientation.Horizontal: return new Size(this.Width, 0);
+                case Orientation.Vertical: return new Size(0, this.Height);
+                default:throw new NotImplementedException();
             }
         }
     }
