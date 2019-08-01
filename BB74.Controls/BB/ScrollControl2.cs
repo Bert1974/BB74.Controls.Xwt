@@ -58,7 +58,10 @@ namespace BaseLib.Xwt.Controls
             }
             protected override void Dispose(bool disposing)
             {
-                this.Content = null;
+                if (disposing)
+                {
+                    this.Content = null;
+                }
                 base.Dispose(disposing);
             }
             protected override void OnChildPreferredSizeChanged()
@@ -172,6 +175,7 @@ namespace BaseLib.Xwt.Controls
 
         }
 
+        public Widget Widget => this;
         public Widget Content
         {
             get => this.container.Content;
