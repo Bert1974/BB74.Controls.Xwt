@@ -24,12 +24,11 @@ namespace BaseLib.Xwt.Controls
     /// A list of selectable items
     /// </summary>
     //[BackendType(typeof(IListBoxBackend))]
-    public class ListBox2 : Canvas, ICellHandlerContainer
+    public class ListBox2 : FrameBox, ICellHandlerContainer
     {
         class ItemCanvas : Canvas
         {
             ListBox2 owner;
-            private Size reqsize;
             private long lastclick;
             internal int lastrowhit = -1;
 
@@ -90,11 +89,6 @@ namespace BaseLib.Xwt.Controls
             private Rectangle RowFromCellRect(Rectangle? painted)
             {
                 return new Rectangle(painted.Value.Right, painted.Value.Top, this.Size.Width - painted.Value.Right, painted.Value.Height).WithPositiveSize();
-            }
-
-            internal void SetSize(Size size)
-            {
-                this.reqsize = size;
             }
             protected override void OnButtonPressed(ButtonEventArgs args)
             {
@@ -198,7 +192,7 @@ namespace BaseLib.Xwt.Controls
 
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                var s= this.GetMaxSize();
+                var s = this.Size;// GetMaxSize();
 
                 if (widthConstraint.IsConstrained)
                 {
@@ -235,6 +229,8 @@ namespace BaseLib.Xwt.Controls
             views = (CellViewCollection)Activator.CreateInstance(t, BindingFlags.Instance | BindingFlags.NonPublic, null, new object[] { null }, null);
             //  views = new CellViewCollection(null/*BackendHost*/);
 
+            this.BorderWidth = this.Padding = 0;
+
             this.scroller = new ScrollControl2();
             this.scroller.Widget.ExpandHorizontal = true;
             this.scroller.Widget.ExpandVertical = true;
@@ -244,50 +240,9 @@ namespace BaseLib.Xwt.Controls
             this.viewplace = new ItemCanvas(this);
 
             this.scroller.Content = this.viewplace;
-
-    //        this.scroller.BoundsChanged += (s, a) => SyncRows();
-
-
-            base.AddChild(this.scroller);
-
-            //   this.scrollplace.ClipToBounds();
+            
+            base.Content=this.scroller;
         }
-        private void sync_viewpos()
-        {
-        }
-
-
-
-        protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
-        {
-            return new Size(100, 100);// base.OnGetPreferredSize(widthConstraint, heightConstraint);
-        }
-        protected override void OnBoundsChanged()
-        {
-            base.OnBoundsChanged();
-
-            this.SetChildBounds(this.scroller, new Rectangle(Point.Zero, this.Bounds.Size));
-
-            //   this.vbox.QueueForReallocate();
-
-            //     var scrollsize = this.scroll.GetBackend().GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
-
-            //     base.SetChildBounds(this.viewplace,)
-
-        }
-        protected override void OnDraw(Context ctx, Rectangle dirtyRect)
-        {
-            base.OnDraw(ctx, dirtyRect);
-        }
-        /*       /// <summary>
-               /// Creates the backend for this <see cref="Xwt.XwtObject"/>.
-               /// </summary>
-               protected override object OnCreateBackend()
-               {
-                   return base.OnCreateBackend();
-               }
-               */
-
         /// <summary>
         /// Views to be used to display the data of the items
         /// </summary>
@@ -419,7 +374,7 @@ namespace BaseLib.Xwt.Controls
                 }
                 SetScroll(ww, rowh);
 
-                sync_viewpos();
+             //   sync_viewpos();
             }
             this.viewplace.QueueDraw();
         }
@@ -485,7 +440,7 @@ namespace BaseLib.Xwt.Controls
                         }
                     }
                     SetScroll(ww, rowh);
-                    sync_viewpos();
+          //          sync_viewpos();
                 }
             }
         }
