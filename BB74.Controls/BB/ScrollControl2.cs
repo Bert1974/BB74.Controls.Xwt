@@ -154,6 +154,15 @@ namespace BaseLib.Xwt.Controls
                 }
                 this.Scrollbar.ClampPage(this.Scrollbar.LowerValue,this.Scrollbar.UpperValue);
             }
+            internal void Clear()
+            {
+                this.Scrollbar.UpperValue = 0;
+                this.Scrollbar.ClampPage(this.Scrollbar.LowerValue, this.Scrollbar.UpperValue);
+                if (this.AutoHide && this.Visible)
+                {
+                    this.Visible = false;
+                }
+            }
         }
 
         public sealed class VScrollInfo : ScrollInfo
@@ -163,6 +172,7 @@ namespace BaseLib.Xwt.Controls
             {
             }
             public override Orientation Directon => Orientation.Vertical;
+
         }
         public sealed class HScrollInfo : ScrollInfo
         {
@@ -185,6 +195,7 @@ namespace BaseLib.Xwt.Controls
         public HScrollInfo HScroll { get; }
         public VScrollInfo VScroll { get; }
         private ScrollCanvas container;
+        private readonly Size scrollsize;
 
         public ScrollControl2()
         {
@@ -199,12 +210,88 @@ namespace BaseLib.Xwt.Controls
             this.Add(this.container, 0, 0, hexpand: true, vexpand: true);
             this.Add(this.HScroll, 0, 1, hexpand: true, vexpand: false);
             this.Add(this.VScroll, 1, 0, hexpand: false, vexpand: true);
+
+            this.scrollsize = new Size(this.VScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width, this.HScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Height);
         }
         protected void CheckScroll()
         {
-            this.HScroll.Update(this.container.Content?.Size.Width ?? 0, this.container.Size.Width);
-            this.VScroll.Update(this.container.Content?.Size.Height ?? 0, this.container.Size.Height);
+            var s = this.Size;
+            var w = this.container.Content?.Size.Width ?? 0;
+            var h = this.container.Content?.Size.Height ?? 0;
 
+            if (h > s.Height && (this.VScroll.Visible || this.VScroll.AutoHide))
+            {
+                this.VScroll.Visible = true;
+                if (w > s.Width - scrollsize.Width)
+                {
+                    if (this.HScroll.Visible || this.HScroll.AutoHide)
+                    {
+                        this.HScroll.Update(w, s.Width - scrollsize.Width);
+                        this.VScroll.Update(h, s.Height - scrollsize.Height);
+                    }
+                    else if (this.HScroll.Visible)
+                    {
+                        this.HScroll.Clear();
+                        this.VScroll.Update(h, s.Height - scrollsize.Height);
+                    }
+                    else
+                    {
+                        this.VScroll.Update(h, s.Height);
+                    }
+                }
+                else
+                {
+                    if (!this.HScroll.Visible || this.HScroll.AutoHide)
+                    {
+                        this.HScroll.Clear();
+                        this.VScroll.Update(h, this.container.Size.Height - scrollsize.Height);
+                    }
+                    else
+                    {
+                        this.HScroll.Clear();
+                        this.VScroll.Update(h, this.container.Size.Height - scrollsize.Height);
+                    }
+                }
+            }
+            else if (w > s.Width && (this.HScroll.Visible || this.HScroll.AutoHide))
+            {
+                this.HScroll.Visible = true;
+                if (h > s.Height - scrollsize.Height)
+                {
+                    if (this.VScroll.Visible || this.VScroll.AutoHide)
+                    {
+                        this.VScroll.Update(h, s.Height - scrollsize.Height);
+                        this.HScroll.Update(w, s.Width - scrollsize.Width);
+                    }
+                    else if (this.VScroll.Visible)
+                    {
+                        this.VScroll.Clear();
+                        this.HScroll.Update(w, s.Width - scrollsize.Width);
+                    }
+                    else
+                    {
+                        this.HScroll.Update(w, s.Width);
+                    }
+                }
+                else
+                {
+                    if (!this.VScroll.Visible || this.VScroll.AutoHide)
+                    {
+                        this.VScroll.Clear();
+                        this.HScroll.Update(w, this.container.Size.Width - scrollsize.Width);
+                    }
+                    else
+                    {
+                        this.VScroll.Clear();
+                        this.HScroll.Update(w, this.container.Size.Width - scrollsize.Width);
+                    }
+                }
+            }
+            else
+            {
+                this.HScroll.Clear();
+                this.VScroll.Clear();
+            }
             this.QueueForReallocate();
         }
         protected void MoveContent()
