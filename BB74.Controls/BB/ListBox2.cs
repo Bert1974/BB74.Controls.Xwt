@@ -75,7 +75,7 @@ namespace BaseLib.Xwt.Controls
                         if (painted.HasValue && this.owner.FullRowSelect)
                         {
                             var linerec = RowFromCellRect(painted);
-                            if (linerec.Width > 0)
+                            if (linerec.Width > 0 && linerec.IntersectsWith(dirtyRect))
                             {
                                 ctx.SetColor((this.owner as ICellHandlerContainer).Selected(row) ? Colors.LightBlue : Colors.White);
                                 ctx.Rectangle(linerec);
