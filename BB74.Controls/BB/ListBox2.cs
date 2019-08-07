@@ -376,6 +376,7 @@ namespace BaseLib.Xwt.Controls
 
                 //   sync_viewpos();
             }
+            this.scroller.Refresh();
             this.viewplace.QueueDraw();
         }
 
