@@ -48,7 +48,7 @@ namespace BaseLib.Xwt.Controls
 
             private void Content_BoundsChanged(object sender, EventArgs e)
             {
-                //this.MoveContent();
+                this.MoveContent();
                 //   this.owner.frame.CheckContentPos();
             }
             public ScrollCanvas(ScrollControl2 owner)
@@ -57,38 +57,9 @@ namespace BaseLib.Xwt.Controls
                 this.owner = owner;
                 this.ClipToBounds();
             }
-            protected override void OnBoundsChanged()
-            {
-                base.OnBoundsChanged();
-                this.owner.CheckScroll();
-
-                Console.WriteLine($"new frme bounds={this.Bounds}");
-            }
-            protected override void OnChildPlacementChanged(Widget child)
-            {
-                Console.WriteLine($"new child placment={this.Bounds}");
-                base.OnChildPlacementChanged(child);
-            }
-            protected override void OnChildPreferredSizeChanged()
-            {
-                Console.WriteLine($"new child prefsize={this.Bounds}");
-                base.OnChildPreferredSizeChanged();
-
-                //   this.MinWidth = this.content?.Size.Width ?? 0;
-                //    this.MinHeight = this.content?.Size.Height ?? 0;
-
-                //   this.MoveContent();
-            }
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                // this.owner.CheckScroll();
                 return this.owner.ViewSize;
-                var s = this.content?.Size ?? new Size(0, 0);
-
-                var w = widthConstraint.IsConstrained ? Math.Min(widthConstraint.AvailableSize, s.Width) : s.Width;
-                var h = heightConstraint.IsConstrained ? Math.Min(heightConstraint.AvailableSize, s.Height) : s.Height;
-
-                return s; //base.OnGetPreferredSize(widthConstraint, heightConstraint);
             }
             protected override bool SupportsCustomScrolling => base.SupportsCustomScrolling;
             internal void MoveContent()
@@ -107,10 +78,8 @@ namespace BaseLib.Xwt.Controls
             public ContainerCanvas(ScrollControl2 owner)
             {
                 this.owner = owner;
-                // this.ExpandVertical = this.ExpandHorizontal = true;
                 this.HorizontalPlacement = this.VerticalPlacement = WidgetPlacement.Fill;
                 this.ClipToBounds();
-                //   this.MinWidth = this.MinHeight = 10;
             }
             protected override void Dispose(bool disposing)
             {
@@ -120,19 +89,9 @@ namespace BaseLib.Xwt.Controls
                 }
                 base.Dispose(disposing);
             }
-            protected override void OnChildPreferredSizeChanged()
-            {
-                base.OnChildPreferredSizeChanged();
-                //    this.QueueForReallocate();
-            }
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
-                return /*owner.container.Surface.GetPreferredSize(widthConstraint, heightConstraint);*/ new Size(0, 0);
-            }
-            protected override void OnReallocate()
-            {
-                base.OnReallocate();
-                //  CheckContentPos();
+                return new Size(0, 0);
             }
             protected override void OnBoundsChanged()
             {
