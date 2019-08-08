@@ -57,14 +57,20 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             public double GetPosition()
             {
                 var ww = this.Size.Width;
-                if (ww <= 0.0)
+               /* if (ww <= 0.0)
                 {
+                    return this.position;
                     ww = this.Panel1.Content.MinWidth + this.Panel2.Content.MinWidth;
-                }
+                }*/
                 if (ww > 0.0)
                 {
                     double value;
-                    if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
+                    if (this.needsresize)
+                    {
+                        this.needsresize = false;
+                        value = this.Position = this.position * ww;
+                    }
+                    else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                     {
                         value = this.Panel1.Content.Size.Width;
                     }
@@ -74,11 +80,11 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                     }
                     return Math.Max(0, Math.Min(1, value / ww));
                 }
-                return .5;
+                return this.position;
             }
             public void SetPosition(double value)
             {
-                if (this.needsresize || this.position != value)
+                if (this.needsresize || !this.position.Equals(value))
                 {
                     this.position = value;
 
