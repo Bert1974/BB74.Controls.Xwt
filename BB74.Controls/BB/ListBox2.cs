@@ -194,19 +194,22 @@ namespace BaseLib.Xwt.Controls
             {
                 var s = this.GetMaxSize();
 
-                if (widthConstraint.IsConstrained)
+            /*    if (widthConstraint.IsConstrained)
                 {
                     s.Width = Math.Max(s.Width, widthConstraint.AvailableSize);
                 }
                 if (heightConstraint.IsConstrained)
                 {
                     s.Height = Math.Max(s.Height, heightConstraint.AvailableSize);
-                }
+                }*/
                 return s;
             }
         }
+    
+        public new bool ExpandVertical { get => base.ExpandVertical; set => base.ExpandVertical = value; }
+        public new bool ExpandHorizontal { get => base.ExpandHorizontal; set => base.ExpandHorizontal = value; }
 
-        CellViewCollection views;
+    CellViewCollection views;
         private readonly ScrollControl2 scroller;
         private ItemCanvas viewplace;
         IListDataSource source;
@@ -243,6 +246,7 @@ namespace BaseLib.Xwt.Controls
             
             base.Content=this.scroller;
         }
+
         /// <summary>
         /// Views to be used to display the data of the items
         /// </summary>

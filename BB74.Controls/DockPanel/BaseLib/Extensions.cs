@@ -8,6 +8,10 @@ namespace BaseLib.Xwt
 {
     public static class Extensions
     {
+        public static void ClampPage(this Scrollbar sb)
+        {
+            sb.ClampPage(sb.LowerValue, sb.UpperValue);
+        }
         public static void ClipToBounds(this Canvas widget)
         {
             ClipToBounds(widget.GetBackend());

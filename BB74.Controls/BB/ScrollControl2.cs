@@ -50,10 +50,11 @@ namespace BaseLib.Xwt.Controls
             {
                 this.MoveContent();
                 //   this.owner.frame.CheckContentPos();
+//this.owner.OnViewSizeChanged();
             }
             public ScrollCanvas(ScrollControl2 owner)
             {
-                base.BackgroundColor = owner.BackgroundColor;
+                base.BackgroundColor = Colors.White;
                 this.owner = owner;
                 this.ClipToBounds();
             }
@@ -66,9 +67,25 @@ namespace BaseLib.Xwt.Controls
             {
                 var scrollpt = new Point(-this.owner.HScroll.Scrollbar.Value, -this.owner.VScroll.Scrollbar.Value);
                 var s = (Size)this.content.GetType().InvokePrivate(this.content, "OnGetPreferredSize", new object[] { (SizeConstraint)this.Size.Width, (SizeConstraint)this.Size.Height });
+                var vs = this.owner.ViewSize;
+
+                if (s.Width < vs.Width && this.content.ExpandHorizontal)
+                {
+                    s.Width = vs.Width;
+                }
+                if (s.Height < vs.Height && this.content.ExpandVertical)
+                {
+                    s.Height =vs.Height;
+                }
+
                 var r = new Rectangle(scrollpt.X, scrollpt.Y, s.Width, s.Height);
                 this.SetChildBounds(this.content, r);
             }
+        }
+
+        protected void OnViewSizeChanged()
+        {
+            this.ViewSizeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         protected sealed class ContainerCanvas : Canvas
@@ -184,6 +201,7 @@ namespace BaseLib.Xwt.Controls
             {
             }
             public override Orientation Directon => Orientation.Vertical;
+            public double Width => this.owner.scrollsize.Width;
 
         }
         public sealed class HScrollInfo : ScrollInfo
@@ -193,7 +211,7 @@ namespace BaseLib.Xwt.Controls
             {
             }
             public override Orientation Directon => Orientation.Horizontal;
-
+            public double Height => this.owner.scrollsize.Height;
         }
 
         public new Widget Content
@@ -210,6 +228,7 @@ namespace BaseLib.Xwt.Controls
                 {
                     // var contentsize = this.contentholder.GetChildBounds(this.Content);
                     var contentsize = (Size)this.Content.GetType().InvokePrivate(this.Content, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+
                     var nv = new double[] { this.Size.Width, this.Size.Height };
                     var ovis = new bool[] { this.HScroll.Visible, this.VScroll.Visible };
 
@@ -255,11 +274,11 @@ namespace BaseLib.Xwt.Controls
                     {
                         if (this.HScroll.Visible && !this.HScroll.AutoHide)
                         {
-                            nv[0] -= scrollsize.Width;
+                            nv[1] -= scrollsize.Height;
                         }
                         if (this.VScroll.Visible && !this.VScroll.AutoHide)
                         {
-                            nv[1] -= scrollsize.Height;
+                            nv[0] -= scrollsize.Width;
                         }
                     }
                     return new Size(Math.Max(0, nv[0]), Math.Max(0, nv[1]));
@@ -272,6 +291,8 @@ namespace BaseLib.Xwt.Controls
         private ScrollCanvas contentholder;
         private readonly ContainerCanvas container;
         private readonly Size scrollsize;
+
+        public event EventHandler ViewSizeChanged;
 
         public ScrollControl2()
         {
@@ -301,17 +322,30 @@ namespace BaseLib.Xwt.Controls
         protected override void OnBoundsChanged()
         {
             base.OnBoundsChanged();
-            CheckScroll();
-            contentholder.MoveContent();
+            this.CheckScroll(true);
+            this.contentholder.MoveContent();
+            //     CheckScroll(true);
+            //  contentholder.MoveContent();
+            //     this.ViewSizeChanged?.Invoke(this, EventArgs.Empty);
+
+            //  this.ViewSizeChanged?.Invoke(this, EventArgs.Empty);
         }
-        protected void CheckScroll()
+        protected void CheckScroll(bool force = false)
         {
             var contentsize = (Size)this.Content.GetType().InvokePrivate(this.Content, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
             //var contentsize = this.contentholder.GetChildBounds(this.Content);
             var viewsize = this.ViewSize;
 
+            bool hvis = this.HScroll.Visible, vvis = this.VScroll.Visible;
+
             this.HScroll.Update(contentsize.Width, viewsize.Width);
             this.VScroll.Update(contentsize.Height, viewsize.Height);
+
+            if (force || hvis != this.HScroll.Visible || vvis != this.VScroll.Visible)
+            {
+                this.OnViewSizeChanged();
+          //      this.ViewSizeChanged?.Invoke(this, EventArgs.Empty);
+            }
 
             this.QueueForReallocate();
         }
@@ -347,5 +381,11 @@ namespace BaseLib.Xwt.Controls
             this.CheckScroll();
             this.contentholder.MoveContent();
         }
+  /*      protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
+        {
+            var size= this.Content?.Surface.GetPreferredSize(widthConstraint, heightConstraint) ?? Size.Zero;// base.OnGetPreferredSize(widthConstraint, heightConstraint);
+
+            return new Size(widthConstraint.IsConstrained ? Math.Min(widthConstraint.AvailableSize, size.Width) : size.Width, heightConstraint.IsConstrained ? Math.Min(heightConstraint.AvailableSize, size.Height) : size.Height);
+        }*/
     }
 }

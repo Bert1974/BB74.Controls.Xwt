@@ -46,8 +46,9 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             }
             protected override void OnBoundsChanged()
             {
-                SetPosition(this.position);
+                //SetPosition(this.position);
                 base.OnBoundsChanged();
+                this.CheckValue?.Invoke(this, EventArgs.Empty);
             }
             protected override void OnPositionChanged()
             {
@@ -62,13 +63,14 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                     return this.position;
                     ww = this.Panel1.Content.MinWidth + this.Panel2.Content.MinWidth;
                 }*/
-                if (ww > 0.0)
+                if (ww > 1)
                 {
                     double value;
                     if (this.needsresize)
                     {
                         this.needsresize = false;
                         value = this.Position = this.position * ww;
+                        this.CheckValue?.Invoke(this, EventArgs.Empty);
                     }
                     else if (Toolkit.CurrentEngine.Type == ToolkitType.XamMac)
                     {
@@ -100,7 +102,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                         {
                             value *= this.Size.Width;
                         }
-                        if (this.Size.Width > 0)
+                        if (this.Size.Width > 1)
                         {
                             this.Position = value;
 
@@ -173,19 +175,20 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.MinWidth = PropertyGrid.spacedx * 6;
             this.MinHeight = PropertyGrid.lineheight * 2 + PropertyGrid.splitheight;
 
-            var hbox2 = new HBox2();
+            var hbox2 = new HBox2() { Spacing = 0};
             this.splitheader = new SplitHeader() { };
-            this.splitheader.SetPosition(.5);
             this.splitheader.CheckValue += Splitheader_CheckValue;
 
+            this.scroller.ViewSizeChanged += (s, a) => hbox2.QueueForReallocate();
+            this.splitheader.SetPosition(.5);
+
             hbox2.PackStart(this.splitheader, true, true);
-            hbox2.PackStart(new Spacer(()=>this.scroller.VScroll.Scrollbar.Size.Width, Orientation.Horizontal));
+            hbox2.PackStart(new Spacer(() => this.scroller.VScroll.Visible? this.scroller.VScroll.Scrollbar.Size.Width:0, Orientation.Horizontal) { BackgroundColor=Colors.DarkGray});
             
             base.PackStart(hbox2, false, vpos: WidgetPlacement.Fill, hpos: WidgetPlacement.Fill);
             
             base.PackStart(this.scroller, true, true);
 
-            this.scroller.BoundsChanged += (s, a) => hbox2.QueueForReallocate();
         }
 
         private void Scrollcanvas_BoundsChanged(object sender, EventArgs e)
@@ -307,7 +310,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
         protected override void OnBoundsChanged()
         {
             {
-                CheckSize();
+          //      CheckSize();
                 base.OnBoundsChanged();
             }
         }
@@ -332,6 +335,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
                         SetWidth(subitem);
                     }
                 }
+                this.scroller.Refresh();
             }
         }
         private bool CreateList(GridItem item, int level = 0)
