@@ -22,6 +22,7 @@ cache:
 - packages
 
 build_cloud: Docker
+image: Linux
   
 build_script:
 - dir
@@ -35,5 +36,6 @@ build_script:
 artifacts:
 - path: nuget\*.nupkg
 
+test:  off
 deploy: off
 ...
