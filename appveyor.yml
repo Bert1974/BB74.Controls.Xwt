@@ -22,7 +22,7 @@ build_cloud: Docker
 image: Linux
 
 install:
-- apt-get install nuget
+- apt-get install nuget /y
 
 before_build:
 - nuget restore
