@@ -34,5 +34,8 @@ build_script:
 - nuget pack BB74.Controls\BB74.Xwt.Controls.csproj -Properties:"Configuration=Release;Platform=AnyCPU"-Symbols -OutputDirectory nuget
 - dir nuget
 
+artifacts:
+- path: nuget\*.nupkg
+
 deploy: off
 ...
