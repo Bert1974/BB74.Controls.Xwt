@@ -3,7 +3,7 @@ pull_requests:
   do_not_increment_build_number: true
 branches:
   only:
-  - master
+  - bert
 skip_tags: true
 
 version: 1.0.0.{build}
