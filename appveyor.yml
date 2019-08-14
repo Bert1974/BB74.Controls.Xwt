@@ -1,0 +1,36 @@
+
+pull_requests:
+  do_not_increment_build_number: true
+branches:
+  only:
+  - master
+skip_tags: true
+
+version: 1.0.0.{build}
+
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+
+configuration: Release
+platform: Any CPU
+
+
+cache:
+- packages
+
+build_cloud: Docker
+verbosity: verbose
+  
+build_script:
+- nuget restore
+- msbuild BB74.Controls\BB74.Xwt.Controls.csproj /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:ProjectReferences=false /p:TargetFrameworkVersion=v4.0;Configuration=Release;Platform="Any CPU"
+- mkdir nuget
+- nuget pack BB74.Controls\BB74.Xwt.Controls.csproj -Properties:"Configuration=Release;Platform=AnyCPU"-Symbols -OutputDirectory nuget
+- dir nuget
+
+deploy: off
+...
