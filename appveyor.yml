@@ -22,7 +22,8 @@ build_cloud: Docker
 image: Linux
 
 install:
-- # mozroots --import --machine --sync
+- apt-get install -y mono-complete
+- mozroots --import --machine --sync
 - apt-get install -y certmgr 
 - certmgr -ssl -m https://go.microsoft.com
 - certmgr -ssl -m https://nugetgallery.blob.core.windows.net
