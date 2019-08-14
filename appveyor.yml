@@ -18,12 +18,10 @@ assembly_info:
 configuration: Release
 platform: Any CPU
 
-
 cache:
 - packages
 
 build_cloud: Docker
-verbosity: verbose
   
 build_script:
 - dir
