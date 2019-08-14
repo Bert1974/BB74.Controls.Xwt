@@ -22,6 +22,7 @@ build_cloud: Docker
 image: Linux
 
 install:
+- timedatectl list-timezones
 - apt-get install -y nuget
 
 before_build:
