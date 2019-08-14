@@ -23,6 +23,7 @@ image: Linux
 
 install:
 - ln -sf /usr/share/zoneinfo/CEST /etc/localtime
+- apt-get install -y tzdata
 - apt-get install -y nuget
 
 before_build:
