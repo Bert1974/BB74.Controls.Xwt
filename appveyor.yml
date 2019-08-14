@@ -15,14 +15,11 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 
-configuration: Release
-platform: Any CPU
-
 cache:
 - packages
 
 build_cloud: Docker
-image: Linux
+image: Windows
   
 build_script:
 - dir
