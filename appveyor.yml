@@ -19,7 +19,7 @@ cache:
 - packages
 
 build_cloud: Docker
-image: Windows
+image: Ubuntu1804
   
 build_script:
 - dir
