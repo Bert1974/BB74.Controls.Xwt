@@ -26,6 +26,8 @@ build_cloud: Docker
 verbosity: verbose
   
 build_script:
+- dir
+- dir BB74.Controls
 - nuget restore
 - msbuild BB74.Controls\BB74.Xwt.Controls.csproj /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:ProjectReferences=false /p:TargetFrameworkVersion=v4.0;Configuration=Release;Platform="Any CPU"
 - mkdir nuget
