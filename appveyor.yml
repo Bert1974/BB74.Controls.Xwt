@@ -28,7 +28,7 @@ before_build:
 - nuget restore
   
 build_script:
-- msbuild BB74.Controls\BB74.Xwt.Controls.csproj /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:ProjectReferences=false /p:TargetFrameworkVersion=v4.0;Configuration=Release;Platform="Any CPU"
+- xbuild BB74.Controls\BB74.Xwt.Controls.csproj /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:ProjectReferences=false /p:TargetFrameworkVersion=v4.0;Configuration=Release;Platform="Any CPU"
 - mkdir nuget
 - nuget pack BB74.Controls\BB74.Xwt.Controls.csproj -Properties:"Configuration=Release;Platform=AnyCPU"-Symbols -OutputDirectory nuget
 - dir nuget
