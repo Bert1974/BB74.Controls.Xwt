@@ -19,7 +19,7 @@ cache:
 - packages
 
 build_cloud: Docker
-image: Windows
+image: Ubuntu
 
 install:
 - DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
