@@ -19,7 +19,7 @@ cache:
 - packages
 
 build_cloud: Docker
-image: Linux
+image: Windows
 
 install:
 - ln -sf /usr/share/zoneinfo/CEST /etc/localtime
