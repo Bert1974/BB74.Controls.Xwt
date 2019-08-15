@@ -22,8 +22,10 @@ build_cloud: Docker
 image: Linux
 
 install:
+- DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
 - ln -sf /usr/share/zoneinfo/CEST /etc/localtime
-- apt-get install -y nuget
+- DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y mono-devel &&  apt-get update &&  apt-get install -y nuget
+- mozroots --import --machine --sync
 
 before_build:
 - nuget restore
