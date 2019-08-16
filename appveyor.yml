@@ -22,7 +22,7 @@ build_cloud: Docker
 image: Linux
 
 install:
-- DEBIAN_FRONTEND=noninteractive ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime && apt-get update && apt-get install -y mono-devel && apt-get update && apt-get install -y nuget && nuget update -self -Prerelease && apt-get clean && rm -rf /var/lib/apt/lists/* && ln -s /usr/bin/xbuild /usr/bin/msbuild
+- DEBIAN_FRONTEND=noninteractive ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime && apt-get update && apt-get install -y mono-devel && apt-get update && nuget update -self -Prerelease && apt-get clean && rm -rf /var/lib/apt/lists/* && ln -s /usr/bin/xbuild /usr/bin/msbuild
 
 before_build:
 - nuget restore
