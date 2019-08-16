@@ -23,7 +23,7 @@ image: Linux
 
 install:
 - DEBIAN_FRONTEND=noninteractive ln -s /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime && apt-get update && apt-get install -y mono-devel && apt-get update && apt-get install -y nuget && nuget update -self && apt-get clean && rm -rf /var/lib/apt/lists/* && ln -s /usr/bin/xbuild /usr/bin/msbuild
-
+- ls /usr/bin
 before_build:
 - nuget restore
   
