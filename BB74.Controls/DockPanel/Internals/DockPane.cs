@@ -310,7 +310,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                 foreach (var doc in this._docs)
                 {
                     miw = Math.Max(miw, doc.Widget.MinWidth);
-                    mih = Math.Max(miw, doc.Widget.MinHeight);
+                    mih = Math.Max(mih, doc.Widget.MinHeight);
                 }
             }
             bool v1 = this.topbar.Visible;
