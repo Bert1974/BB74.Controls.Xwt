@@ -12,6 +12,7 @@ namespace BaseLib.Xwt.Controls
 {
     public class VBox2 : VBox
     {
+        public bool AutoCalcMinSize { get => this.box2.AutoCalcMinSize; set { this.box2.AutoCalcMinSize = true; } }
         private Box2 box2;
 
         public VBox2() : base()
@@ -34,6 +35,8 @@ namespace BaseLib.Xwt.Controls
     }
     public class HBox2 : HBox
     {
+        public bool AutoCalcMinSize { get=>this.box2.AutoCalcMinSize; set { this.box2.AutoCalcMinSize = true; } }
+
         private Box2 box2;
 
         public HBox2() : base()
@@ -58,6 +61,8 @@ namespace BaseLib.Xwt.Controls
     {
         private readonly Box owner;
         private readonly Orientation direction;
+        public bool AutoCalcMinSize { get; set; } = false;
+
 
         IBoxBackend Backend
         {
@@ -142,6 +147,10 @@ namespace BaseLib.Xwt.Controls
                 if (count > 0)
                     s.Height += spacing * (double)(count - 1);
             }
+            if (AutoCalcMinSize)
+            {
+                CalcMinSize();
+            }
             return s;
         }
         public void OnReallocate()
@@ -206,10 +215,10 @@ namespace BaseLib.Xwt.Controls
                 }
                 Backend.SetAllocation(widgets, rects);
             }
-      /*      foreach (var w in visibleChildren.Select(bp => bp.Child))
-            {
-                w.QueueForReallocate();
-            }*/
+            /*      foreach (var w in visibleChildren.Select(bp => bp.Child))
+                  {
+                      w.QueueForReallocate();
+                  }*/
         }
         Dictionary<BoxPlacement, double> CalcDefaultSizes(SizeConstraint width, SizeConstraint height, bool allowShrink)
         {
@@ -234,10 +243,10 @@ namespace BaseLib.Xwt.Controls
             foreach (var bp in visibleChildren)
             {
                 var s1 = bp.Child.Surface.GetPreferredSize();
-             //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
                 s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
                 var s4 = bp.Child.Size;
-                var s =(Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint});
+                var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
                 minsize[bp] = vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
                 nextsize[bp] = Math.Max(minsize[bp], vertical ? s.Height : s.Width);
                 if (minsize[bp] < 0) minsize[bp] = nextsize[bp];
@@ -249,7 +258,7 @@ namespace BaseLib.Xwt.Controls
             }
 
             double remaining = availableSize - totminsize - (spacing * (double)(visibleChildren.Length - 1));
-           if (remaining > 0) // more space as minimum
+            if (remaining > 0) // more space as minimum
             {
                 var remaining2 = availableSize - requiredSize - (spacing * (double)(visibleChildren.Length - 1));
                 if (remaining2 > 0) // more space as getpreffered
@@ -257,24 +266,24 @@ namespace BaseLib.Xwt.Controls
                     var expandRemaining = new SizeSplitter(remaining2, nexpands);
                     foreach (var bp in visibleChildren)
                     {
-                      //  nextsize[bp] = minsize[bp];
+                        //  nextsize[bp] = minsize[bp];
                         if (ExpandsForOrientation(bp.Child))
                         {
                             nextsize[bp] += expandRemaining.NextSizePart();
                             // todo getprefsize
 
-                         /*   switch (AlligmMent(bp.Child))
+                            /*   switch (AlligmMent(bp.Child))
+                               {
+                                   case WidgetPlacement.Fill: break;
+                                   default:*/
                             {
-                                case WidgetPlacement.Fill: break;
-                                default:*/
-                                    {
 
-                                  //      s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { vertical ? widthConstraint : SizeConstraint.WithSize(nextsize[bp]), vertical ? SizeConstraint.WithSize(nextsize[bp]) : heightConstraint });
-                                  //      nextsize[bp] = vertical ? s3.Height : s3.Width;
-                                    }
-                              /*      break;
-                            }*/
-                          //  Debug.Assert(nextsize[bp] > 0);
+                                //      s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { vertical ? widthConstraint : SizeConstraint.WithSize(nextsize[bp]), vertical ? SizeConstraint.WithSize(nextsize[bp]) : heightConstraint });
+                                //      nextsize[bp] = vertical ? s3.Height : s3.Width;
+                            }
+                            /*      break;
+                          }*/
+                            //  Debug.Assert(nextsize[bp] > 0);
                         }
                     }
                 }
@@ -284,23 +293,23 @@ namespace BaseLib.Xwt.Controls
                     var expandRemaining = new SizeSplitter((requiredSize - totminsize), nexpands);
                     foreach (var bp in visibleChildren)
                     {
-                        nextsize[bp] += remaining2 * (nextsize[bp] - minsize[bp]) / (requiredSize-totminsize);
+                        nextsize[bp] += remaining2 * (nextsize[bp] - minsize[bp]) / (requiredSize - totminsize);
                         if (ExpandsForOrientation(bp.Child))
                         {
-                      //      nextsize[bp] += expandRemaining.NextSizePart();
+                            //      nextsize[bp] += expandRemaining.NextSizePart();
 
-                        /*    switch (AlligmMent(bp.Child))
-                            {
-                                case WidgetPlacement.Fill: break;
-                                default:
-                                    {*/
+                            /*    switch (AlligmMent(bp.Child))
+                                {
+                                    case WidgetPlacement.Fill: break;
+                                    default:
+                                        {*/
 
-//                                        s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { vertical ? widthConstraint : SizeConstraint.WithSize(nextsize[bp]), vertical ? SizeConstraint.WithSize(nextsize[bp]) : heightConstraint });
-  //                                      nextsize[bp] = vertical ? s3.Height : s3.Width;
-                                    /*    break;
-                                    }
-                            }*/
-                       //     Debug.Assert(nextsize[bp] > 0);
+                            //                                        s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { vertical ? widthConstraint : SizeConstraint.WithSize(nextsize[bp]), vertical ? SizeConstraint.WithSize(nextsize[bp]) : heightConstraint });
+                            //                                      nextsize[bp] = vertical ? s3.Height : s3.Width;
+                            /*    break;
+                            }
+                    }*/
+                            //     Debug.Assert(nextsize[bp] > 0);
                         }
                         //if (ExpandsForOrientation(bp.Child))
                         //    nextsize[bp] = minsize[bp]+expandRemaining.NextSizePart();
@@ -315,6 +324,50 @@ namespace BaseLib.Xwt.Controls
                 }
             }
             return nextsize;
+        }
+        void CalcMinSize()
+        {
+            var nextsize = new Dictionary<BoxPlacement, double>();
+            var minsize = new Dictionary<BoxPlacement, double>();
+
+            bool vertical = direction == Orientation.Vertical;
+            double totminsize = 0, minmax=0;
+
+            var children = (ChildrenCollection<BoxPlacement>)GetFieldValuePrivate(typeof(Box), owner, "children");
+            double spacing = owner.Spacing;
+
+            var visibleChildren = children.Where(b => b.Child.Visible).ToArray();
+            //  var sizes = new Dictionary<BoxPlacement, double>();
+            Size s3;
+            // Get the natural size of each child
+            foreach (var bp in visibleChildren)
+            {
+                var s1 = bp.Child.Surface.GetPreferredSize();
+                //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
+                s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+                var s4 = bp.Child.Size;
+                var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+                minsize[bp] = vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
+                nextsize[bp] = Math.Max(minsize[bp], vertical ? s.Height : s.Width);
+                if (minsize[bp] < 0) minsize[bp] = nextsize[bp]; ;
+                var mis = !vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
+                if (mis < 0)
+                {
+                    mis = !vertical ? s.Height : s.Width;
+                }
+                minmax = Math.Max(minmax, mis);
+                totminsize += minsize[bp];
+            }
+            if (vertical)
+            {
+                this.owner.MinWidth = minmax;
+                this.owner.MinHeight = totminsize;
+            }
+            else
+            {
+                this.owner.MinWidth = totminsize;
+                this.owner.MinHeight = minmax;
+            }
         }
         private double MinWidth(Widget w, Size s)
         {
