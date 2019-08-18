@@ -312,12 +312,13 @@ namespace BaseLib.Xwt.Controls
             this.Add(this.HScroll, 0, 1, hexpand: false, vexpand: false);
             this.Add(this.VScroll, 1, 0, hexpand: false, vexpand: false);
 
-            this.scrollsize = new Size(
-                    this.VScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Width,
-                    this.HScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained).Height);
+            var s1 = this.VScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+            var s2 = this.HScroll.Scrollbar.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
 
-            this.MinWidth = this.scrollsize.Width;
-            this.MinHeight = this.scrollsize.Height;
+            this.scrollsize = new Size(s1.Width,s2.Height );
+
+            this.MinWidth = Math.Max(s1.Width, s2.Width);
+            this.MinHeight = Math.Max(s1.Height, s2.Height);
         }
         protected override void OnBoundsChanged()
         {
