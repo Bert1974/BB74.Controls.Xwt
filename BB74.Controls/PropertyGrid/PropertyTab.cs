@@ -179,7 +179,7 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             this.splitheader = new SplitHeader() { };
             this.splitheader.CheckValue += Splitheader_CheckValue;
 
-            this.scroller.ViewSizeChanged += (s, a) => hbox2.QueueForReallocate();
+            this.scroller.ViewSizeChanged += (s, a) => Splitheader_CheckValue(null,EventArgs.Empty);//{hbox2.QueueForReallocate();}
             this.splitheader.SetPosition(.5);
 
             hbox2.PackStart(this.splitheader, true, true);
