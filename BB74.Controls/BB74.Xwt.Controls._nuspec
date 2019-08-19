@@ -14,7 +14,7 @@
     <tags>BB74 c# Mono VisualStudio Xwt DockPanel PropertyGrid windows ubuntu macos xammac gtk wpf</tags>
     <dependencies>
       <group>
-        <dependency id="Xwt" version="0.2.167" />
+        <dependency id="Xwt" version="0.2.182" />
       </group>
     </dependencies>
   </metadata>
