@@ -340,7 +340,7 @@ namespace BaseLib.Xwt.Controls.DockPanel.Internals
                     }
                     if (Toolkit.CurrentEngine.Type == ToolkitType.Wpf)
                     {
-                        if (w.Item2.GetType().FullName != "Microsoft.VisualStudio.DesignTools.WpfTap.WpfVisualTreeService.Adorners.AdornerLayerWindow")
+                        if (!w.Item2.GetType().FullName.StartsWith("Microsoft.VisualStudio.DesignTools.WpfTap."))
                         {
                             break; // window in front
                         }
