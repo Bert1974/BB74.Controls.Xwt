@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xwt.Gtk.0.2.181\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.181\build\Xwt.Gtk.props')" />
+  <Import Project="..\packages\Xwt.Gtk.0.2.182\build\Xwt.Gtk.props" Condition="Exists('..\packages\Xwt.Gtk.0.2.182\build\Xwt.Gtk.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -40,32 +40,32 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Xwt">
-      <HintPath>..\packages\Xwt.0.2.181\lib\net40\Xwt.dll</HintPath>
+    <Reference Include="Xwt, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.0.2.182\lib\net40\Xwt.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.Gtk">
-      <HintPath>..\packages\Xwt.Gtk.0.2.181\lib\net40\Xwt.Gtk.dll</HintPath>
+    <Reference Include="Xwt.Gtk, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.0.2.182\lib\net40\Xwt.Gtk.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.Gtk.Mac">
-      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.181\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
+    <Reference Include="Xwt.Gtk.Mac, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Mac.0.2.182\lib\net40\Xwt.Gtk.Mac.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.Gtk.Windows">
-      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.181\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
+    <Reference Include="Xwt.Gtk.Windows, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.Gtk.Windows.0.2.182\lib\net40\Xwt.Gtk.Windows.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.WPF">
-      <HintPath>..\packages\Xwt.WPF.0.2.181\lib\net40\Xwt.WPF.dll</HintPath>
+    <Reference Include="Xwt.WPF, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.WPF.0.2.182\lib\net40\Xwt.WPF.dll</HintPath>
     </Reference>
-    <Reference Include="Xwt.XamMac">
-      <HintPath>..\packages\Xwt.XamMac.0.2.181\lib\net40\Xwt.XamMac.dll</HintPath>
+    <Reference Include="Xwt.XamMac, Version=0.2.182.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xwt.XamMac.0.2.182\lib\net40\Xwt.XamMac.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="documents.cs" />
+    <Compile Include="wxtsamples.cs" />
     <Compile Include="toolbars.cs" />
     <Compile Include="mainwindow.cs" />
     <Compile Include="Program.cs" />
@@ -81,4 +81,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Xwt.Gtk.0.2.182\build\Xwt.Gtk.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xwt.Gtk.0.2.182\build\Xwt.Gtk.props'))" />
+  </Target>
 </Project>

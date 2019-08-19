@@ -3,6 +3,7 @@ using BaseLib.Xwt.Controls.DockPanel;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Xwt;
 
 namespace DockExample
@@ -28,6 +29,10 @@ namespace DockExample
             {
                 return new testtoolitem(data);
             }
+            if (type == typeof(xwtsamples))
+            {
+                return new xwtsamples(dockpanel.ParentWindow);
+            }
             return null;
         }
         
@@ -42,6 +47,7 @@ namespace DockExample
             var menu = new Menu();
             var file = new MenuItem("_File");
             file.SubMenu = new Menu();
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New Xwt", new_xwtsamples));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New window", new_mainwindow));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New testdoc", new_testdoc));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New toolbar", new_toolbar));
@@ -65,14 +71,20 @@ namespace DockExample
 
             try
             {
-                dock.LoadXml(settingsfile, true, Deserialize);
+                dock.Load(settingsfile, true, Deserialize);
             }
             catch
             {
                 dock.Dock(new testdockitem());
                 dock.Dock(new testtoolitem(this), DockPosition.Top);
                 dock.Dock(new IDockContent[] { new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this), new testtoolitem(this) }, DockPosition.Top);
+                dock.Dock(new xwtsamples(this),DockPosition.Left);
             }
+        }
+        private void new_xwtsamples(object s, EventArgs e)
+        {
+            var dockwin = new xwtsamples(this);
+            dock.Dock(dockwin);
         }
         protected override void OnShown()
         {
@@ -151,12 +163,12 @@ namespace DockExample
 
         private void LoadDock(string fileName)
         {
-            dock.LoadXml(fileName, false, Deserialize);
+            dock.Load(fileName, false, Deserialize);
         }
 
         private void SaveDock(string fileName)
         {
-            dock.SaveXml(fileName, false);
+            dock.Save(fileName, false);
         }
 
         void Init(FileDialog dialog)

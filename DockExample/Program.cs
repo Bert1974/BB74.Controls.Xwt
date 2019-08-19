@@ -5,6 +5,7 @@ using BaseLib.Xwt;
 using Xwt;
 using System.Reflection;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DockExample
 {
@@ -26,14 +27,35 @@ namespace DockExample
         }
     }
 
+   [Serializable()]
+   public class MainSettings
+    {
+        public string xmlsampledllpath;
+    }
+
     class Program
     {
         static readonly List<mainwindow> openwindows = new List<mainwindow>();
         public static IXwt Xwt { get; private set; }
 
+        public static MainSettings MainSettings { get; private set; }
         [STAThread()]
         static void Main(string[] args)
         {
+            try
+            {
+                using (var s = File.OpenRead("mainsettings.xml"))
+                {
+                    Program.MainSettings = (MainSettings)new BinaryFormatter().Deserialize(s);
+                }
+            }
+            catch
+            {
+                Program.MainSettings = new MainSettings()
+                {
+                    xmlsampledllpath = "",
+                };
+            }
             try
             {
 #if (__MACOS__)
@@ -72,6 +94,15 @@ namespace DockExample
 
                 UIHelpers.NewWindow();
                 Application.Run();
+
+                try
+                {
+                    using (var s = File.OpenWrite("mainsettings.xml"))
+                    {
+                        new BinaryFormatter().Serialize(s, Program.MainSettings);
+                    }
+                }
+                catch { }
             }
             catch(Exception e)
             {
