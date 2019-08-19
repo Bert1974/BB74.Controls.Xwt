@@ -281,7 +281,7 @@ namespace BaseLib.Xwt.Controls.DockPanel
                var serializer = new System.Xml.Serialization.XmlSerializer(typeof(DockSave), DockState.SerializeTypes);
                var data = (DockSave)serializer.Deserialize(xmlReader);*/
 
-            return Restore(data);
+            return Restore(data, deserializeDockContent);
         }
         public bool Restore(DockSave data, DeserializeDockContent deserializeDockContent = null)
         { 
