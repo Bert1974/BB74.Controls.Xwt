@@ -31,6 +31,10 @@ namespace BaseLib.Xwt.Controls
         {
             base.OnBoundsChanged();
             this.box2.BoundsChanged();
+            if (AutoCalcMinSize)
+            {
+                box2.CalcMinSize();
+            }
         }
     }
     public class HBox2 : HBox
@@ -146,10 +150,6 @@ namespace BaseLib.Xwt.Controls
                 }
                 if (count > 0)
                     s.Height += spacing * (double)(count - 1);
-            }
-            if (AutoCalcMinSize)
-            {
-                CalcMinSize();
             }
             return s;
         }
@@ -325,7 +325,7 @@ namespace BaseLib.Xwt.Controls
             }
             return nextsize;
         }
-        void CalcMinSize()
+        internal void CalcMinSize()
         {
             var nextsize = new Dictionary<BoxPlacement, double>();
             var minsize = new Dictionary<BoxPlacement, double>();
