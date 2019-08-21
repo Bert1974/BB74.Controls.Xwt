@@ -44,18 +44,20 @@ namespace BaseLib.Xwt.Controls
             private void Content_MouseScrolled(object sender, MouseScrolledEventArgs e)
             {
                 this.owner.DoScroll(e.Direction);
+                e.Handled = true;
             }
 
             private void Content_BoundsChanged(object sender, EventArgs e)
             {
                 this.MoveContent();
                 //   this.owner.frame.CheckContentPos();
-//this.owner.OnViewSizeChanged();
+                //this.owner.OnViewSizeChanged();
             }
             public ScrollCanvas(ScrollControl2 owner)
             {
                 base.BackgroundColor = Colors.White;
                 this.owner = owner;
+                this.MouseScrolled += (s, a) => { this.owner.DoScroll(a.Direction); a.Handled = true; };
                 this.ClipToBounds();
             }
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
@@ -75,7 +77,7 @@ namespace BaseLib.Xwt.Controls
                 }
                 if (s.Height < vs.Height && this.content.ExpandVertical)
                 {
-                    s.Height =vs.Height;
+                    s.Height = vs.Height;
                 }
 
                 var r = new Rectangle(scrollpt.X, scrollpt.Y, s.Width, s.Height);
@@ -114,7 +116,7 @@ namespace BaseLib.Xwt.Controls
             {
                 base.OnBoundsChanged();
                 base.SetChildBounds(this.Children.First(), base.Bounds);
-            //    this.owner.CheckContentPos();
+                //    this.owner.CheckContentPos();
                 //  this.owner.CheckScroll();
             }
 
@@ -217,9 +219,11 @@ namespace BaseLib.Xwt.Controls
         public new Widget Content
         {
             get => this.contentholder.Content;
-            set => this.contentholder.Content = value;
+            set
+            {
+                this.contentholder.Content = value; //SupportsCustomScrolling
+            }
         }
-
         public Size ViewSize
         {
             get
@@ -227,7 +231,8 @@ namespace BaseLib.Xwt.Controls
                 if (this.Content != null)
                 {
                     // var contentsize = this.contentholder.GetChildBounds(this.Content);
-                    var contentsize = (Size)this.Content.GetType().InvokePrivate(this.Content, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+                    var contentsize = this.Content.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained);
+                  //  var contentsize2 = this.Content.GetType().InvokePrivate(this.Content, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
 
                     var nv = new double[] { this.Size.Width, this.Size.Height };
                     var ovis = new bool[] { this.HScroll.Visible, this.VScroll.Visible };
@@ -288,6 +293,58 @@ namespace BaseLib.Xwt.Controls
         }
         public HScrollInfo HScroll { get; }
         public VScrollInfo VScroll { get; }
+
+        public ScrollPolicy HorizontalScrollPolicy
+        {
+            get
+            {
+                return GetScrollPolicy(this.HScroll);
+            }
+            set
+            {
+                SetScrollPolicy(this.HScroll, value);
+            }
+        }
+        public ScrollPolicy VerticalScrollPolicy
+        {
+            get
+            {
+                return GetScrollPolicy(this.VScroll);
+            }
+            set
+            {
+                SetScrollPolicy(this.VScroll, value);
+            }
+        }
+
+        public bool BorderVisible { get; set; } // unimplemnted
+
+        private ScrollPolicy GetScrollPolicy(ScrollInfo c)
+        {
+            if (c.AutoHide)
+            {
+                return ScrollPolicy.Automatic;
+            }
+            else if (c.Visible)
+            {
+                return ScrollPolicy.Always;
+            }
+            return ScrollPolicy.Never;
+        }
+
+        private void SetScrollPolicy(ScrollInfo c, ScrollPolicy p)
+        {
+            if (p == ScrollPolicy.Automatic)
+            {
+                c.AutoHide = true;
+            }
+            else
+            {
+                c.AutoHide = false;
+                c.Visible = p == ScrollPolicy.Always ? true : false;
+            }
+        }
+
         private ScrollCanvas contentholder;
         private readonly ContainerCanvas container;
         private readonly Size scrollsize;

@@ -375,15 +375,11 @@ namespace BaseLib.Xwt.Controls
                     {
                         hh += rowh[row];
                     }
-                }
-                //     SetScroll(ww, rowh);
-
-                //   sync_viewpos();
+                } this.scroller.Refresh();
             }
             this.scroller.Refresh();
             this.viewplace.QueueDraw();
         }
-
         private void SyncRows()
         {
             if (!SetViews())
@@ -444,12 +440,11 @@ namespace BaseLib.Xwt.Controls
                             hh += rowh[row];
                         }
                     }
-                    //       SetScroll(ww, rowh);
-                    //          sync_viewpos();
+                    this.scroller.Refresh();
                 }
             }
         }
-        
+
 
         /// <summary>
         /// Gets or sets the data source from which to get the data of the items
@@ -552,7 +547,7 @@ namespace BaseLib.Xwt.Controls
                 this.dirty = true;
                 return;
             }
-            if (this.DataSource.RowCount == 0)
+            if (this.DataSource.RowCount == 0) // clearing or already cleared?
             {
                 if (this.rows.Count > 0)
                 {
@@ -568,6 +563,10 @@ namespace BaseLib.Xwt.Controls
                     }
                     this.rows.Clear();
                     this.selectedRows.Clear();
+                }
+                else
+                {
+                    return;
                 }
             }
             else

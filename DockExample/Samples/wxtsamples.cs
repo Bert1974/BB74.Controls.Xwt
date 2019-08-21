@@ -9,37 +9,16 @@ using Xwt.Drawing;
 
 namespace DockExample
 {
-    internal class xwtsample : FrameBox, IDockDocument
-    {
-        Widget IDockContent.Widget => this;
-        string IDockContent.TabText => "XwtSamples";
-        IDockPane IDockContent.DockPane { get; set; }
-        public Widget Widget { get; private set; }
-
-        public xwtsample(xwtsamples toolbar, Widget widget)
-        {
-            this.Widget = widget;
-            this.Content = widget;
-            widget.ExpandHorizontal = widget.ExpandVertical = true;
-        }
-
-        internal void Set(Widget widget)
-        {
-            this.Content = null;
-            this.Widget.Dispose();
-            this.Content = this.Widget = widget;
-        }
-    }
     internal class xwtsamples : FrameBox, IDockToolbar
     {
-            private TreeStore store;
+        protected TreeStore store;
+        protected Assembly a = null;
         private WindowFrame mainwwindowxwt;
         private TreeView samplesTree;
-
-        public Widget Widget => this;
-        public string TabText => "XwtSamples";
+        
+        public virtual string TabText => "Xwt.Samples";
         public IDockPane DockPane { get; set; }
-
+        Widget IDockContent.Widget => this;
 
         public xwtsamples(WindowFrame mainwin)
         {
@@ -47,7 +26,7 @@ namespace DockExample
             this.BackgroundColor = Colors.White;
             base.ExpandHorizontal = ExpandVertical = true;
 
-            TryeGetSamples(null);
+            TryGetSamples(null);
 
             if (this.store == null)
             {
@@ -65,11 +44,11 @@ namespace DockExample
         {
             if (this.store == null)
             {
-                TryeGetSamples((this as IDockContent).DockPane.DockPanel.ParentWindow);
+                TryGetSamples((this as IDockContent).DockPane.DockPanel.ParentWindow);
             }
         }
 
-        private void Wxtsamples_SelectionChanged(object sender, EventArgs e)
+        protected virtual void Wxtsamples_SelectionChanged(object sender, EventArgs e)
         {
             if (samplesTree.SelectedRow != null)
             {
@@ -110,11 +89,10 @@ namespace DockExample
                 }
             }
         }        
-        private void TryeGetSamples(WindowFrame mainwin)
+        private void TryGetSamples(WindowFrame mainwin)
         {
             if (this.store == null)
             {
-                Assembly a = null;
                 try
                 {
                     a = Assembly.LoadFile(Program.MainSettings.xmlsampledllpath);
@@ -142,21 +120,30 @@ namespace DockExample
                     {
                         AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
+                        // crate samples main window
                         this.mainwwindowxwt = (WindowFrame)Activator.CreateInstance(a.GetType("Samples.MainWindow"));
-                        var content = (HPaned)mainwwindowxwt.GetType().GetProperty("Content", BindingFlags.Public | BindingFlags.Instance).GetValue(mainwwindowxwt, new object[0]);
-                        this.samplesTree = content.Panel1.Content as TreeView;
-                        content.Panel1.Content = null;
-                        this.Content = samplesTree;
-                        this.store = samplesTree.DataSource as TreeStore;
-
-                       samplesTree.GetType().GetField("selectionChanged", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(samplesTree, null);
                         typeof(WindowFrame).GetField("closeRequested", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(mainwwindowxwt, null);
-                        
+
+                        this.samplesTree = FillTree(this.mainwwindowxwt, out this.store);
+
                         samplesTree.SelectionChanged += Wxtsamples_SelectionChanged;
+
+                        this.Content = samplesTree;
                     }
                     catch { }
                 }
             }
+        }
+
+        protected virtual TreeView FillTree(WindowFrame mainwwindowxwt, out TreeStore store)
+        {
+            var content = (HPaned)mainwwindowxwt.GetType().GetProperty("Content", BindingFlags.Public | BindingFlags.Instance).GetValue(mainwwindowxwt, new object[0]);
+            var samplesTree = content.Panel1.Content as TreeView;
+            samplesTree.GetType().GetField("selectionChanged", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(samplesTree, null);
+            content.Panel1.Content = null;
+            store = samplesTree.DataSource as TreeStore;
+
+            return samplesTree;
         }
 
         private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
@@ -166,6 +153,28 @@ namespace DockExample
                 return typeof(global::Xwt.Widget).Assembly;
             }
             return null;
+        }
+    }
+    internal class xwtsample : FrameBox, IDockDocument
+    {
+        Widget IDockContent.Widget => this;
+        public virtual string TabText => "Xwt.Sample";
+
+        public Widget Widget { get; private set; }
+        IDockPane IDockContent.DockPane { get; set; }
+
+        public xwtsample(xwtsamples toolbar, Widget widget)
+        {
+            this.Widget = widget;
+            this.Content = widget;
+            widget.ExpandHorizontal = widget.ExpandVertical = true;
+        }
+
+        internal void Set(Widget widget)
+        {
+            this.Content = null;
+            this.Widget.Dispose();
+            this.Content = this.Widget = widget;
         }
     }
 }
