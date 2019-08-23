@@ -57,7 +57,7 @@ namespace BaseLib.Xwt.Controls
         }
         protected override void OnBoundsChanged()
         {
-            this.box2.BoundsChanged();
+          //  this.box2.BoundsChanged();
          //   base.OnBoundsChanged();
         }
     }
@@ -242,11 +242,11 @@ namespace BaseLib.Xwt.Controls
             // Get the natural size of each child
             foreach (var bp in visibleChildren)
             {
-                var s1 = bp.Child.Surface.GetPreferredSize();
+                var s = bp.Child.Surface.GetPreferredSize(widthConstraint, heightConstraint, true);
                 //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
-                s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
-                var s4 = bp.Child.Size;
-                var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
+             //   s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
+                //var s4 = bp.Child.Size;
+               // var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { widthConstraint, heightConstraint });
                 minsize[bp] = vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
                 nextsize[bp] = Math.Max(minsize[bp], vertical ? s.Height : s.Width);
                 if (minsize[bp] < 0) minsize[bp] = nextsize[bp];
@@ -342,11 +342,11 @@ namespace BaseLib.Xwt.Controls
             // Get the natural size of each child
             foreach (var bp in visibleChildren)
             {
-                var s1 = bp.Child.Surface.GetPreferredSize();
+                var s = bp.Child.Surface.GetPreferredSize(SizeConstraint.Unconstrained, SizeConstraint.Unconstrained, true);
                 //   var s2 = bp.Child.GetBackend().GetPreferredSize(widthConstraint, heightConstraint);
-                s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
-                var s4 = bp.Child.Size;
-                var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+              //  s3 = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
+               // var s4 = bp.Child.Size;
+              //  var s = (Size)bp.Child.GetType().InvokePrivate(bp.Child, "OnGetPreferredSize", new object[] { SizeConstraint.Unconstrained, SizeConstraint.Unconstrained });
                 minsize[bp] = vertical ? MinHeight(bp.Child, s) : MinWidth(bp.Child, s);
                 nextsize[bp] = Math.Max(minsize[bp], vertical ? s.Height : s.Width);
                 if (minsize[bp] < 0) minsize[bp] = nextsize[bp]; ;
