@@ -42,7 +42,7 @@ namespace DockExample
             this.store = new TreeStore(nameCol, iconCol, widgetCol);
 
             var bb = AddSample(null, "BB74", null, null);
-            AddSample(bb, "Boxes", typeof(Samples.PropertyGrid), null);
+            AddSample(bb, "PropertyGrid", typeof(Samples.PropertyGrid), null);
 
             var w = AddSample(null, "Widgets", null, null);
             AddSample(w, "Boxes", typeof(Samples.Boxes), "Samples.Boxes");
@@ -73,8 +73,8 @@ namespace DockExample
                     {
                */         var docwin = DockPane.DockPanel.AllContent.OfType<bb74sample>().FirstOrDefault();
                 // dual view
-                var w1 = sampleinfo.Type != null ? (Widget)Activator.CreateInstance(sampleinfo.Type) : null;
-                var w2 = sampleinfo.OriginalType != null ? (Widget)Activator.CreateInstance(sampleinfo.OriginalType): null;
+                var w1 = (Widget)Activator.CreateInstance(sampleinfo.Type);
+                var w2 = sampleinfo.OriginalType != null ? (Widget)Activator.CreateInstance(sampleinfo.OriginalType) : (Widget)Activator.CreateInstance(sampleinfo.Type);
 
                         if (docwin == null)
                         {
@@ -135,20 +135,41 @@ namespace DockExample
         public bb74sample(xwtsamples toolbar, Widget w1, Widget w2)
         {
             this.Margin = 0;
+
+            this.Panel1.Content = CreateView();
+            this.Panel2.Content = CreateView();
+
             Set(w1, w2);
+        }
+
+        private Widget CreateView()
+        {
+            var  r =new VBox2();
+
+            r.PackStart(new Label() { ExpandHorizontal = true }, false, true);
+            r.PackStart(new FrameBox(), true, true);
+            return r;
         }
 
         internal void Set(Widget w1, Widget w2)
         {
             IDisposable o1 = this.Widget1, o2 = this.Widget2;
 
-            this.Panel1.Content = null;
-            this.Panel2.Content = null;
+            var l1 = (Label)(this.Panel1.Content as VBox2).Children.First();
+            var l2 = (Label)(this.Panel2.Content as VBox2).Children.First();
+            var f1 = (FrameBox)(this.Panel1.Content as VBox2).Children.Skip(1).First();
+            var f2 = (FrameBox)(this.Panel2.Content as VBox2).Children.Skip(1).First();
+
+            l1.Text = "BB74";
+            l2.Text = w2.GetType().FullName.StartsWith("Samples") ? "Xwt" : "BB74";
+
+            f1.Content = null;
+            f2.Content = null;
 
             this.Widget1 = w1;
             this.Widget2 = w2;
-            this.Panel1.Content = w1;
-            this.Panel2.Content = w2;
+            f1.Content = w1;
+            f2.Content = w2;
 
             o1?.Dispose();
             o2?.Dispose();
