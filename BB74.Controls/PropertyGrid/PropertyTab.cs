@@ -595,14 +595,14 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             var parentvalue = this.GetValue(item.Parent);
             item.PropertyDescriptor.SetValue(parentvalue, value);
 
-            if (item.Parent.PropertyDescriptor.PropertyType.IsValueType)
+            
             {
-                if (item.Parent == null)
+                if (item.Parent.Parent == null)
                 {
          //       Debug.Assert(item.Parent != null); // no struct at root right now
                     this.SelectedObjects = new object[] { parentvalue };
                 }
-                else
+                else if (item.Parent.PropertyDescriptor?.PropertyType.IsValueType??false)
                 {
                     _SetValue(item.Parent, parentvalue);
                 }
