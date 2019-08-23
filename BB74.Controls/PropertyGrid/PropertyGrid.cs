@@ -175,6 +175,8 @@ namespace BaseLib.Xwt.Controls.PropertyGrid
             {
                 this.toolbar.Add(NewButton(tab));
             }
+            this.toolbar.Visible = this.Tabs.Count > 1;
+        
        //     this.viewtable.QueueForReallocate();
         }
         private Button NewButton(PropertyTab tab)
