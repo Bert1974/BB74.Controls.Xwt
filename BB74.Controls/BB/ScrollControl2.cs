@@ -60,6 +60,14 @@ namespace BaseLib.Xwt.Controls
                 this.MouseScrolled += (s, a) => { this.owner.DoScroll(a.Direction); a.Handled = true; };
                 this.ClipToBounds();
             }
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    this.Content = null;
+                }
+                base.Dispose(disposing);
+            }
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
                 return this.owner.ViewSize;
@@ -99,14 +107,6 @@ namespace BaseLib.Xwt.Controls
                 this.owner = owner;
                 this.HorizontalPlacement = this.VerticalPlacement = WidgetPlacement.Fill;
                 this.ClipToBounds();
-            }
-            protected override void Dispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    this.Content = null;
-                }
-                base.Dispose(disposing);
             }
             protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
             {
