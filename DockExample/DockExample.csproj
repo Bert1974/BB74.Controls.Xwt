@@ -72,6 +72,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Samples\bb74samples.cs" />
+    <Compile Include="Samples\Boxes.cs" />
+    <Compile Include="Samples\PropertyGrid.cs" />
     <Compile Include="Samples\wxtsamples.cs" />
     <Compile Include="toolbars.cs" />
     <Compile Include="mainwindow.cs" />

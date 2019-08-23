@@ -28,125 +28,122 @@ using System;
 using Xwt;
 using Xwt.Drawing;
 
-namespace DockExample
+namespace DockExample.Samples
 {
-	public class ScrollWindowSample: VBox
-	{
-		public ScrollWindowSample ()
-		{
-			var v1 = new ScrollControl2(); // ScrollView
-            VBox b1 = new VBox ();
-			for (int n=0; n<30; n++)
-				b1.PackStart (new Label ("Line " + n));
-			Button u = new Button ("Click to remove");
-			u.Clicked += delegate {
-				b1.Remove (u);
+    public class ScrollWindowSample : VBox2
+    {
+        public ScrollWindowSample()
+        {
+            var v1 = new ScrollControl2(); // ScrollView
+            VBox b1 = new VBox2();
+            for (int n = 0; n < 30; n++)
+                b1.PackStart(new Label("Line " + n));
+            Button u = new Button("Click to remove");
+            u.Clicked += delegate
+            {
+                b1.Remove(u);
                 v1.Refresh();
             };
-			b1.PackStart (u);
-			
-			v1.Content = b1;
-			v1.VerticalScrollPolicy = ScrollPolicy.Always;
-			v1.BorderVisible = false;
-			PackStart (v1, fill:true, expand:true);
+            b1.PackStart(u);
+
+            v1.Content = b1;
+            v1.VerticalScrollPolicy = ScrollPolicy.Always;
+            v1.BorderVisible = false;
+            PackStart(v1, fill: true, expand: true);
 
             var v2 = new ScrollControl2();// new ScrollView ();
-			VBox b2 = new VBox ();
-			for (int n=0; n<10; n++)
-				b2.PackStart (new Label ("Line " + n));
-			v2.Content = b2;
-			v2.VerticalScrollPolicy = ScrollPolicy.Never;
-			PackStart (v2, fill:true, expand:true);
-			
-			var v3 = new ScrollControl2();// new ScrollView ();
-            VBox b3 = new VBox2 ();
-			Button b = new Button ("Click to add items");
-			b.Clicked += delegate {
-				for (int n=0; n<10; n++)
-					b3.PackStart (new Label ("Line " + n));
-                v3.Refresh();
-			};
-			b3.PackStart (b);
-			v3.Content = b3;
-			v3.VerticalScrollPolicy = ScrollPolicy.Automatic;
-			PackStart (v3, fill:true, expand:true);
-			
-			var v4 = new ScrollView ();
-            PackStart (v4, fill:true, expand:true);
-			var sb = new ScrollableCanvas();
-			v4.Content = sb;
-			v4.VerticalScrollPolicy = ScrollPolicy.Always;
-		}
-	}
-	
-	class ScrollableCanvas: Canvas
-	{
-		//ScrollAdjustment hscroll;
-		//ScrollAdjustment vscroll;
-		int imageSize = 500;
-		
-		public ScrollableCanvas ()
-		{
-			MinWidth = 100;
-			MinHeight = 100;
-		}
-		
-		protected override void OnDraw (Context ctx, Rectangle dirtyRect)
-		{
-		//	ctx.Save ();
-		//	ctx.Translate (-hscroll.Value, -vscroll.Value);
-			ctx.Rectangle (new Rectangle (0, 0, imageSize, imageSize));
-			ctx.SetColor (Xwt.Drawing.Colors.LightYellow);
-			ctx.Fill ();
-			ctx.Arc (imageSize / 2, imageSize / 2, imageSize / 2 - 20, 0, 360);
-			ctx.SetColor (new Color (0,0,1));
-			ctx.Fill ();
-		//	ctx.Restore ();
+            VBox b2 = new VBox2();
+            for (int n = 0; n < 10; n++)
+                b2.PackStart(new Label("Line " + n));
+            v2.Content = b2;
+            v2.VerticalScrollPolicy = ScrollPolicy.Never;
+            PackStart(v2, fill: true, expand: true);
 
-		//	ctx.Rectangle (0, 0, Bounds.Width, 30);
-		//	ctx.SetColor (new Color (1, 0, 0, 0.5));
-		//	ctx.Fill ();
-		}
+            var v3 = new ScrollControl2();// new ScrollView ();
+            VBox b3 = new VBox2();
+            Button b = new Button("Click to add items");
+            b.Clicked += delegate
+            {
+                for (int n = 0; n < 10; n++)
+                    b3.PackStart(new Label("Line " + n));
+                v3.Refresh();
+            };
+            b3.PackStart(b);
+            v3.Content = b3;
+            v3.VerticalScrollPolicy = ScrollPolicy.Automatic;
+            PackStart(v3, fill: true, expand: true);
+
+            var v4 = new ScrollControl2();
+            PackStart(v4, fill: true, expand: true);
+            var sb = new ScrollableCanvas();
+            v4.Content = sb;
+            v4.VerticalScrollPolicy = ScrollPolicy.Always;
+        }
+    }
+
+    class ScrollableCanvas : Canvas
+    {
+        ScrollAdjustment hscroll;
+        ScrollAdjustment vscroll;
+        int imageSize = 500;
+
+        public ScrollableCanvas()
+        {
+            MinWidth = 100;
+            MinHeight = 100;
+        }
+
+        protected override void OnDraw(Context ctx, Rectangle dirtyRect)
+        {
+        //   	ctx.Save ();
+        //   	ctx.Translate (-hscroll.Value, -vscroll.Value);
+            ctx.Rectangle(new Rectangle(0, 0, imageSize, imageSize));
+            ctx.SetColor(Xwt.Drawing.Colors.LightYellow);
+            ctx.Fill();
+            ctx.Arc(imageSize / 2, imageSize / 2, imageSize / 2 - 20, 0, 360);
+            ctx.SetColor(new Color(0, 0, 1));
+            ctx.Fill();
+        //   	ctx.Restore ();
+
+            //	ctx.Rectangle (0, 0, Bounds.Width, 30);
+            //	ctx.SetColor (new Color (1, 0, 0, 0.5));
+            //	ctx.Fill ();
+        }
 
         protected override Size OnGetPreferredSize(SizeConstraint widthConstraint, SizeConstraint heightConstraint)
         {
-            return new Size(imageSize, imageSize);
+                return new Size(imageSize, imageSize);
         }
 
-        /*	protected override bool SupportsCustomScrolling {
-                get {
-                    return true;
-                }
-            }
-
-            protected override void SetScrollAdjustments (ScrollAdjustment horizontal, ScrollAdjustment vertical)
+        protected override bool SupportsCustomScrolling
+        {
+            get
             {
-                hscroll = horizontal;
-                vscroll = vertical;
-
-                hscroll.UpperValue = imageSize;
-                hscroll.PageIncrement = Bounds.Width;
-                hscroll.PageSize = Bounds.Width;
-                hscroll.ValueChanged += delegate {
-                    QueueDraw ();
-                };
-
-                vscroll.UpperValue = imageSize;
-                vscroll.PageIncrement = Bounds.Height;
-                vscroll.PageSize = Bounds.Height;
-                vscroll.ValueChanged += delegate {
-                    QueueDraw ();
-                };
+                return true;
             }
-            */
-            protected override void OnBoundsChanged ()
+        }
+
+        protected override void SetScrollAdjustments(ScrollAdjustment horizontal, ScrollAdjustment vertical)
+        {
+            hscroll = horizontal;
+            vscroll = vertical;
+
+            hscroll.UpperValue = imageSize;
+            hscroll.PageIncrement = Bounds.Width;
+            hscroll.PageSize = 1;// Bounds.Width;
+            hscroll.ValueChanged += delegate
             {
-            /*     if (vscroll == null)
-                     return;
-                 vscroll.PageSize = vscroll.PageIncrement = Bounds.Height;
-                 hscroll.PageSize = hscroll.PageIncrement = Bounds.Width;*/
-            this.QueueDraw();
-            }
+                QueueDraw();
+            };
+
+            vscroll.UpperValue = imageSize;
+            vscroll.PageIncrement = Bounds.Height;
+            vscroll.PageSize = 1;// Bounds.Height;
+            vscroll.ValueChanged += delegate
+            {
+                QueueDraw();
+            };
+        }
     }
 }
 

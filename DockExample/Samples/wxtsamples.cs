@@ -2,6 +2,7 @@
 using BaseLib.Xwt.Controls.DockPanel;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xwt;
@@ -15,13 +16,18 @@ namespace DockExample
         protected Assembly a = null;
         private WindowFrame mainwwindowxwt;
         private TreeView samplesTree;
-        
+        protected readonly Image icon;
+
         public virtual string TabText => "Xwt.Samples";
         public IDockPane DockPane { get; set; }
         Widget IDockContent.Widget => this;
 
         public xwtsamples(WindowFrame mainwin)
         {
+            using (var ms = new MemoryStream(DockExample.Properties.Resources.document_generic))
+            {
+                icon = Image.FromStream(ms);
+            }
             this.MinWidth = this.MinHeight = 100;
             this.BackgroundColor = Colors.White;
             base.ExpandHorizontal = ExpandVertical = true;

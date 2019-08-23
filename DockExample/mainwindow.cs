@@ -33,6 +33,10 @@ namespace DockExample
             {
                 return new xwtsamples(dockpanel.ParentWindow);
             }
+            if (type == typeof(bb74xwtsamples))
+            {
+                return new bb74xwtsamples(dockpanel.ParentWindow);
+            }
             return null;
         }
         
@@ -47,13 +51,18 @@ namespace DockExample
             var menu = new Menu();
             var file = new MenuItem("_File");
             file.SubMenu = new Menu();
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New Xwt", new_xwtsamples));
             file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New window", new_mainwindow));
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New testdoc", new_testdoc));
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New toolbar", new_toolbar));
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New google", new_webview));
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New properties", new_properties));
-            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New winlist", (s, a) => dock.Dock(new winlisttoolitem(), DockPosition.Left)));
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New Xwt Samples (needs dll)", new_xwtsamples));
+            file.SubMenu.Items.Add(UIHelpers.NewMenuItem("New BB74 Controls Samples", new_bb74samples));
+
+            var m = new MenuItem("other");
+            file.SubMenu.Items.Add(m);
+            m.SubMenu = new Menu();
+            m.SubMenu.Items.Add(UIHelpers.NewMenuItem("New testdoc", new_testdoc));
+            m.SubMenu.Items.Add(UIHelpers.NewMenuItem("New toolbar", new_toolbar));
+            m.SubMenu.Items.Add(UIHelpers.NewMenuItem("New google", new_webview));
+            m.SubMenu.Items.Add(UIHelpers.NewMenuItem("New properties", new_properties));
+            m.SubMenu.Items.Add(UIHelpers.NewMenuItem("New winlist", (s, a) => dock.Dock(new winlisttoolitem(), DockPosition.Left)));
             //   file.SubMenu.Items.Add(new MenuItem("_Open"));
             //    file.SubMenu.Items.Add(new MenuItem("_New"));
             var mi = new MenuItem("_Close");
@@ -84,7 +93,12 @@ namespace DockExample
         private void new_xwtsamples(object s, EventArgs e)
         {
             var dockwin = new xwtsamples(this);
-            dock.Dock(dockwin);
+            dock.Dock(dockwin, DockPosition.Left);
+        }
+        private void new_bb74samples(object s, EventArgs e)
+        {
+            var dockwin = new bb74xwtsamples(this);
+            dock.Dock(dockwin, DockPosition.Left);
         }
         protected override void OnShown()
         {

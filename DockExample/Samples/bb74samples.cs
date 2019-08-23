@@ -2,6 +2,7 @@
 using BaseLib.Xwt.Controls.DockPanel;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,9 +18,8 @@ namespace DockExample
         private readonly DataField<string> nameCol = new DataField<string>();
         private readonly DataField<sampleinfo> widgetCol = new DataField<sampleinfo>();
         private readonly DataField<Image> iconCol = new DataField<Image>();
-        private new readonly TreeStore store;
-        private readonly TreeView samplesTree;
-        private readonly Image icon;
+        private new TreeStore store;
+        private TreeView samplesTree;
 
         private struct sampleinfo
         {
@@ -28,13 +28,6 @@ namespace DockExample
         public bb74xwtsamples(WindowFrame mainwin)
             : base(mainwin)
         {
-            using (var ms = new MemoryStream(DockExample.Properties.Resources.document_generic))
-            {
-                icon = Image.FromStream(ms);
-            }
-            store = new TreeStore(nameCol, iconCol, widgetCol);
-            samplesTree = new TreeView() { ExpandHorizontal = true, ExpandVertical = true };
-            samplesTree.Columns.Add("Name", iconCol, nameCol);
 
         }
         private TreePosition AddSample(TreePosition pos, string name, Type sampletype, string orgsampletype)
@@ -45,8 +38,20 @@ namespace DockExample
         }
         protected override TreeView FillTree(WindowFrame mainwwindowxwt, out TreeStore store)
         {
+            Debug.Assert(this.store == null);
+            this.store = new TreeStore(nameCol, iconCol, widgetCol);
+
+            var bb = AddSample(null, "BB74", null, null);
+            AddSample(bb, "Boxes", typeof(Samples.PropertyGrid), null);
+
             var w = AddSample(null, "Widgets", null, null);
-            AddSample(w, "Scroll View", typeof(ScrollWindowSample), "Samples.ScrollWindowSample");
+            AddSample(w, "Boxes", typeof(Samples.Boxes), "Samples.Boxes");
+            //     var listView = AddSample(w, "ListView", typeof(ListView1), "Samples.ListView1");
+            //     AddSample(listView, "Editable Checkboxes", typeof(ListView2), "Samples.ListView2");
+            AddSample(w, "Scroll View", typeof(Samples.ScrollWindowSample), "Samples.ScrollWindowSample");
+
+            samplesTree = new TreeView() { ExpandHorizontal = true, ExpandVertical = true };
+            samplesTree.Columns.Add("Name", iconCol, nameCol);
 
             samplesTree.DataSource = this.store;
 
@@ -60,16 +65,16 @@ namespace DockExample
                 var nav = store.GetNavigatorAt(samplesTree.SelectedRow);
                 var sampleinfo = nav.GetValue(widgetCol);
 
-                Type widgettype = null;
+              /*   Type widgettype = null;
 
-                if (sampleinfo.Type != null)
+               if (sampleinfo.Type != null)
                 {
                     if (sampleinfo.OriginalType != null)
                     {
-                        var docwin = DockPane.DockPanel.AllContent.OfType<bb74sample>().FirstOrDefault();
-                        // dual view
-                        var w1 = (Widget)Activator.CreateInstance(sampleinfo.Type);
-                        var w2 = (Widget)Activator.CreateInstance(sampleinfo.OriginalType);
+               */         var docwin = DockPane.DockPanel.AllContent.OfType<bb74sample>().FirstOrDefault();
+                // dual view
+                var w1 = sampleinfo.Type != null ? (Widget)Activator.CreateInstance(sampleinfo.Type) : null;
+                var w2 = sampleinfo.OriginalType != null ? (Widget)Activator.CreateInstance(sampleinfo.OriginalType): null;
 
                         if (docwin == null)
                         {
@@ -80,7 +85,7 @@ namespace DockExample
                             docwin.Set(w1, w2);
                         }
                         return;
-                    }
+              /*      }
                     else
                     {
                         widgettype = sampleinfo.Type;
@@ -114,11 +119,11 @@ namespace DockExample
                         DockPane.DockPanel.Dock(new xwtsample(this, widget));
                         return;
                     }
-                }
+                }*/
             }
         }
     }
-    internal class bb74sample : HBox2, IDockDocument
+    internal class bb74sample : HPaned, IDockDocument
     {
         Widget IDockContent.Widget => this;
         public virtual string TabText => "BB74-.Sample";
@@ -129,18 +134,22 @@ namespace DockExample
         
         public bb74sample(xwtsamples toolbar, Widget w1, Widget w2)
         {
-            this.Spacing = 0;
+            this.Margin = 0;
             Set(w1, w2);
         }
 
         internal void Set(Widget w1, Widget w2)
         {
             IDisposable o1 = this.Widget1, o2 = this.Widget2;
-            this.Clear();
+
+            this.Panel1.Content = null;
+            this.Panel2.Content = null;
+
             this.Widget1 = w1;
             this.Widget2 = w2;
-            this.PackStart(w1, true);
-            this.PackStart(w2, true);
+            this.Panel1.Content = w1;
+            this.Panel2.Content = w2;
+
             o1?.Dispose();
             o2?.Dispose();
         }
